@@ -1,16 +1,28 @@
-import express, { Request, Response } from 'express'
+import { config } from 'dotenv';
+config({ path: `.env.local`, override: true });
 
-const app = express()
-const port = process.env.PORT || 8080
+import express, { Request, Response } from 'express';
+import { createMessage } from './utils/mailgun';
+
+const app = express();
+const port = process.env.PORT || 5000;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.get('/', (_req: Request, res: Response) => {
-	return res.send('Express Typescript on Vercel')
-})
+	return res.send('Express Typescript on Vercel');
+});
 
 app.get('/ping', (_req: Request, res: Response) => {
-	return res.send('pong 🏓')
-})
+	return res.send('pong 🏓');
+});
+
+app.get('/send', async (_req: Request, res: Response) => {
+	const msg = await createMessage('mahmoudalsoht@gmail.com');
+	res.status(200).send(msg);
+});
 
 app.listen(port, () => {
-	return console.log(`Server is listening on ${port}`)
-})
+	return console.log(`Server is listening on ${port}`);
+});
