@@ -1,5 +1,7 @@
 import { config } from 'dotenv';
-config({ path: `.env.local`, override: true });
+if (process.env.NODE_ENV !== 'production') {
+	config({ path: `.env.local`, override: true });
+}
 
 import express, { Request, Response } from 'express';
 import { createMessage } from './utils/mailgun';
@@ -19,8 +21,15 @@ app.get('/ping', (_req: Request, res: Response) => {
 });
 
 app.get('/send', async (_req: Request, res: Response) => {
-	const msg = await createMessage('mahmoudalsoht@gmail.com');
-	res.status(200).send(msg);
+	try {
+		const msg = await createMessage(
+			'mahmoudalsoht@gmail.com',
+		);
+		return res.status(200).send({ msg });
+	} catch (e) {
+		console.error(e);
+		return res.status(404).send({ e });
+	}
 });
 
 app.listen(port, () => {
