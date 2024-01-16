@@ -12,7 +12,7 @@ export const createMessage = async (email: string) => {
 		const msg = await mg.messages.create(
 			process.env.MAILGUN_DOMAIN,
 			{
-				from: 'mStore Team <me@samples.mailgun.org>',
+				from: 'm-store Team <me@samples.mailgun.org>',
 				to: email,
 				subject: 'hello',
 				text: 'Testing some Mailgun awesomeness!',
