@@ -5,33 +5,28 @@ if (process.env.NODE_ENV !== 'production') {
 
 import express, { Request, Response } from 'express';
 import { createMessage } from './utils/mailgun';
+import cors from 'cors';
+import createATemplate from './emailHtml';
 
 const app = express();
 const port = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use(cors({ origin: '*' }));
 
-app.get('/', (_req: Request, res: Response) => {
-	return res.send('Express Typescript on Vercel');
-});
-
-app.get('/ping', (_req: Request, res: Response) => {
-	return res.send('pong 🏓');
-});
-
-app.get('/send', async (_req: Request, res: Response) => {
+app.post('/send', async (req: Request, res: Response) => {
 	try {
-		const msg = await createMessage(
-			'mahmoudalsoht@gmail.com',
-		);
-		return res.status(200).send({ msg });
+		const { username, email, products } = req.body;
+		const html = await createATemplate(products, username);
+		await createMessage(email, html);
+		res.sendStatus(200);
 	} catch (e) {
 		console.error(e);
-		return res.status(404).send({ e });
+		res.status(404).send({ e });
 	}
 });
 
 app.listen(port, () => {
-	return console.log(`Server is listening on ${port}`);
+	return console.log(`http://localhost:${port}`);
 });

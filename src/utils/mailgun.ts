@@ -7,19 +7,20 @@ const mg = mailgun.client({
 	key: process.env.MAILGUN_APIKEY,
 });
 
-export const createMessage = async (email: string) => {
+export const createMessage = async (
+	email: string,
+	html: string,
+) => {
 	try {
 		const msg = await mg.messages.create(
 			process.env.MAILGUN_DOMAIN,
 			{
 				from: 'mStore Team <me@samples.mailgun.org>',
 				to: email,
-				subject: 'hello',
-				text: 'Testing some Mailgun awesomeness!',
-				html: '<h1>Testing some Mailgun awesomeness!</h1>',
+				subject: 'Order Summary',
+				html: html,
 			},
 		);
-		console.log(msg);
 	} catch (e) {
 		console.error(e);
 	}

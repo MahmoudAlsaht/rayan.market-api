@@ -18,27 +18,26 @@ if (process.env.NODE_ENV !== 'production') {
 }
 const express_1 = __importDefault(require("express"));
 const mailgun_1 = require("./utils/mailgun");
+const cors_1 = __importDefault(require("cors"));
+const emailHtml_1 = __importDefault(require("./emailHtml"));
 const app = (0, express_1.default)();
 const port = process.env.PORT || 5000;
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
-app.get('/', (_req, res) => {
-    return res.send('Express Typescript on Vercel');
-});
-app.get('/ping', (_req, res) => {
-    return res.send('pong 🏓');
-});
-app.get('/send', (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.use((0, cors_1.default)({ origin: '*' }));
+app.post('/send', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const msg = yield (0, mailgun_1.createMessage)('mahmoudalsoht@gmail.com');
-        return res.status(200).send({ msg });
+        const { username, email, products } = req.body;
+        const html = yield (0, emailHtml_1.default)(products, username);
+        yield (0, mailgun_1.createMessage)(email, html);
+        res.sendStatus(200);
     }
     catch (e) {
         console.error(e);
-        return res.status(404).send({ e });
+        res.status(404).send({ e });
     }
 }));
 app.listen(port, () => {
-    return console.log(`Server is listening on ${port}`);
+    return console.log(`http://localhost:${port}`);
 });
 //# sourceMappingURL=index.js.map

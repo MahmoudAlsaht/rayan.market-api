@@ -20,16 +20,14 @@ const mg = mailgun.client({
     username: 'api',
     key: process.env.MAILGUN_APIKEY,
 });
-const createMessage = (email) => __awaiter(void 0, void 0, void 0, function* () {
+const createMessage = (email, html) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const msg = yield mg.messages.create(process.env.MAILGUN_DOMAIN, {
             from: 'mStore Team <me@samples.mailgun.org>',
             to: email,
-            subject: 'hello',
-            text: 'Testing some Mailgun awesomeness!',
-            html: '<h1>Testing some Mailgun awesomeness!</h1>',
+            subject: 'Order Summary',
+            html: html,
         });
-        console.log(msg);
     }
     catch (e) {
         console.error(e);
