@@ -27,8 +27,8 @@ app.use(express_1.default.urlencoded({ extended: false }));
 app.use((0, cors_1.default)({ origin: '*' }));
 app.post('/send', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username, email, products } = req.body;
-        const html = yield (0, emailHtml_1.default)(products, username);
+        const { username, email, products, orderStatus } = req.body;
+        const html = yield (0, emailHtml_1.default)(products, username, orderStatus);
         yield (0, mailgun_1.createMessage)(email, html);
         res.sendStatus(200);
     }

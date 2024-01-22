@@ -25,20 +25,30 @@ const body = (product) => `<div>
         </div>
     </div>
 </div>`;
-function createATemplate(products, username) {
+function createATemplate(products, username, orderStatus) {
     return __awaiter(this, void 0, void 0, function* () {
         const bodyProducts = [];
         for (const product of products) {
             yield bodyProducts.push(body(product));
         }
-        return (`<h1>Hello ${username}</h1>` +
-            bodyProducts +
-            `<h2>Thanks for trying my demo app</h2>` +
-            `<div>
+        return orderStatus === 'accepted'
+            ? `<h1>Hello ${username}</h1>` +
+                bodyProducts +
+                `<h2>Thanks for trying my demo app</h2>` +
+                `<div>
             <div><a href="https://github.com/MahmoudAlsaht">Github Account</a></div>
             <div><a href="https://www.linkedin.com/in/mahmoud-alsaht-0b621620a/">Linkedin Account</a></div>
             <div><a href="https://wa.me/962785384842">Whatsapp Account</a></div>
-        </div>`);
+        </div>`
+            : orderStatus === 'rejected' &&
+                `<h1>Hello ${username}</h1>` +
+                    `<div>Sorry Your Last Order Has Been Rejected</div>` +
+                    `<h2>Thanks for trying my demo app</h2>` +
+                    `<div>
+            <div><a href="https://github.com/MahmoudAlsaht">Github Account</a></div>
+            <div><a href="https://www.linkedin.com/in/mahmoud-alsaht-0b621620a/">Linkedin Account</a></div>
+            <div><a href="https://wa.me/962785384842">Whatsapp Account</a></div>
+        </div>`;
     });
 }
 exports.default = createATemplate;
