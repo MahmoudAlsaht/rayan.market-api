@@ -17,8 +17,13 @@ app.use(cors({ origin: '*' }));
 
 app.post('/send', async (req: Request, res: Response) => {
 	try {
-		const { username, email, products } = req.body;
-		const html = await createATemplate(products, username);
+		const { username, email, products, orderStatus } =
+			req.body;
+		const html = await createATemplate(
+			products,
+			username,
+			orderStatus,
+		);
 		await createMessage(email, html);
 		res.sendStatus(200);
 	} catch (e) {
