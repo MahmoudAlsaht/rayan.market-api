@@ -10,11 +10,12 @@ import express, {
 } from 'express';
 import { connectDB } from './db';
 import cors from 'cors';
+import mongoSanitize from 'express-mongo-sanitize';
+import firebaseDb from './firebase/config';
 import mailgunRouter from './router/mailgun';
 import userRouter from './router/user';
 import profileRouter from './router/profile';
-import mongoSanitize from 'express-mongo-sanitize';
-import firebaseDb from './firebase/config';
+import categoryRouter from './router/category';
 
 const application = () => {
 	const app = express();
@@ -36,6 +37,7 @@ const application = () => {
 	app.use('/', mailgunRouter);
 	app.use('/auth', userRouter);
 	app.use('/account', profileRouter);
+	app.use('/category', categoryRouter);
 
 	app.use(
 		(

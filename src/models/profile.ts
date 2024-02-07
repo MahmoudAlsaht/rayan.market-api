@@ -35,18 +35,6 @@ const ProfileSchema = new Schema<TProfile>({
 	},
 });
 
-ProfileSchema.pre(
-	'deleteOne',
-	{ document: true, query: false },
-	async function () {
-		await Image.deleteOne({
-			_id: {
-				$in: this.profileImage,
-			},
-		});
-	},
-);
-
 const Profile = model<TProfile>('Profile', ProfileSchema);
 
 export default Profile;
