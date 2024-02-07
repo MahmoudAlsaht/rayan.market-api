@@ -1,7 +1,7 @@
 import { model, Schema } from 'mongoose';
 
 export type TImage = {
-	id: string;
+	_id: string;
 	filename: string;
 	path: string;
 	imageType: string;

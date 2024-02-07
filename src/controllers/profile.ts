@@ -35,7 +35,7 @@ export const updateUserEmailAndUsername = async (
 		const profile = await Profile.findById(profile_id)
 			.populate({ path: 'user' })
 			.populate({ path: 'profileImage' });
-		const user = await User.findById(profile?.user?.id);
+		const user = await User.findById(profile?.user?._id);
 		checkPassword(password, user?.password?.hash);
 
 		if (email && email.length > 0) user.email = email;
@@ -48,8 +48,8 @@ export const updateUserEmailAndUsername = async (
 			username: user?.username,
 			email: user?.email,
 			isAdmin: user?.isAdmin,
-			profile: profile?.id,
-			id: user?.id,
+			profile: profile?._id,
+			id: user?._id,
 		});
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
@@ -69,7 +69,7 @@ export const updateUserPassword = async (
 		const profile = await Profile.findById(
 			profile_id,
 		).populate({ path: 'user' });
-		const user = await User.findById(profile?.user?.id);
+		const user = await User.findById(profile?.user?._id);
 		checkPassword(currentPassword, user?.password?.hash);
 
 		if (newPassword)
@@ -96,13 +96,13 @@ export const uploadProfileImage = async (
 		const profile = await Profile.findById(profile_id)
 			.populate({ path: 'user' })
 			.populate({ path: 'profileImage' });
-		const user = await User.findById(profile?.user?.id);
+		const user = await User.findById(profile?.user?._id);
 		checkPassword(password, user?.password?.hash);
 
 		if (imageURL && imageURL.length > 0) {
 			const image = await new Image({
 				path: imageURL,
-				filename: `profilesImages/${profile?.id}'s-Image`,
+				filename: `profilesImages/${profile?._id}'s-Image`,
 				imageType: 'profileImage',
 				doc: profile,
 			});
@@ -129,11 +129,11 @@ export const removeAccount = async (
 		const profile = await Profile.findById(profile_id)
 			.populate({ path: 'profileImage' })
 			.populate({ path: 'user' });
-		const user = await User.findById(profile?.user?.id);
+		const user = await User.findById(profile?.user?._id);
 		checkPassword(password, user?.password?.hash);
 
 		const profileImage = await Image.findById(
-			profile?.profileImage?.id,
+			profile?.profileImage?._id,
 		);
 
 		if (profileImage) {

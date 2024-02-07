@@ -2,7 +2,7 @@ import { model, Schema } from 'mongoose';
 import Profile, { TProfile } from './profile';
 
 export type TUser = {
-	id: string;
+	_id: string;
 	username: string;
 	email: string;
 	password: { hash: string; salt: string };

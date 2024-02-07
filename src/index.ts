@@ -16,6 +16,7 @@ import mailgunRouter from './router/mailgun';
 import userRouter from './router/user';
 import profileRouter from './router/profile';
 import categoryRouter from './router/category';
+import productRouter from './router/product';
 
 const application = () => {
 	const app = express();
@@ -38,6 +39,7 @@ const application = () => {
 	app.use('/auth', userRouter);
 	app.use('/account', profileRouter);
 	app.use('/category', categoryRouter);
+	app.use('/product', productRouter);
 
 	app.use(
 		(

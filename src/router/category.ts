@@ -6,6 +6,7 @@ import {
 	getCategories,
 	getCategory,
 	updateCategory,
+	getCategoryProducts,
 } from '../controllers/category';
 const router = express.Router();
 
@@ -19,5 +20,10 @@ router
 	.get(expressAsyncHandler(getCategory))
 	.put(expressAsyncHandler(updateCategory))
 	.delete(expressAsyncHandler(deleteCategory));
+
+router.get(
+	'/:category_id/products',
+	expressAsyncHandler(getCategoryProducts),
+);
 
 export default router;

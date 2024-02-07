@@ -3,7 +3,7 @@ import Image, { TImage } from './image';
 import { TUser } from './user';
 
 export type TProfile = {
-	id: string;
+	_id: string;
 	user: TUser;
 	profileImage?: TImage | null;
 	contactsInfo?: [
