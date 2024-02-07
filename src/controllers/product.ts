@@ -151,10 +151,10 @@ export const deleteProduct = async (
 			product?.category?._id,
 		).populate('products');
 
-		const categoryProducts = category.products.filter(
-			(currProduct) => currProduct._id !== product?._id,
-		);
-		category.products = categoryProducts;
+		await category.updateOne({
+			$pull: { products: product_id },
+		});
+
 		await category.save();
 
 		for (const image of product?.productImages) {
