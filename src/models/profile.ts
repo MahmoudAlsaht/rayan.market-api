@@ -1,20 +1,13 @@
 import { model, Schema } from 'mongoose';
 import Image, { TImage } from './image';
 import { TUser } from './user';
+import { TContactInfo } from './contact';
 
 export type TProfile = {
 	_id: string;
 	user: TUser;
 	profileImage?: TImage | null;
-	contactsInfo?: [
-		{
-			address: {
-				city: string;
-				street: string;
-			};
-			contactNumber: string;
-		},
-	];
+	contacts?: TContactInfo[];
 };
 
 const ProfileSchema = new Schema<TProfile>({
@@ -26,13 +19,12 @@ const ProfileSchema = new Schema<TProfile>({
 		type: Schema.Types.ObjectId,
 		ref: 'Image',
 	},
-	contactsInfo: {
-		address: {
-			city: String,
-			street: String,
+	contacts: [
+		{
+			type: Schema.Types.ObjectId,
+			ref: 'Contact',
 		},
-		contactNumber: String,
-	},
+	],
 });
 
 const Profile = model<TProfile>('Profile', ProfileSchema);

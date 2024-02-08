@@ -18,6 +18,7 @@ import profileRouter from './router/profile';
 import categoryRouter from './router/category';
 import productRouter from './router/product';
 import bannerRouter from './router/banner';
+import contactRouter from './router/contact';
 
 const application = () => {
 	const app = express();
@@ -42,6 +43,7 @@ const application = () => {
 	app.use('/category', categoryRouter);
 	app.use('/product', productRouter);
 	app.use('/banner', bannerRouter);
+	app.use('/account/:profile_id', contactRouter);
 
 	app.use(
 		(
