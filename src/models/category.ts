@@ -4,7 +4,7 @@ import { TProduct } from './product';
 export type TCategory = {
 	_id: string;
 	name: string;
-	products?: TProduct[];
+	products: TProduct[];
 	createdAt: Date;
 };
 

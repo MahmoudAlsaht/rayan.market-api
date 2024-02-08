@@ -36,22 +36,21 @@ export const createProduct = async (
 			newPrice,
 			isOffer,
 		} = req.body;
-		const category = await Category.findById(categoryId);
 
-		const product = await new Product({
+		const product = new Product({
 			name,
-			category,
 			price,
 			quantity,
 			newPrice,
 			isOffer,
 			createdAt: new Date(),
 		});
-		await category.products.push(product);
-		await category.save();
+		const category = await Category.findById(categoryId);
+		category.products.push(product);
+		product.category = category;
 		if (imagesUrls && imagesUrls.length > 0) {
 			for (const imageUrl of imagesUrls) {
-				const image = await new Image({
+				const image = new Image({
 					path: imageUrl?.url,
 					filename: `products/${category?._id}/${imageUrl?.fileName}'s-Image`,
 					imageType: 'productImage',
@@ -62,8 +61,10 @@ export const createProduct = async (
 			}
 		}
 		await product.save();
+		await category.save();
 		res.status(200).send(product);
 	} catch (e: any) {
+		console.log(e);
 		next(new ExpressError(e.message, 404));
 		res.status(404);
 	}
