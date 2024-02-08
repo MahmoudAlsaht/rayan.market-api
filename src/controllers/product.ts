@@ -52,7 +52,7 @@ export const createProduct = async (
 			for (const imageUrl of imagesUrls) {
 				const image = new Image({
 					path: imageUrl?.url,
-					filename: `products/${category?._id}/${imageUrl?.fileName}'s-Image`,
+					filename: `products/${categoryId}/${imageUrl?.fileName}'s-Image`,
 					imageType: 'productImage',
 					doc: product,
 				});
@@ -120,7 +120,7 @@ export const updateProduct = async (
 			for (const imageUrl of imagesUrls) {
 				const image = await new Image({
 					path: imageUrl?.url,
-					filename: `products/${category?._id}/${imageUrl?.fileName}'s-Image`,
+					filename: `products/${category}/${imageUrl?.fileName}'s-Image`,
 					imageType: 'productImage',
 					doc: product,
 				});
@@ -164,7 +164,7 @@ export const deleteProduct = async (
 		}
 
 		await product.deleteOne();
-		res.status(200).send(product);
+		res.status(200).send(product_id);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
 		res.status(404);

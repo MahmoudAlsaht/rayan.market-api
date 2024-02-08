@@ -1,28 +1,28 @@
 import { Request, Response, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
-import Product from '../models/product';
+import Banner from '../models/banner';
 import Image from '../models/image';
 import { deleteImage } from '../firebase/firestore/destroyFile';
 
-export const getProductImages = async (
+export const getBannerImages = async (
 	req: Request,
 	res: Response,
 	next: NextFunction,
 ) => {
 	try {
-		const { product_id } = req.params;
-		const product = await Product.findById(
-			product_id,
-		).populate('productImages');
+		const { banner_id } = req.params;
+		const banner = await Banner.findById(banner_id).populate(
+			'bannerImages',
+		);
 
-		res.status(200).send(product?.productImages);
+		res.status(200).send(banner?.bannerImages);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
 		res.status(404);
 	}
 };
 
-export const getProductImage = async (
+export const getBannerImage = async (
 	req: Request,
 	res: Response,
 	next: NextFunction,
@@ -43,14 +43,14 @@ export const removeImage = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { product_id, image_id } = req.params;
+		const { banner_id, image_id } = req.params;
 		const image = await Image.findById(image_id);
-		const product = await Product.findById(product_id);
+		const banner = await Banner.findById(banner_id);
 		await deleteImage(image?.filename);
-		await product.updateOne({
-			$pull: { productImages: image_id },
+		await banner.updateOne({
+			$pull: { bannerImages: image_id },
 		});
-		await product.save();
+		await banner.save();
 		await image?.deleteOne();
 		res.status(200).send(image_id);
 	} catch (e: any) {

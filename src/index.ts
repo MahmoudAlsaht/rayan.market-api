@@ -17,6 +17,7 @@ import userRouter from './router/user';
 import profileRouter from './router/profile';
 import categoryRouter from './router/category';
 import productRouter from './router/product';
+import bannerRouter from './router/banner';
 
 const application = () => {
 	const app = express();
@@ -40,6 +41,7 @@ const application = () => {
 	app.use('/account', profileRouter);
 	app.use('/category', categoryRouter);
 	app.use('/product', productRouter);
+	app.use('/banner', bannerRouter);
 
 	app.use(
 		(
