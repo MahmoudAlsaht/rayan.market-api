@@ -133,7 +133,6 @@ export const updateOrderStatus = async (
 		await order.save();
 		res.status(200).send(order);
 	} catch (e: any) {
-		console.log(e);
 		next(new ExpressError(e.message, e.status));
 		res.status(404);
 	}
