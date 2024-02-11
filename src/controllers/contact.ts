@@ -14,7 +14,6 @@ export const getContacts = async (
 			profile_id,
 		).populate('contacts');
 
-		console.log('contacts');
 		res.status(200).send(profile?.contacts);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));

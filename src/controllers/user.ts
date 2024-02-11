@@ -5,6 +5,7 @@ import ExpressError from '../middlewares/expressError';
 import { checkPassword, genPassword } from '../utils';
 import bcrypt from 'bcrypt';
 import AnonymousUser from '../models/anonymousUser';
+import Contact from '../models/contact';
 
 export const signup = async (
 	req: Request,
@@ -54,7 +55,7 @@ export const signup = async (
 			email: user?.email,
 			isAdmin: user?.isAdmin,
 			profile: profile?.id,
-			id: user?.id,
+			_id: user?._id,
 		});
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
@@ -91,7 +92,7 @@ export const signin = async (
 			email: user?.email,
 			isAdmin: user?.isAdmin,
 			profile: user?.profile,
-			id: user?.id,
+			_id: user?._id,
 		});
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
@@ -111,7 +112,7 @@ export const createAnonymousUser = async (
 			email,
 			city,
 			street,
-			phoneNumber,
+			contactNumber,
 		} = req.body;
 
 		const emailRegex =
@@ -129,15 +130,19 @@ export const createAnonymousUser = async (
 			throw new Error('Invalid username');
 		}
 
+		const contact = new Contact({
+			address: {
+				city,
+				street,
+			},
+			contactNumber,
+		});
+		await contact.save();
 		const anonymousUser = await new AnonymousUser({
 			email,
-			firstName,
-			lastName,
-			contactsInfo: {
-				address: { city, street },
-				phoneNumber,
-			},
-		});
+			username: `${firstName} ${lastName}`,
+			contact,
+		}).populate('contact');
 
 		await anonymousUser.save();
 

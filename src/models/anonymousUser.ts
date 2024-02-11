@@ -1,34 +1,23 @@
 import { model, Schema } from 'mongoose';
+import { TOrder } from './order';
+import { TContactInfo } from './contact';
 
 export type TAnonymousUser = {
-	id: string;
-	firstName: string;
-	lastName: string;
+	_id: string;
+	username: string;
 	email: string;
-	contactsInfo?: [
-		{
-			address: {
-				city: string;
-				street: string;
-			};
-			contactNumber: string;
-		},
-	];
+	orders?: TOrder[];
+	contact?: TContactInfo;
 };
 
 const AnonymousUserSchema = new Schema<TAnonymousUser>({
-	firstName: { type: String, required: true },
-	lastName: { type: String, required: true },
+	username: { type: String, required: true },
 	email: { type: String, required: true },
-	contactsInfo: [
-		{
-			address: {
-				city: String,
-				street: String,
-			},
-			contactNumber: String,
-		},
-	],
+	contact: {
+		type: Schema.Types.ObjectId,
+		ref: 'Contact',
+	},
+	orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
 });
 
 const AnonymousUser = model<TAnonymousUser>(

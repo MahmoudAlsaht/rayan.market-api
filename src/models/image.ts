@@ -1,11 +1,14 @@
 import { model, Schema } from 'mongoose';
+import { TProfile } from './profile';
+import { TProduct } from './product';
+import { TBanner } from './banner';
 
 export type TImage = {
 	_id: string;
 	filename: string;
 	path: string;
 	imageType: string;
-	doc?: any;
+	doc?: TProfile | TProduct | TBanner;
 };
 
 const ImageSchema = new Schema<TImage>({

@@ -39,9 +39,9 @@ export const createProduct = async (
 
 		const product = new Product({
 			name,
-			price,
-			quantity,
-			newPrice,
+			price: parseInt(price),
+			quantity: parseInt(quantity),
+			newPrice: newPrice && parseInt(newPrice),
 			isOffer,
 			createdAt: new Date(),
 		});

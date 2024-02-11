@@ -1,5 +1,6 @@
 import { model, Schema } from 'mongoose';
 import Profile, { TProfile } from './profile';
+import { TOrder } from './order';
 
 export type TUser = {
 	_id: string;
@@ -9,7 +10,7 @@ export type TUser = {
 	phoneNumber?: string;
 	isAdmin: boolean;
 	profile: TProfile;
-	orders?: string[];
+	orders?: TOrder[];
 };
 
 const UserSchema = new Schema<TUser>({
@@ -28,6 +29,7 @@ const UserSchema = new Schema<TUser>({
 	isAdmin: { type: Boolean, required: true, default: false },
 	phoneNumber: { type: String, required: false },
 	profile: { type: Schema.Types.ObjectId, ref: 'Profile' },
+	orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
 });
 
 UserSchema.pre(
