@@ -1,5 +1,4 @@
 import { model, Schema } from 'mongoose';
-import { TProfile } from './profile';
 import { TProduct } from './product';
 import { TBanner } from './banner';
 
@@ -8,7 +7,7 @@ export type TImage = {
 	filename: string;
 	path: string;
 	imageType: string;
-	doc?: TProfile | TProduct | TBanner;
+	doc?: TProduct | TBanner;
 };
 
 const ImageSchema = new Schema<TImage>({
@@ -28,11 +27,9 @@ const ImageSchema = new Schema<TImage>({
 		type: Schema.Types.ObjectId,
 		required: true,
 		ref: function () {
-			return this.imageType === 'profileImage'
-				? 'Profile'
-				: this.imageType === 'productImage'
+			return this.imageType === 'productImage'
 				? 'Product'
-				: 'Banner';
+				: this.imageType === 'bannerImage' && 'Banner';
 		},
 	},
 });

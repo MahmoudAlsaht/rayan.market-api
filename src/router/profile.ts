@@ -5,7 +5,6 @@ import {
 	removeAccount,
 	updateUserEmailAndUsername,
 	updateUserPassword,
-	uploadProfileImage,
 } from '../controllers/profile';
 const router = express.Router();
 
@@ -22,11 +21,6 @@ router.post(
 router.post(
 	'/profile/:profile_id/updateUserPassword',
 	expressAsyncHandler(updateUserPassword),
-);
-
-router.post(
-	'/profile/:profile_id/upload-profile-image',
-	expressAsyncHandler(uploadProfileImage),
 );
 
 router.delete(

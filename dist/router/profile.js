@@ -10,7 +10,6 @@ const router = express_1.default.Router();
 router.get('/profile/:profile_id', (0, express_async_handler_1.default)(profile_1.fetchProfile));
 router.post('/profile/:profile_id/updateUserEmailAndUsername', (0, express_async_handler_1.default)(profile_1.updateUserEmailAndUsername));
 router.post('/profile/:profile_id/updateUserPassword', (0, express_async_handler_1.default)(profile_1.updateUserPassword));
-router.post('/profile/:profile_id/upload-profile-image', (0, express_async_handler_1.default)(profile_1.uploadProfileImage));
 router.delete('/profile/:profile_id/delete-account', (0, express_async_handler_1.default)(profile_1.removeAccount));
 exports.default = router;
 //# sourceMappingURL=profile.js.map

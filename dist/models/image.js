@@ -18,11 +18,9 @@ const ImageSchema = new mongoose_1.Schema({
         type: mongoose_1.Schema.Types.ObjectId,
         required: true,
         ref: function () {
-            return this.imageType === 'profileImage'
-                ? 'Profile'
-                : this.imageType === 'productImage'
-                    ? 'Product'
-                    : 'Banner';
+            return this.imageType === 'productImage'
+                ? 'Product'
+                : this.imageType === 'bannerImage' && 'Banner';
         },
     },
 });

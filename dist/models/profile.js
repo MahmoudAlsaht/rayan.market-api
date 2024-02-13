@@ -6,10 +6,6 @@ const ProfileSchema = new mongoose_1.Schema({
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'User',
     },
-    profileImage: {
-        type: mongoose_1.Schema.Types.ObjectId,
-        ref: 'Image',
-    },
     contacts: [
         {
             type: mongoose_1.Schema.Types.ObjectId,
