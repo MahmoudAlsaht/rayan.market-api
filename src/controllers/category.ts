@@ -24,7 +24,9 @@ export const getCategory = async (
 ) => {
 	try {
 		const { category_id } = req.params;
-		const category = await Category.findById(category_id);
+		const category = await Category.findById(
+			category_id,
+		).populate('products');
 		res.status(200).send(category);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));

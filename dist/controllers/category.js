@@ -29,7 +29,7 @@ exports.getCategories = getCategories;
 const getCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { category_id } = req.params;
-        const category = yield category_1.default.findById(category_id);
+        const category = yield category_1.default.findById(category_id).populate('products');
         res.status(200).send(category);
     }
     catch (e) {
