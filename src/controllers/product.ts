@@ -4,8 +4,50 @@ import Product from '../models/product';
 import Image from '../models/image';
 import Category from '../models/category';
 import { deleteImage } from '../firebase/firestore/destroyFile';
+import { checkIfOfferEnded, remainingDays } from '../utils';
 
 export const getProducts = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const products = await Product.find()
+			.populate('productImages')
+			.populate('category');
+		const sendProducts = [];
+
+		for (const product of products) {
+			if (product?.isOffer) {
+				if (
+					checkIfOfferEnded(
+						product?.lastModified,
+						product?.offerExpiresDate,
+					)
+				) {
+					product.isOffer = false;
+					product.newPrice = null;
+					product.offerExpiresDate = 0;
+					await product.save();
+					sendProducts.push({
+						...product,
+						isOffer: false,
+						newPrice: null,
+						offerExpiresDate: 0,
+					});
+				}
+			}
+			sendProducts.push(product);
+		}
+
+		res.status(200).send(sendProducts);
+	} catch (e: any) {
+		next(new ExpressError(e.message, 404));
+		res.status(404);
+	}
+};
+
+export const filterProducts = async (
 	req: Request,
 	res: Response,
 	next: NextFunction,
@@ -20,7 +62,6 @@ export const getProducts = async (
 		res.status(404);
 	}
 };
-
 export const createProduct = async (
 	req: Request,
 	res: Response,
@@ -35,6 +76,7 @@ export const createProduct = async (
 			imagesUrls,
 			newPrice,
 			isOffer,
+			offerExpiresDate,
 		} = req.body;
 
 		const product = new Product({
@@ -44,7 +86,9 @@ export const createProduct = async (
 			newPrice: newPrice && parseInt(newPrice),
 			isOffer,
 			createdAt: new Date(),
+			lastModified: new Date(),
 		});
+		if (isOffer) product.offerExpiresDate = offerExpiresDate;
 		const category = await Category.findById(categoryId);
 		category.products.push(product);
 		product.category = category;
@@ -103,17 +147,20 @@ export const updateProduct = async (
 			imagesUrls,
 			newPrice,
 			isOffer,
+			offerExpiresDate,
 		} = req.body;
 
 		const product = await Product.findById(
 			product_id,
 		).populate('productImages');
 
+		product.lastModified = new Date();
 		if (name) product.name = name;
 		if (price) product.price = price;
 		if (quantity) product.quantity = quantity;
 		if (category) product.category = category;
 		if (newPrice) product.newPrice = newPrice;
+		if (isOffer) product.offerExpiresDate = offerExpiresDate;
 		product.isOffer = isOffer;
 
 		if (imagesUrls && imagesUrls.length > 0) {

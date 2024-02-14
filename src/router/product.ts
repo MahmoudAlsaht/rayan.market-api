@@ -6,6 +6,7 @@ import {
 	updateProduct,
 	createProduct,
 	deleteProduct,
+	filterProducts,
 } from '../controllers/product';
 import {
 	getProductImages,
@@ -19,6 +20,11 @@ router
 	.route('/')
 	.get(expressAsyncHandler(getProducts))
 	.post(expressAsyncHandler(createProduct));
+
+router.get(
+	'/filter-products',
+	expressAsyncHandler(filterProducts),
+);
 
 router
 	.route('/:product_id')

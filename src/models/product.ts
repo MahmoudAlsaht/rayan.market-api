@@ -7,11 +7,14 @@ export type TProduct = {
 	name: string;
 	productImages?: TImage[] | null;
 	createdAt: Date;
+	lastModified: Date;
 	price: number;
 	newPrice?: number;
 	quantity: number;
 	category: TCategory;
 	isOffer?: boolean;
+	offerExpiresDate?: number;
+	remaining?: number;
 };
 
 const ProductSchema = new Schema<TProduct>({
@@ -29,10 +32,8 @@ const ProductSchema = new Schema<TProduct>({
 		type: Schema.Types.ObjectId,
 		ref: 'Category',
 	},
-	createdAt: {
-		type: Date,
-		required: true,
-	},
+	createdAt: Date,
+	lastModified: Date,
 	price: {
 		type: Number,
 		required: true,
@@ -40,6 +41,8 @@ const ProductSchema = new Schema<TProduct>({
 	newPrice: Number,
 	quantity: { type: Number, required: true },
 	isOffer: { type: Boolean, default: false },
+	offerExpiresDate: { type: Number, default: 0 },
+	remaining: Number,
 });
 
 const Product = model<TProduct>('Product', ProductSchema);
