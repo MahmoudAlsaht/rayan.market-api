@@ -29,10 +29,8 @@ const ProductSchema = new mongoose_1.Schema({
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Category',
     },
-    createdAt: {
-        type: Date,
-        required: true,
-    },
+    createdAt: Date,
+    lastModified: Date,
     price: {
         type: Number,
         required: true,
@@ -40,6 +38,8 @@ const ProductSchema = new mongoose_1.Schema({
     newPrice: Number,
     quantity: { type: Number, required: true },
     isOffer: { type: Boolean, default: false },
+    offerExpiresDate: { type: Number, default: 0 },
+    remaining: Number,
 });
 const Product = (0, mongoose_1.model)('Product', ProductSchema);
 ProductSchema.pre('deleteOne', { document: true, query: false }, function () {

@@ -12,13 +12,40 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProduct = exports.updateProduct = exports.getProduct = exports.createProduct = exports.getProducts = void 0;
+exports.deleteProduct = exports.updateProduct = exports.getProduct = exports.createProduct = exports.filterProducts = exports.getProducts = void 0;
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const product_1 = __importDefault(require("../models/product"));
 const image_1 = __importDefault(require("../models/image"));
 const category_1 = __importDefault(require("../models/category"));
 const destroyFile_1 = require("../firebase/firestore/destroyFile");
+const utils_1 = require("../utils");
 const getProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const products = yield product_1.default.find()
+            .populate('productImages')
+            .populate('category');
+        const sendProducts = [];
+        for (const product of products) {
+            if (product === null || product === void 0 ? void 0 : product.isOffer) {
+                if ((0, utils_1.checkIfOfferEnded)(product === null || product === void 0 ? void 0 : product.lastModified, product === null || product === void 0 ? void 0 : product.offerExpiresDate)) {
+                    product.isOffer = false;
+                    product.newPrice = null;
+                    product.offerExpiresDate = 0;
+                    yield product.save();
+                    sendProducts.push(Object.assign(Object.assign({}, product), { isOffer: false, newPrice: null, offerExpiresDate: 0 }));
+                }
+            }
+            sendProducts.push(product);
+        }
+        res.status(200).send(sendProducts);
+    }
+    catch (e) {
+        next(new expressError_1.default(e.message, 404));
+        res.status(404);
+    }
+});
+exports.getProducts = getProducts;
+const filterProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const products = yield product_1.default.find()
             .populate('productImages')
@@ -30,10 +57,10 @@ const getProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         res.status(404);
     }
 });
-exports.getProducts = getProducts;
+exports.filterProducts = filterProducts;
 const createProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, categoryId, price, quantity, imagesUrls, newPrice, isOffer, } = req.body;
+        const { name, categoryId, price, quantity, imagesUrls, newPrice, isOffer, offerExpiresDate, } = req.body;
         const product = new product_1.default({
             name,
             price: parseInt(price),
@@ -41,7 +68,10 @@ const createProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             newPrice: newPrice && parseInt(newPrice),
             isOffer,
             createdAt: new Date(),
+            lastModified: new Date(),
         });
+        if (isOffer)
+            product.offerExpiresDate = offerExpiresDate;
         const category = yield category_1.default.findById(categoryId);
         category.products.push(product);
         product.category = category;
@@ -83,8 +113,9 @@ exports.getProduct = getProduct;
 const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { product_id } = req.params;
-        const { name, price, quantity, category, imagesUrls, newPrice, isOffer, } = req.body;
+        const { name, price, quantity, category, imagesUrls, newPrice, isOffer, offerExpiresDate, } = req.body;
         const product = yield product_1.default.findById(product_id).populate('productImages');
+        product.lastModified = new Date();
         if (name)
             product.name = name;
         if (price)
@@ -95,6 +126,8 @@ const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             product.category = category;
         if (newPrice)
             product.newPrice = newPrice;
+        if (isOffer)
+            product.offerExpiresDate = offerExpiresDate;
         product.isOffer = isOffer;
         if (imagesUrls && imagesUrls.length > 0) {
             for (const imageUrl of imagesUrls) {

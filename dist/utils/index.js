@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.isAdmin = exports.isAuthenticated = exports.checkPassword = exports.genPassword = void 0;
+exports.remainingDays = exports.checkIfOfferEnded = exports.isAdmin = exports.isAuthenticated = exports.checkPassword = exports.genPassword = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const genPassword = (password) => __awaiter(void 0, void 0, void 0, function* () {
     const salt = yield bcrypt_1.default.genSalt(10);
@@ -33,4 +33,21 @@ const isAdmin = (user) => __awaiter(void 0, void 0, void 0, function* () {
     return !(0, exports.isAuthenticated)(user) ? false : user.isAdmin;
 });
 exports.isAdmin = isAdmin;
+const checkIfOfferEnded = (createdAt, expireDate) => {
+    const todyDate = new Date();
+    const created = new Date(createdAt);
+    const diff = todyDate.getTime() - created.getTime();
+    const days = Math.round(diff / (1000 * 3600 * 24));
+    return days > expireDate;
+};
+exports.checkIfOfferEnded = checkIfOfferEnded;
+const remainingDays = (createdAt, expireDate) => {
+    const todyDate = new Date();
+    const created = new Date(createdAt);
+    const diff = todyDate.getTime() - created.getTime();
+    const days = Math.round(diff / (1000 * 3600 * 24));
+    console.log(expireDate - days);
+    return expireDate - days;
+};
+exports.remainingDays = remainingDays;
 //# sourceMappingURL=index.js.map
