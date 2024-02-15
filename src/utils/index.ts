@@ -31,7 +31,7 @@ export const checkIfOfferEnded = (
 	const todyDate = new Date();
 	const created = new Date(createdAt);
 	const diff = todyDate.getTime() - created.getTime();
-	const days = Math.round(diff / (1000 * 3600 * 24));
+	const days = diff / (1000 * 3600 * 24);
 	return days > expireDate;
 };
 

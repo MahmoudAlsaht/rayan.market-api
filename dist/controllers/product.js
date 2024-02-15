@@ -31,7 +31,8 @@ const getProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
                     product.isOffer = false;
                     product.newPrice = null;
                     product.offerExpiresDate = 0;
-                    yield product.save();
+                    (product.lastModified = new Date()),
+                        yield product.save();
                     sendProducts.push(Object.assign(Object.assign({}, product), { isOffer: false, newPrice: null, offerExpiresDate: 0 }));
                 }
             }
