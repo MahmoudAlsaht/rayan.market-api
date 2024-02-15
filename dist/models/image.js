@@ -23,6 +23,7 @@ const ImageSchema = new mongoose_1.Schema({
                 : this.imageType === 'bannerImage' && 'Banner';
         },
     },
+    link: String,
 });
 const Image = (0, mongoose_1.model)('Image', ImageSchema);
 exports.default = Image;

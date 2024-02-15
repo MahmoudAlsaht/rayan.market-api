@@ -8,6 +8,7 @@ export type TImage = {
 	path: string;
 	imageType: string;
 	doc?: TProduct | TBanner;
+	link?: string;
 };
 
 const ImageSchema = new Schema<TImage>({
@@ -32,6 +33,7 @@ const ImageSchema = new Schema<TImage>({
 				: this.imageType === 'bannerImage' && 'Banner';
 		},
 	},
+	link: String,
 });
 
 const Image = model<TImage>('Image', ImageSchema);

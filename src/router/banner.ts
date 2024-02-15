@@ -12,9 +12,10 @@ import {
 	getBannerImages,
 	getBannerImage,
 	removeImage,
+	updateImageLink,
 } from '../controllers/bannerImages';
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 router
 	.route('/')
@@ -35,6 +36,7 @@ router
 router
 	.route('/:banner_id/images/:image_id')
 	.get(expressAsyncHandler(getBannerImage))
-	.delete(expressAsyncHandler(removeImage));
+	.delete(expressAsyncHandler(removeImage))
+	.put(expressAsyncHandler(updateImageLink));
 
 export default router;

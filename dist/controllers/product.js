@@ -42,6 +42,7 @@ const getProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     catch (e) {
         next(new expressError_1.default(e.message, 404));
         res.status(404);
+        5;
     }
 });
 exports.getProducts = getProducts;

@@ -37,6 +37,27 @@ export const getBannerImage = async (
 	}
 };
 
+export const updateImageLink = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { image_id, banner_id } = req.params;
+		const { link } = req.body;
+		await Image.findByIdAndUpdate(image_id, {
+			link,
+		});
+		const banner = await Banner.findById(banner_id).populate(
+			'bannerImages',
+		);
+		res.status(200).send(banner);
+	} catch (e: any) {
+		next(new ExpressError(e.message, 404));
+		res.status(404);
+	}
+};
+
 export const removeImage = async (
 	req: Request,
 	res: Response,

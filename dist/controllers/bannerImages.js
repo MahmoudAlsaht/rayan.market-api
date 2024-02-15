@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeImage = exports.getBannerImage = exports.getBannerImages = void 0;
+exports.removeImage = exports.updateImageLink = exports.getBannerImage = exports.getBannerImages = void 0;
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const banner_1 = __importDefault(require("../models/banner"));
 const image_1 = __importDefault(require("../models/image"));
@@ -41,6 +41,22 @@ const getBannerImage = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     }
 });
 exports.getBannerImage = getBannerImage;
+const updateImageLink = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { image_id, banner_id } = req.params;
+        const { link } = req.body;
+        yield image_1.default.findByIdAndUpdate(image_id, {
+            link,
+        });
+        const banner = yield banner_1.default.findById(banner_id).populate('bannerImages');
+        res.status(200).send(banner);
+    }
+    catch (e) {
+        next(new expressError_1.default(e.message, 404));
+        res.status(404);
+    }
+});
+exports.updateImageLink = updateImageLink;
 const removeImage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { banner_id, image_id } = req.params;

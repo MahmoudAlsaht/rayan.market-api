@@ -44,6 +44,7 @@ export const getProducts = async (
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
 		res.status(404);
+		5;
 	}
 };
 

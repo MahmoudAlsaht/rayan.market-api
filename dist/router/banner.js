@@ -7,7 +7,7 @@ const express_1 = __importDefault(require("express"));
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const banner_1 = require("../controllers/banner");
 const bannerImages_1 = require("../controllers/bannerImages");
-const router = express_1.default.Router();
+const router = express_1.default.Router({ mergeParams: true });
 router
     .route('/')
     .get((0, express_async_handler_1.default)(banner_1.getBanners))
@@ -24,6 +24,7 @@ router
 router
     .route('/:banner_id/images/:image_id')
     .get((0, express_async_handler_1.default)(bannerImages_1.getBannerImage))
-    .delete((0, express_async_handler_1.default)(bannerImages_1.removeImage));
+    .delete((0, express_async_handler_1.default)(bannerImages_1.removeImage))
+    .put((0, express_async_handler_1.default)(bannerImages_1.updateImageLink));
 exports.default = router;
 //# sourceMappingURL=banner.js.map
