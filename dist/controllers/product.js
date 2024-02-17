@@ -63,11 +63,12 @@ exports.filterProducts = filterProducts;
 const createProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, categoryId, price, quantity, imagesUrls, newPrice, isOffer, offerExpiresDate, } = req.body;
+        console.log(price);
         const product = new product_1.default({
             name,
-            price: parseInt(price),
+            price: parseFloat(price),
             quantity: parseInt(quantity),
-            newPrice: newPrice && parseInt(newPrice),
+            newPrice: newPrice && parseFloat(newPrice),
             isOffer,
             createdAt: new Date(),
             lastModified: new Date(),
@@ -90,6 +91,7 @@ const createProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             }
         }
         yield product.save();
+        console.log(product === null || product === void 0 ? void 0 : product.price);
         yield category.save();
         res.status(200).send(product);
     }
@@ -116,12 +118,13 @@ const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     try {
         const { product_id } = req.params;
         const { name, price, quantity, category, imagesUrls, newPrice, isOffer, offerExpiresDate, } = req.body;
+        console.log(price);
         const product = yield product_1.default.findById(product_id).populate('productImages');
         product.lastModified = new Date();
         if (name)
             product.name = name;
         if (price)
-            product.price = price;
+            product.price = parseFloat(price);
         if (quantity)
             product.quantity = quantity;
         if (category)
@@ -144,6 +147,7 @@ const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             }
         }
         yield product.save();
+        console.log(product === null || product === void 0 ? void 0 : product.price);
         res.status(200).send(product);
     }
     catch (e) {

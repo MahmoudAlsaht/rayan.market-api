@@ -81,11 +81,13 @@ export const createProduct = async (
 			offerExpiresDate,
 		} = req.body;
 
+		console.log(price);
+
 		const product = new Product({
 			name,
-			price: parseInt(price),
+			price: parseFloat(price),
 			quantity: parseInt(quantity),
-			newPrice: newPrice && parseInt(newPrice),
+			newPrice: newPrice && parseFloat(newPrice),
 			isOffer,
 			createdAt: new Date(),
 			lastModified: new Date(),
@@ -107,6 +109,7 @@ export const createProduct = async (
 			}
 		}
 		await product.save();
+		console.log(product?.price);
 		await category.save();
 		res.status(200).send(product);
 	} catch (e: any) {
@@ -152,13 +155,15 @@ export const updateProduct = async (
 			offerExpiresDate,
 		} = req.body;
 
+		console.log(price);
+
 		const product = await Product.findById(
 			product_id,
 		).populate('productImages');
 
 		product.lastModified = new Date();
 		if (name) product.name = name;
-		if (price) product.price = price;
+		if (price) product.price = parseFloat(price);
 		if (quantity) product.quantity = quantity;
 		if (category) product.category = category;
 		if (newPrice) product.newPrice = newPrice;
@@ -179,6 +184,7 @@ export const updateProduct = async (
 		}
 		await product.save();
 
+		console.log(product?.price);
 		res.status(200).send(product);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
