@@ -1,8 +1,9 @@
 {
-	"name": "mstoreapi",
+	"name": "rayan.market-api",
 	"version": "1.0.0",
 	"description": "",
 	"main": "index.js",
+	"homepage": "https://MahmoudAlsaht.github.io/rayan.market-api/",
 	"scripts": {
 		"start": "nodemon src/index.ts",
 		"build": "npx tsc"
