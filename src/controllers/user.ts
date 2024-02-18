@@ -7,7 +7,7 @@ import AnonymousUser from '../models/anonymousUser';
 import Contact from '../models/contact';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
-const { SECRET_1, SECRET_2 } = process.env;
+const { SECRET_1 } = process.env;
 
 export const checkUser = async (
 	req: Request,
