@@ -5,7 +5,7 @@ import ExpressError from '../middlewares/expressError';
 import { checkPassword, genPassword } from '../utils';
 import AnonymousUser from '../models/anonymousUser';
 import Contact from '../models/contact';
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 const { SECRET_1 } = process.env;
 

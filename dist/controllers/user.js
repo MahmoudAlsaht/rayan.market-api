@@ -20,7 +20,7 @@ const utils_1 = require("../utils");
 const anonymousUser_1 = __importDefault(require("../models/anonymousUser"));
 const contact_1 = __importDefault(require("../models/contact"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const { SECRET_1, SECRET_2 } = process.env;
+const { SECRET_1 } = process.env;
 const checkUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const authHeader = req.headers['authorization'];
