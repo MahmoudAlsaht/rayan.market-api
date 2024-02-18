@@ -45,7 +45,7 @@ const updateUserPhoneAndUsername = (req, res, next) => __awaiter(void 0, void 0,
         res.status(200).send({
             username: user === null || user === void 0 ? void 0 : user.username,
             phone: user === null || user === void 0 ? void 0 : user.phone,
-            isAdmin: user === null || user === void 0 ? void 0 : user.isAdmin,
+            role: user === null || user === void 0 ? void 0 : user.role,
             profile: profile === null || profile === void 0 ? void 0 : profile._id,
             id: user === null || user === void 0 ? void 0 : user._id,
         });

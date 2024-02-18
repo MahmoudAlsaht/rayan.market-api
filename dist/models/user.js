@@ -27,7 +27,7 @@ const UserSchema = new mongoose_1.Schema({
             required: true,
         },
     },
-    isAdmin: { type: Boolean, required: true, default: false },
+    role: { type: String, required: true, default: 'customer' },
     profile: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Profile' },
     orders: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Order' }],
 });

@@ -7,7 +7,7 @@ export type TUser = {
 	username: string;
 	phone: string;
 	password: { hash: string; salt: string };
-	isAdmin: boolean;
+	role: string;
 	profile: TProfile;
 	orders?: TOrder[];
 };
@@ -25,7 +25,7 @@ const UserSchema = new Schema<TUser>({
 			required: true,
 		},
 	},
-	isAdmin: { type: Boolean, required: true, default: false },
+	role: { type: String, required: true, default: 'customer' },
 	profile: { type: Schema.Types.ObjectId, ref: 'Profile' },
 	orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
 });

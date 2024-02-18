@@ -3,7 +3,6 @@ import User from '../models/user';
 import Profile from '../models/profile';
 import ExpressError from '../middlewares/expressError';
 import { checkPassword, genPassword } from '../utils';
-import bcrypt from 'bcrypt';
 import AnonymousUser from '../models/anonymousUser';
 import Contact from '../models/contact';
 
@@ -13,7 +12,7 @@ export const signup = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { username, phone, password, isAdmin } = req.body;
+		const { username, phone, password } = req.body;
 
 		const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
 
@@ -24,8 +23,8 @@ export const signup = async (
 		const user = await new User({
 			phone,
 			username,
+			email: null,
 			password: await genPassword(password),
-			isAdmin,
 		});
 
 		const profile = await new Profile({
@@ -40,13 +39,13 @@ export const signup = async (
 		res.status(200).send({
 			username: user?.username,
 			phone: user?.phone,
-			isAdmin: user?.isAdmin,
+			role: user?.role,
 			profile: profile?.id,
 			_id: user?._id,
 		});
 	} catch (e: any) {
+		console.log(e);
 		next(new ExpressError(e.message, 404));
-		res.status(404).send({ error: e.message });
 	}
 };
 
@@ -68,7 +67,7 @@ export const signin = async (
 		res.status(200).send({
 			username: user?.username,
 			phone: user?.phone,
-			isAdmin: user?.isAdmin,
+			role: user?.role,
 			profile: user?.profile,
 			_id: user?._id,
 		});

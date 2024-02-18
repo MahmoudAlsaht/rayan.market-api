@@ -21,7 +21,7 @@ const anonymousUser_1 = __importDefault(require("../models/anonymousUser"));
 const contact_1 = __importDefault(require("../models/contact"));
 const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username, phone, password, isAdmin } = req.body;
+        const { username, phone, password } = req.body;
         const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
         if (username.search(usernameRegrex) !== -1) {
             throw new Error('Invalid username');
@@ -29,8 +29,8 @@ const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         const user = yield new user_1.default({
             phone,
             username,
+            email: null,
             password: yield (0, utils_1.genPassword)(password),
-            isAdmin,
         });
         const profile = yield new profile_1.default({
             user,
@@ -41,14 +41,14 @@ const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         res.status(200).send({
             username: user === null || user === void 0 ? void 0 : user.username,
             phone: user === null || user === void 0 ? void 0 : user.phone,
-            isAdmin: user === null || user === void 0 ? void 0 : user.isAdmin,
+            role: user === null || user === void 0 ? void 0 : user.role,
             profile: profile === null || profile === void 0 ? void 0 : profile.id,
             _id: user === null || user === void 0 ? void 0 : user._id,
         });
     }
     catch (e) {
+        console.log(e);
         next(new expressError_1.default(e.message, 404));
-        res.status(404).send({ error: e.message });
     }
 });
 exports.signup = signup;
@@ -62,7 +62,7 @@ const signin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         res.status(200).send({
             username: user === null || user === void 0 ? void 0 : user.username,
             phone: user === null || user === void 0 ? void 0 : user.phone,
-            isAdmin: user === null || user === void 0 ? void 0 : user.isAdmin,
+            role: user === null || user === void 0 ? void 0 : user.role,
             profile: user === null || user === void 0 ? void 0 : user.profile,
             _id: user === null || user === void 0 ? void 0 : user._id,
         });

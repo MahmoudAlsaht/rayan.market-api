@@ -21,7 +21,21 @@ export const isAuthenticated = async (user: TUser | null) => {
 };
 
 export const isAdmin = async (user: TUser | null) => {
-	return !isAuthenticated(user) ? false : user.isAdmin;
+	return !isAuthenticated(user)
+		? false
+		: user.role === 'admin';
+};
+
+export const isStaff = async (user: TUser | null) => {
+	return !isAuthenticated(user)
+		? false
+		: user.role === 'staff';
+};
+
+export const isCustomer = async (user: TUser | null) => {
+	return !isAuthenticated(user)
+		? false
+		: user.role === 'customer';
 };
 
 export const checkIfOfferEnded = (

@@ -94,7 +94,7 @@ const updateOrderStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, 
         if (updatedStatus === 'accepted' ||
             updatedStatus === 'rejected' ||
             updatedStatus === 'completed') {
-            if (!(0, utils_1.isAdmin)(user)) {
+            if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isStaff)(user)) {
                 throw new Error('You Are Not Authorized');
             }
         }

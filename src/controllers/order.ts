@@ -5,7 +5,7 @@ import Product from '../models/product';
 import User from '../models/user';
 import AnonymousUser from '../models/anonymousUser';
 import Contact from '../models/contact';
-import { isAdmin, isAuthenticated } from '../utils';
+import { isAdmin, isAuthenticated, isStaff } from '../utils';
 
 export const getOrders = async (
 	req: Request,
@@ -116,7 +116,7 @@ export const updateOrderStatus = async (
 			updatedStatus === 'rejected' ||
 			updatedStatus === 'completed'
 		) {
-			if (!isAdmin(user)) {
+			if (!isAdmin(user) || !isStaff(user)) {
 				throw new Error('You Are Not Authorized');
 			}
 		} else if (updatedStatus === 'canceled') {

@@ -45,7 +45,7 @@ export const updateUserPhoneAndUsername = async (
 		res.status(200).send({
 			username: user?.username,
 			phone: user?.phone,
-			isAdmin: user?.isAdmin,
+			role: user?.role,
 			profile: profile?._id,
 			id: user?._id,
 		});
