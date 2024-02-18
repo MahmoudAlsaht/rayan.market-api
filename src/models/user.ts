@@ -5,9 +5,8 @@ import { TOrder } from './order';
 export type TUser = {
 	_id: string;
 	username: string;
-	email: string;
+	phone: string;
 	password: { hash: string; salt: string };
-	phoneNumber?: string;
 	isAdmin: boolean;
 	profile: TProfile;
 	orders?: TOrder[];
@@ -15,7 +14,7 @@ export type TUser = {
 
 const UserSchema = new Schema<TUser>({
 	username: { type: String, required: true },
-	email: { type: String, required: true, unique: true },
+	phone: { type: String, required: true, unique: true },
 	password: {
 		hash: {
 			type: String,
@@ -27,7 +26,6 @@ const UserSchema = new Schema<TUser>({
 		},
 	},
 	isAdmin: { type: Boolean, required: true, default: false },
-	phoneNumber: { type: String, required: false },
 	profile: { type: Schema.Types.ObjectId, ref: 'Profile' },
 	orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
 });

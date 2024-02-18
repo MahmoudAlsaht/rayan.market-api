@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeAccount = exports.updateUserPassword = exports.updateUserEmailAndUsername = exports.fetchProfile = void 0;
+exports.removeAccount = exports.updateUserPassword = exports.updateUserPhoneAndUsername = exports.fetchProfile = void 0;
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const profile_1 = __importDefault(require("../models/profile"));
 const user_1 = __importDefault(require("../models/user"));
@@ -29,22 +29,22 @@ const fetchProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.fetchProfile = fetchProfile;
-const updateUserEmailAndUsername = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUserPhoneAndUsername = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
         const { profile_id } = req.params;
-        const { email, username, password } = req.body;
+        const { phone, username, password } = req.body;
         const profile = yield profile_1.default.findById(profile_id).populate({ path: 'user' });
         const user = yield user_1.default.findById((_a = profile === null || profile === void 0 ? void 0 : profile.user) === null || _a === void 0 ? void 0 : _a._id);
         (0, utils_1.checkPassword)(password, (_b = user === null || user === void 0 ? void 0 : user.password) === null || _b === void 0 ? void 0 : _b.hash);
-        if (email && email.length > 0)
-            user.email = email;
+        if (phone && phone.length > 0)
+            user.phone = phone;
         if (username && username.length > 0)
             user.username = username;
         yield user.save();
         res.status(200).send({
             username: user === null || user === void 0 ? void 0 : user.username,
-            email: user === null || user === void 0 ? void 0 : user.email,
+            phone: user === null || user === void 0 ? void 0 : user.phone,
             isAdmin: user === null || user === void 0 ? void 0 : user.isAdmin,
             profile: profile === null || profile === void 0 ? void 0 : profile._id,
             id: user === null || user === void 0 ? void 0 : user._id,
@@ -55,7 +55,7 @@ const updateUserEmailAndUsername = (req, res, next) => __awaiter(void 0, void 0,
         res.status(404).send({ error: e.message });
     }
 });
-exports.updateUserEmailAndUsername = updateUserEmailAndUsername;
+exports.updateUserPhoneAndUsername = updateUserPhoneAndUsername;
 const updateUserPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _c, _d;
     try {

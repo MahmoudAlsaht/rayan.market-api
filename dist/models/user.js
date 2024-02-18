@@ -16,7 +16,7 @@ const mongoose_1 = require("mongoose");
 const profile_1 = __importDefault(require("./profile"));
 const UserSchema = new mongoose_1.Schema({
     username: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    phone: { type: String, required: true, unique: true },
     password: {
         hash: {
             type: String,
@@ -28,7 +28,6 @@ const UserSchema = new mongoose_1.Schema({
         },
     },
     isAdmin: { type: Boolean, required: true, default: false },
-    phoneNumber: { type: String, required: false },
     profile: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Profile' },
     orders: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Order' }],
 });

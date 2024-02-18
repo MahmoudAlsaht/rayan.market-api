@@ -21,20 +21,15 @@ const anonymousUser_1 = __importDefault(require("../models/anonymousUser"));
 const contact_1 = __importDefault(require("../models/contact"));
 const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { username, email, password, phoneNumber, isAdmin, } = req.body;
-        const emailRegex = /^\w+([.-]?\w+)@\w+([.-]?\w+)(.\w{2,3})+$/;
+        const { username, phone, password, isAdmin } = req.body;
         const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
         if (username.search(usernameRegrex) !== -1) {
             throw new Error('Invalid username');
         }
-        if (!emailRegex.test(email)) {
-            throw new Error('Invalid username');
-        }
         const user = yield new user_1.default({
-            email,
+            phone,
             username,
             password: yield (0, utils_1.genPassword)(password),
-            phoneNumber,
             isAdmin,
         });
         const profile = yield new profile_1.default({
@@ -45,7 +40,7 @@ const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         yield profile.save();
         res.status(200).send({
             username: user === null || user === void 0 ? void 0 : user.username,
-            email: user === null || user === void 0 ? void 0 : user.email,
+            phone: user === null || user === void 0 ? void 0 : user.phone,
             isAdmin: user === null || user === void 0 ? void 0 : user.isAdmin,
             profile: profile === null || profile === void 0 ? void 0 : profile.id,
             _id: user === null || user === void 0 ? void 0 : user._id,
@@ -59,18 +54,14 @@ const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
 exports.signup = signup;
 const signin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { email, password } = req.body;
-        const emailRegex = /^\w+([.-]?\w+)@\w+([.-]?\w+)(.\w{2,3})+$/;
-        if (!emailRegex.test(email)) {
-            throw new Error('Invalid email, Try another email address');
-        }
-        const user = yield user_1.default.findOne({ email });
+        const { phone, password } = req.body;
+        const user = yield user_1.default.findOne({ phone });
         if (user == null)
             throw new Error('Invalid User Credentials');
         (0, utils_1.checkPassword)(password, user === null || user === void 0 ? void 0 : user.password.hash);
         res.status(200).send({
             username: user === null || user === void 0 ? void 0 : user.username,
-            email: user === null || user === void 0 ? void 0 : user.email,
+            phone: user === null || user === void 0 ? void 0 : user.phone,
             isAdmin: user === null || user === void 0 ? void 0 : user.isAdmin,
             profile: user === null || user === void 0 ? void 0 : user.profile,
             _id: user === null || user === void 0 ? void 0 : user._id,
@@ -84,14 +75,10 @@ const signin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
 exports.signin = signin;
 const createAnonymousUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { firstName, lastName, email, city, street, contactNumber, } = req.body;
-        const emailRegex = /^\w+([.-]?\w+)@\w+([.-]?\w+)(.\w{2,3})+$/;
+        const { firstName, lastName, city, street, phone } = req.body;
         const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
         if (firstName.search(usernameRegrex) !== -1 ||
             lastName.search(usernameRegrex) !== -1) {
-            throw new Error('Invalid username');
-        }
-        if (!emailRegex.test(email)) {
             throw new Error('Invalid username');
         }
         const contact = new contact_1.default({
@@ -99,11 +86,11 @@ const createAnonymousUser = (req, res, next) => __awaiter(void 0, void 0, void 0
                 city,
                 street,
             },
-            contactNumber,
+            contactNumber: phone,
         });
         yield contact.save();
         const anonymousUser = yield new anonymousUser_1.default({
-            email,
+            phone,
             username: `${firstName} ${lastName}`,
             contact,
         }).populate('contact');

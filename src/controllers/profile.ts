@@ -21,14 +21,14 @@ export const fetchProfile = async (
 	}
 };
 
-export const updateUserEmailAndUsername = async (
+export const updateUserPhoneAndUsername = async (
 	req: Request,
 	res: Response,
 	next: NextFunction,
 ) => {
 	try {
 		const { profile_id } = req.params;
-		const { email, username, password } = req.body;
+		const { phone, username, password } = req.body;
 
 		const profile = await Profile.findById(
 			profile_id,
@@ -36,7 +36,7 @@ export const updateUserEmailAndUsername = async (
 		const user = await User.findById(profile?.user?._id);
 		checkPassword(password, user?.password?.hash);
 
-		if (email && email.length > 0) user.email = email;
+		if (phone && phone.length > 0) user.phone = phone;
 		if (username && username.length > 0)
 			user.username = username;
 
@@ -44,7 +44,7 @@ export const updateUserEmailAndUsername = async (
 
 		res.status(200).send({
 			username: user?.username,
-			email: user?.email,
+			phone: user?.phone,
 			isAdmin: user?.isAdmin,
 			profile: profile?._id,
 			id: user?._id,

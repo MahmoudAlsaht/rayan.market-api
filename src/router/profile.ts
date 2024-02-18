@@ -3,7 +3,7 @@ import expressAsyncHandler from 'express-async-handler';
 import {
 	fetchProfile,
 	removeAccount,
-	updateUserEmailAndUsername,
+	updateUserPhoneAndUsername,
 	updateUserPassword,
 } from '../controllers/profile';
 const router = express.Router();
@@ -14,8 +14,8 @@ router.get(
 );
 
 router.post(
-	'/profile/:profile_id/updateUserEmailAndUsername',
-	expressAsyncHandler(updateUserEmailAndUsername),
+	'/profile/:profile_id/updateUserPhoneAndUsername',
+	expressAsyncHandler(updateUserPhoneAndUsername),
 );
 
 router.post(

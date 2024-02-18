@@ -5,14 +5,14 @@ import { TContactInfo } from './contact';
 export type TAnonymousUser = {
 	_id: string;
 	username: string;
-	email: string;
+	phone: string;
 	orders?: TOrder[];
 	contact?: TContactInfo;
 };
 
 const AnonymousUserSchema = new Schema<TAnonymousUser>({
 	username: { type: String, required: true },
-	email: { type: String, required: true },
+	phone: { type: String, required: true },
 	contact: {
 		type: Schema.Types.ObjectId,
 		ref: 'Contact',

@@ -13,31 +13,18 @@ export const signup = async (
 	next: NextFunction,
 ) => {
 	try {
-		const {
-			username,
-			email,
-			password,
-			phoneNumber,
-			isAdmin,
-		} = req.body;
+		const { username, phone, password, isAdmin } = req.body;
 
-		const emailRegex =
-			/^\w+([.-]?\w+)@\w+([.-]?\w+)(.\w{2,3})+$/;
 		const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
 
 		if (username.search(usernameRegrex) !== -1) {
 			throw new Error('Invalid username');
 		}
 
-		if (!emailRegex.test(email)) {
-			throw new Error('Invalid username');
-		}
-
 		const user = await new User({
-			email,
+			phone,
 			username,
 			password: await genPassword(password),
-			phoneNumber,
 			isAdmin,
 		});
 
@@ -52,7 +39,7 @@ export const signup = async (
 
 		res.status(200).send({
 			username: user?.username,
-			email: user?.email,
+			phone: user?.phone,
 			isAdmin: user?.isAdmin,
 			profile: profile?.id,
 			_id: user?._id,
@@ -69,18 +56,9 @@ export const signin = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { email, password } = req.body;
+		const { phone, password } = req.body;
 
-		const emailRegex =
-			/^\w+([.-]?\w+)@\w+([.-]?\w+)(.\w{2,3})+$/;
-
-		if (!emailRegex.test(email)) {
-			throw new Error(
-				'Invalid email, Try another email address',
-			);
-		}
-
-		const user = await User.findOne({ email });
+		const user = await User.findOne({ phone });
 
 		if (user == null)
 			throw new Error('Invalid User Credentials');
@@ -89,7 +67,7 @@ export const signin = async (
 
 		res.status(200).send({
 			username: user?.username,
-			email: user?.email,
+			phone: user?.phone,
 			isAdmin: user?.isAdmin,
 			profile: user?.profile,
 			_id: user?._id,
@@ -106,17 +84,9 @@ export const createAnonymousUser = async (
 	next: NextFunction,
 ) => {
 	try {
-		const {
-			firstName,
-			lastName,
-			email,
-			city,
-			street,
-			contactNumber,
-		} = req.body;
+		const { firstName, lastName, city, street, phone } =
+			req.body;
 
-		const emailRegex =
-			/^\w+([.-]?\w+)@\w+([.-]?\w+)(.\w{2,3})+$/;
 		const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
 
 		if (
@@ -126,20 +96,16 @@ export const createAnonymousUser = async (
 			throw new Error('Invalid username');
 		}
 
-		if (!emailRegex.test(email)) {
-			throw new Error('Invalid username');
-		}
-
 		const contact = new Contact({
 			address: {
 				city,
 				street,
 			},
-			contactNumber,
+			contactNumber: phone,
 		});
 		await contact.save();
 		const anonymousUser = await new AnonymousUser({
-			email,
+			phone,
 			username: `${firstName} ${lastName}`,
 			contact,
 		}).populate('contact');
