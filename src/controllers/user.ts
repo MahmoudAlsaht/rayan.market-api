@@ -5,6 +5,36 @@ import ExpressError from '../middlewares/expressError';
 import { checkPassword, genPassword } from '../utils';
 import AnonymousUser from '../models/anonymousUser';
 import Contact from '../models/contact';
+import jwt, { JwtPayload } from 'jsonwebtoken';
+
+const { SECRET_1, SECRET_2 } = process.env;
+
+export const checkUser = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const authHeader = req.headers['authorization'];
+		const token = authHeader && authHeader.split(' ')[1];
+		if (token == null) throw new Error();
+
+		const decoded: any = jwt.verify(token, SECRET_1);
+
+		const user = await User.findById(decoded.id);
+
+		res.status(200).send({
+			username: user?.username,
+			phone: user?.phone,
+			role: user?.role,
+			profile: user?.profile,
+			_id: user?._id,
+		});
+	} catch (e: any) {
+		console.log(e);
+		next(new ExpressError(e.message, 404));
+	}
+};
 
 export const signup = async (
 	req: Request,
@@ -36,12 +66,20 @@ export const signup = async (
 		await user.save();
 		await profile.save();
 
+		const token = jwt.sign(
+			{ id: user?._id, name: user?.username },
+			SECRET_1,
+		);
+
 		res.status(200).send({
-			username: user?.username,
-			phone: user?.phone,
-			role: user?.role,
-			profile: profile?.id,
-			_id: user?._id,
+			token,
+			user: {
+				username: user?.username,
+				phone: user?.phone,
+				role: user?.role,
+				profile: profile?.id,
+				_id: user?._id,
+			},
 		});
 	} catch (e: any) {
 		console.log(e);
@@ -64,12 +102,20 @@ export const signin = async (
 
 		checkPassword(password, user?.password.hash);
 
+		const token = jwt.sign(
+			{ id: user?._id, name: user?.username },
+			SECRET_1,
+		);
+
 		res.status(200).send({
-			username: user?.username,
-			phone: user?.phone,
-			role: user?.role,
-			profile: user?.profile,
-			_id: user?._id,
+			token,
+			user: {
+				username: user?.username,
+				phone: user?.phone,
+				role: user?.role,
+				profile: user?.profile,
+				_id: user?._id,
+			},
 		});
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));

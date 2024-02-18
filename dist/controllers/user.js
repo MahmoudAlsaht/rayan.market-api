@@ -12,13 +12,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAnonymousUser = exports.signin = exports.signup = void 0;
+exports.createAnonymousUser = exports.signin = exports.signup = exports.checkUser = void 0;
 const user_1 = __importDefault(require("../models/user"));
 const profile_1 = __importDefault(require("../models/profile"));
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const utils_1 = require("../utils");
 const anonymousUser_1 = __importDefault(require("../models/anonymousUser"));
 const contact_1 = __importDefault(require("../models/contact"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const { SECRET_1, SECRET_2 } = process.env;
+const checkUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const authHeader = req.headers['authorization'];
+        const token = authHeader && authHeader.split(' ')[1];
+        if (token == null)
+            throw new Error();
+        const decoded = jsonwebtoken_1.default.verify(token, SECRET_1);
+        const user = yield user_1.default.findById(decoded.id);
+        res.status(200).send({
+            username: user === null || user === void 0 ? void 0 : user.username,
+            phone: user === null || user === void 0 ? void 0 : user.phone,
+            role: user === null || user === void 0 ? void 0 : user.role,
+            profile: user === null || user === void 0 ? void 0 : user.profile,
+            _id: user === null || user === void 0 ? void 0 : user._id,
+        });
+    }
+    catch (e) {
+        console.log(e);
+        next(new expressError_1.default(e.message, 404));
+    }
+});
+exports.checkUser = checkUser;
 const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, phone, password } = req.body;
@@ -38,12 +62,16 @@ const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         user.profile = profile === null || profile === void 0 ? void 0 : profile.id;
         yield user.save();
         yield profile.save();
+        const token = jsonwebtoken_1.default.sign({ id: user === null || user === void 0 ? void 0 : user._id, name: user === null || user === void 0 ? void 0 : user.username }, SECRET_1);
         res.status(200).send({
-            username: user === null || user === void 0 ? void 0 : user.username,
-            phone: user === null || user === void 0 ? void 0 : user.phone,
-            role: user === null || user === void 0 ? void 0 : user.role,
-            profile: profile === null || profile === void 0 ? void 0 : profile.id,
-            _id: user === null || user === void 0 ? void 0 : user._id,
+            token,
+            user: {
+                username: user === null || user === void 0 ? void 0 : user.username,
+                phone: user === null || user === void 0 ? void 0 : user.phone,
+                role: user === null || user === void 0 ? void 0 : user.role,
+                profile: profile === null || profile === void 0 ? void 0 : profile.id,
+                _id: user === null || user === void 0 ? void 0 : user._id,
+            },
         });
     }
     catch (e) {
@@ -59,12 +87,16 @@ const signin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         if (user == null)
             throw new Error('Invalid User Credentials');
         (0, utils_1.checkPassword)(password, user === null || user === void 0 ? void 0 : user.password.hash);
+        const token = jsonwebtoken_1.default.sign({ id: user === null || user === void 0 ? void 0 : user._id, name: user === null || user === void 0 ? void 0 : user.username }, SECRET_1);
         res.status(200).send({
-            username: user === null || user === void 0 ? void 0 : user.username,
-            phone: user === null || user === void 0 ? void 0 : user.phone,
-            role: user === null || user === void 0 ? void 0 : user.role,
-            profile: user === null || user === void 0 ? void 0 : user.profile,
-            _id: user === null || user === void 0 ? void 0 : user._id,
+            token,
+            user: {
+                username: user === null || user === void 0 ? void 0 : user.username,
+                phone: user === null || user === void 0 ? void 0 : user.phone,
+                role: user === null || user === void 0 ? void 0 : user.role,
+                profile: user === null || user === void 0 ? void 0 : user.profile,
+                _id: user === null || user === void 0 ? void 0 : user._id,
+            },
         });
     }
     catch (e) {

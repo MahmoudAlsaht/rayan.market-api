@@ -1,12 +1,15 @@
 import express from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import {
+	checkUser,
 	createAnonymousUser,
 	signin,
 	signup,
 } from '../controllers/user';
 
 const router = express.Router();
+
+router.get('/', expressAsyncHandler(checkUser));
 
 router.post('/signup', expressAsyncHandler(signup));
 

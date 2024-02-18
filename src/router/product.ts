@@ -13,6 +13,7 @@ import {
 	getProductImage,
 	removeImage,
 } from '../controllers/productImages';
+import { verifyToken } from '../middlewares';
 
 const router = express.Router();
 

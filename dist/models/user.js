@@ -30,6 +30,13 @@ const UserSchema = new mongoose_1.Schema({
     role: { type: String, required: true, default: 'customer' },
     profile: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Profile' },
     orders: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Order' }],
+    token: {
+        expires: { type: Number, default: 1 },
+        hash: {
+            type: String,
+            required: true,
+        },
+    },
 });
 UserSchema.pre('deleteOne', { document: true, query: false }, function () {
     return __awaiter(this, void 0, void 0, function* () {
