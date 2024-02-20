@@ -55,21 +55,23 @@ exports.getOrder = getOrder;
 const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { products, totalPrice, isUserRegistered, userId, contactId, } = req.body;
+        console.log(userId);
         const contact = yield contact_1.default.findById(contactId);
         const order = new order_1.default({
             totalPrice: parseInt(totalPrice),
             products,
             isUserRegistered,
             contact,
+            orderId: (0, utils_1.genOrderId)(),
         });
-        yield order.save();
         const user = isUserRegistered
             ? yield user_1.default.findById(userId)
             : yield anonymousUser_1.default.findById(userId);
+        console.log(user);
         order.user = user;
         user.orders.push(order);
         yield user.save();
-        order.orderId = order === null || order === void 0 ? void 0 : order.id.slice(10);
+        yield order.save();
         for (const product of products) {
             const fetchedProduct = yield product_1.default.findById(product === null || product === void 0 ? void 0 : product._id);
             fetchedProduct.quantity =

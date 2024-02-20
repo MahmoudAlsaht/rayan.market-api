@@ -43,8 +43,8 @@ export const createContact = async (
 
 		res.status(200).send(contact);
 	} catch (e: any) {
+		console.log(e);
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 

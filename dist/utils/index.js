@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.remainingDays = exports.checkIfOfferEnded = exports.isCustomer = exports.isStaff = exports.isAdmin = exports.isAuthenticated = exports.checkPassword = exports.genPassword = void 0;
+exports.genOrderId = exports.remainingDays = exports.checkIfOfferEnded = exports.isCustomer = exports.isStaff = exports.isAdmin = exports.isAuthenticated = exports.checkPassword = exports.genPassword = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const genPassword = (password) => __awaiter(void 0, void 0, void 0, function* () {
     const salt = yield bcrypt_1.default.genSalt(10);
@@ -64,4 +64,12 @@ const remainingDays = (createdAt, expireDate) => {
     return expireDate - days;
 };
 exports.remainingDays = remainingDays;
+const genOrderId = () => {
+    let orderId = '';
+    for (let i = 0; i < 10; i++) {
+        orderId += `${Math.floor(Math.random() * 10)}`;
+    }
+    return orderId;
+};
+exports.genOrderId = genOrderId;
 //# sourceMappingURL=index.js.map

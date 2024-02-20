@@ -60,3 +60,12 @@ export const remainingDays = (
 	console.log(expireDate - days);
 	return expireDate - days;
 };
+
+export const genOrderId = () => {
+	let orderId = '';
+
+	for (let i = 0; i < 10; i++) {
+		orderId += `${Math.floor(Math.random() * 10)}`;
+	}
+	return orderId;
+};

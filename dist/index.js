@@ -12,7 +12,6 @@ const db_1 = require("./db");
 const cors_1 = __importDefault(require("cors"));
 const express_mongo_sanitize_1 = __importDefault(require("express-mongo-sanitize"));
 const config_1 = __importDefault(require("./firebase/config"));
-const mailgun_1 = __importDefault(require("./router/mailgun"));
 const user_1 = __importDefault(require("./router/user"));
 const profile_1 = __importDefault(require("./router/profile"));
 const category_1 = __importDefault(require("./router/category"));
@@ -31,7 +30,6 @@ const application = () => {
     app.use((0, express_mongo_sanitize_1.default)({
         replaceWith: '_',
     }));
-    app.use('/', mailgun_1.default);
     app.use('/auth', user_1.default);
     app.use('/account', profile_1.default);
     app.use('/category', category_1.default);

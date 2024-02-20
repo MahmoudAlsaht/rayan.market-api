@@ -107,10 +107,9 @@ const signin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
 exports.signin = signin;
 const createAnonymousUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { firstName, lastName, city, street, phone } = req.body;
+        const { name, city, street, phone } = req.body;
         const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
-        if (firstName.search(usernameRegrex) !== -1 ||
-            lastName.search(usernameRegrex) !== -1) {
+        if (name.search(usernameRegrex) !== -1) {
             throw new Error('Invalid username');
         }
         const contact = new contact_1.default({
@@ -123,15 +122,15 @@ const createAnonymousUser = (req, res, next) => __awaiter(void 0, void 0, void 0
         yield contact.save();
         const anonymousUser = yield new anonymousUser_1.default({
             phone,
-            username: `${firstName} ${lastName}`,
+            username: name,
             contact,
         }).populate('contact');
         yield anonymousUser.save();
         res.status(200).send(anonymousUser);
     }
     catch (e) {
+        console.log(e);
         next(new expressError_1.default(e.message, 404));
-        res.status(404).send({ error: e.message });
     }
 });
 exports.createAnonymousUser = createAnonymousUser;

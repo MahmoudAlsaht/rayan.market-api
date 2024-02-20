@@ -5,7 +5,12 @@ import Product from '../models/product';
 import User from '../models/user';
 import AnonymousUser from '../models/anonymousUser';
 import Contact from '../models/contact';
-import { isAdmin, isAuthenticated, isStaff } from '../utils';
+import {
+	genOrderId,
+	isAdmin,
+	isAuthenticated,
+	isStaff,
+} from '../utils';
 
 export const getOrders = async (
 	req: Request,
@@ -60,24 +65,28 @@ export const createOrder = async (
 			contactId,
 		} = req.body;
 
+		console.log(userId);
+
 		const contact = await Contact.findById(contactId);
 		const order = new Order({
 			totalPrice: parseInt(totalPrice),
 			products,
 			isUserRegistered,
 			contact,
+			orderId: genOrderId(),
 		});
-
-		await order.save();
 
 		const user = isUserRegistered
 			? await User.findById(userId)
 			: await AnonymousUser.findById(userId);
 
+		console.log(user);
+
 		order.user = user;
 		user.orders.push(order);
+
 		await user.save();
-		order.orderId = order?.id.slice(10);
+		await order.save();
 
 		for (const product of products) {
 			const fetchedProduct = await Product.findById(

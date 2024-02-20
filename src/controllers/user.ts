@@ -129,15 +129,11 @@ export const createAnonymousUser = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { firstName, lastName, city, street, phone } =
-			req.body;
+		const { name, city, street, phone } = req.body;
 
 		const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
 
-		if (
-			firstName.search(usernameRegrex) !== -1 ||
-			lastName.search(usernameRegrex) !== -1
-		) {
+		if (name.search(usernameRegrex) !== -1) {
 			throw new Error('Invalid username');
 		}
 
@@ -151,7 +147,7 @@ export const createAnonymousUser = async (
 		await contact.save();
 		const anonymousUser = await new AnonymousUser({
 			phone,
-			username: `${firstName} ${lastName}`,
+			username: name,
 			contact,
 		}).populate('contact');
 
@@ -159,7 +155,7 @@ export const createAnonymousUser = async (
 
 		res.status(200).send(anonymousUser);
 	} catch (e: any) {
+		console.log(e);
 		next(new ExpressError(e.message, 404));
-		res.status(404).send({ error: e.message });
 	}
 };

@@ -12,7 +12,6 @@ import { connectDB } from './db';
 import cors from 'cors';
 import mongoSanitize from 'express-mongo-sanitize';
 import firebaseDb from './firebase/config';
-import mailgunRouter from './router/mailgun';
 import userRouter from './router/user';
 import profileRouter from './router/profile';
 import categoryRouter from './router/category';
@@ -38,7 +37,6 @@ const application = () => {
 		}),
 	);
 
-	app.use('/', mailgunRouter);
 	app.use('/auth', userRouter);
 	app.use('/account', profileRouter);
 	app.use('/category', categoryRouter);

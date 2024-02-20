@@ -44,8 +44,8 @@ const createContact = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         res.status(200).send(contact);
     }
     catch (e) {
+        console.log(e);
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 });
 exports.createContact = createContact;
