@@ -7,6 +7,7 @@ import {
 	getCategory,
 	updateCategory,
 	getCategoryProducts,
+	removeImage,
 } from '../controllers/category';
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router
 	.route('/:category_id')
 	.get(expressAsyncHandler(getCategory))
 	.put(expressAsyncHandler(updateCategory))
+	.patch(expressAsyncHandler(removeImage))
 	.delete(expressAsyncHandler(deleteCategory));
 
 router.get(

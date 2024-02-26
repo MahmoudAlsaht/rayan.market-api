@@ -1,11 +1,13 @@
 import { model, Schema } from 'mongoose';
 import { TProduct } from './product';
+import { TImage } from './image';
 
 export type TCategory = {
 	_id: string;
 	name: string;
 	products: TProduct[];
 	createdAt: Date;
+	image: TImage | null;
 };
 
 const CategorySchema = new Schema<TCategory>({
@@ -20,6 +22,10 @@ const CategorySchema = new Schema<TCategory>({
 			ref: 'Product',
 		},
 	],
+	image: {
+		type: Schema.Types.ObjectId,
+		ref: 'Image',
+	},
 	createdAt: Date,
 });
 

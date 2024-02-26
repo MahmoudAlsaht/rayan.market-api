@@ -30,7 +30,10 @@ const ImageSchema = new Schema<TImage>({
 		ref: function () {
 			return this.imageType === 'productImage'
 				? 'Product'
-				: this.imageType === 'bannerImage' && 'Banner';
+				: this.imageType === 'bannerImage'
+				? 'Banner'
+				: this.imageType === 'CategoryImage' &&
+				  'Category';
 		},
 	},
 	link: String,
