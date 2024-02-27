@@ -15,6 +15,7 @@ router
     .route('/:category_id')
     .get((0, express_async_handler_1.default)(category_1.getCategory))
     .put((0, express_async_handler_1.default)(category_1.updateCategory))
+    .patch((0, express_async_handler_1.default)(category_1.removeImage))
     .delete((0, express_async_handler_1.default)(category_1.deleteCategory));
 router.get('/:category_id/products', (0, express_async_handler_1.default)(category_1.getCategoryProducts));
 exports.default = router;

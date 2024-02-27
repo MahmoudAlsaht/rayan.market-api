@@ -32,8 +32,9 @@ const ImageSchema = new Schema<TImage>({
 				? 'Product'
 				: this.imageType === 'bannerImage'
 				? 'Banner'
-				: this.imageType === 'CategoryImage' &&
-				  'Category';
+				: this.imageType === 'CategoryImage'
+				? 'Category'
+				: this.imageType === 'BrandImage' && 'Brand';
 		},
 	},
 	link: String,

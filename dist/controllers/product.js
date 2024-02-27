@@ -19,11 +19,13 @@ const image_1 = __importDefault(require("../models/image"));
 const category_1 = __importDefault(require("../models/category"));
 const destroyFile_1 = require("../firebase/firestore/destroyFile");
 const utils_1 = require("../utils");
+const brand_1 = __importDefault(require("../models/brand"));
 const getProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const products = yield product_1.default.find()
             .populate('productImages')
-            .populate('category');
+            .populate('category')
+            .populate('brand');
         const sendProducts = [];
         for (const product of products) {
             if (product === null || product === void 0 ? void 0 : product.isOffer) {
@@ -51,7 +53,8 @@ const filterProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
     try {
         const products = yield product_1.default.find()
             .populate('productImages')
-            .populate('category');
+            .populate('category')
+            .populate('brand');
         res.status(200).send(products);
     }
     catch (e) {
@@ -62,8 +65,7 @@ const filterProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
 exports.filterProducts = filterProducts;
 const createProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, categoryId, price, quantity, imagesUrls, newPrice, isOffer, offerExpiresDate, } = req.body;
-        console.log(price);
+        const { name, categoryId, brandId, price, quantity, imagesUrls, newPrice, isOffer, offerExpiresDate, } = req.body;
         const product = new product_1.default({
             name,
             price: parseFloat(price),
@@ -76,8 +78,11 @@ const createProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         if (isOffer)
             product.offerExpiresDate = offerExpiresDate;
         const category = yield category_1.default.findById(categoryId);
+        const brand = yield brand_1.default.findById(categoryId);
         category.products.push(product);
+        brand.products.push(product);
         product.category = category;
+        product.brand = brand;
         if (imagesUrls && imagesUrls.length > 0) {
             for (const imageUrl of imagesUrls) {
                 const image = new image_1.default({
@@ -91,8 +96,8 @@ const createProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             }
         }
         yield product.save();
-        console.log(product === null || product === void 0 ? void 0 : product.price);
         yield category.save();
+        yield brand.save();
         res.status(200).send(product);
     }
     catch (e) {
@@ -117,8 +122,7 @@ exports.getProduct = getProduct;
 const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { product_id } = req.params;
-        const { name, price, quantity, category, imagesUrls, newPrice, isOffer, offerExpiresDate, } = req.body;
-        console.log(price);
+        const { name, price, quantity, category, brand, imagesUrls, newPrice, isOffer, offerExpiresDate, } = req.body;
         const product = yield product_1.default.findById(product_id).populate('productImages');
         product.lastModified = new Date();
         if (name)
@@ -127,8 +131,11 @@ const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             product.price = parseFloat(price);
         if (quantity)
             product.quantity = quantity;
+        // TODO: remove the product from former cat and brand and add it to the new ones
         if (category)
             product.category = category;
+        if (brand)
+            product.brand = brand;
         if (newPrice)
             product.newPrice = newPrice;
         if (isOffer)
@@ -147,7 +154,6 @@ const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             }
         }
         yield product.save();
-        console.log(product === null || product === void 0 ? void 0 : product.price);
         res.status(200).send(product);
     }
     catch (e) {
@@ -157,17 +163,23 @@ const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 });
 exports.updateProduct = updateProduct;
 const deleteProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     try {
         const { product_id } = req.params;
         const product = yield product_1.default.findById(product_id)
             .populate('productImages')
-            .populate('category');
+            .populate('category')
+            .populate('brand');
         const category = yield category_1.default.findById((_a = product === null || product === void 0 ? void 0 : product.category) === null || _a === void 0 ? void 0 : _a._id).populate('products');
         yield category.updateOne({
             $pull: { products: product_id },
         });
         yield category.save();
+        const brand = yield brand_1.default.findById((_b = product === null || product === void 0 ? void 0 : product.brand) === null || _b === void 0 ? void 0 : _b._id).populate('products');
+        yield brand.updateOne({
+            $pull: { products: product_id },
+        });
+        yield brand.save();
         for (const image of product === null || product === void 0 ? void 0 : product.productImages) {
             yield (0, destroyFile_1.deleteImage)(image === null || image === void 0 ? void 0 : image.filename);
             yield image_1.default.findByIdAndDelete(image === null || image === void 0 ? void 0 : image._id);

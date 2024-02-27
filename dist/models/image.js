@@ -20,7 +20,11 @@ const ImageSchema = new mongoose_1.Schema({
         ref: function () {
             return this.imageType === 'productImage'
                 ? 'Product'
-                : this.imageType === 'bannerImage' && 'Banner';
+                : this.imageType === 'bannerImage'
+                    ? 'Banner'
+                    : this.imageType === 'CategoryImage'
+                        ? 'Category'
+                        : this.imageType === 'BrandImage' && 'Brand';
         },
     },
     link: String,

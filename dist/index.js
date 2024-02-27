@@ -15,6 +15,7 @@ const config_1 = __importDefault(require("./firebase/config"));
 const user_1 = __importDefault(require("./router/user"));
 const profile_1 = __importDefault(require("./router/profile"));
 const category_1 = __importDefault(require("./router/category"));
+const brand_1 = __importDefault(require("./router/brand"));
 const product_1 = __importDefault(require("./router/product"));
 const banner_1 = __importDefault(require("./router/banner"));
 const contact_1 = __importDefault(require("./router/contact"));
@@ -33,6 +34,7 @@ const application = () => {
     app.use('/auth', user_1.default);
     app.use('/account', profile_1.default);
     app.use('/category', category_1.default);
+    app.use('/brand', brand_1.default);
     app.use('/product', product_1.default);
     app.use('/banner', banner_1.default);
     app.use('/account/:profile_id', contact_1.default);

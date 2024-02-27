@@ -5,6 +5,7 @@ import Image from '../models/image';
 import Category from '../models/category';
 import { deleteImage } from '../firebase/firestore/destroyFile';
 import { checkIfOfferEnded, remainingDays } from '../utils';
+import Brand from '../models/brand';
 
 export const getProducts = async (
 	req: Request,
@@ -14,7 +15,8 @@ export const getProducts = async (
 	try {
 		const products = await Product.find()
 			.populate('productImages')
-			.populate('category');
+			.populate('category')
+			.populate('brand');
 		const sendProducts = [];
 
 		for (const product of products) {
@@ -57,7 +59,8 @@ export const filterProducts = async (
 	try {
 		const products = await Product.find()
 			.populate('productImages')
-			.populate('category');
+			.populate('category')
+			.populate('brand');
 		res.status(200).send(products);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
@@ -73,6 +76,7 @@ export const createProduct = async (
 		const {
 			name,
 			categoryId,
+			brandId,
 			price,
 			quantity,
 			imagesUrls,
@@ -80,8 +84,6 @@ export const createProduct = async (
 			isOffer,
 			offerExpiresDate,
 		} = req.body;
-
-		console.log(price);
 
 		const product = new Product({
 			name,
@@ -94,8 +96,11 @@ export const createProduct = async (
 		});
 		if (isOffer) product.offerExpiresDate = offerExpiresDate;
 		const category = await Category.findById(categoryId);
+		const brand = await Brand.findById(categoryId);
 		category.products.push(product);
+		brand.products.push(product);
 		product.category = category;
+		product.brand = brand;
 		if (imagesUrls && imagesUrls.length > 0) {
 			for (const imageUrl of imagesUrls) {
 				const image = new Image({
@@ -109,8 +114,8 @@ export const createProduct = async (
 			}
 		}
 		await product.save();
-		console.log(product?.price);
 		await category.save();
+		await brand.save();
 		res.status(200).send(product);
 	} catch (e: any) {
 		console.log(e);
@@ -149,13 +154,12 @@ export const updateProduct = async (
 			price,
 			quantity,
 			category,
+			brand,
 			imagesUrls,
 			newPrice,
 			isOffer,
 			offerExpiresDate,
 		} = req.body;
-
-		console.log(price);
 
 		const product = await Product.findById(
 			product_id,
@@ -165,7 +169,9 @@ export const updateProduct = async (
 		if (name) product.name = name;
 		if (price) product.price = parseFloat(price);
 		if (quantity) product.quantity = quantity;
+		// TODO: remove the product from former cat and brand and add it to the new ones
 		if (category) product.category = category;
+		if (brand) product.brand = brand;
 		if (newPrice) product.newPrice = newPrice;
 		if (isOffer) product.offerExpiresDate = offerExpiresDate;
 		product.isOffer = isOffer;
@@ -184,7 +190,6 @@ export const updateProduct = async (
 		}
 		await product.save();
 
-		console.log(product?.price);
 		res.status(200).send(product);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
@@ -201,17 +206,27 @@ export const deleteProduct = async (
 		const { product_id } = req.params;
 		const product = await Product.findById(product_id)
 			.populate('productImages')
-			.populate('category');
+			.populate('category')
+			.populate('brand');
 
 		const category = await Category.findById(
 			product?.category?._id,
 		).populate('products');
-
 		await category.updateOne({
 			$pull: { products: product_id },
 		});
 
 		await category.save();
+
+		const brand = await Brand.findById(
+			product?.brand?._id,
+		).populate('products');
+
+		await brand.updateOne({
+			$pull: { products: product_id },
+		});
+
+		await brand.save();
 
 		for (const image of product?.productImages) {
 			await deleteImage(image?.filename);

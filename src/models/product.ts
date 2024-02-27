@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose';
 import Image, { TImage } from './image';
 import { TCategory } from './category';
+import { TBrand } from './brand';
 
 export type TProduct = {
 	_id: string;
@@ -12,6 +13,7 @@ export type TProduct = {
 	newPrice?: number;
 	quantity: number;
 	category: TCategory;
+	brand: TBrand;
 	isOffer?: boolean;
 	offerExpiresDate?: number;
 	remaining?: number;
@@ -31,6 +33,10 @@ const ProductSchema = new Schema<TProduct>({
 	category: {
 		type: Schema.Types.ObjectId,
 		ref: 'Category',
+	},
+	brand: {
+		type: Schema.Types.ObjectId,
+		ref: 'Brand',
 	},
 	createdAt: Date,
 	lastModified: Date,

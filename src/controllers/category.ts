@@ -10,9 +10,9 @@ export const getCategories = async (
 	next: NextFunction,
 ) => {
 	try {
-		const categories = await Category.find().populate(
-			'image',
-		);
+		const categories = await Category.find()
+			.populate('image')
+			.populate('products');
 
 		res.status(200).send(categories);
 	} catch (e: any) {
