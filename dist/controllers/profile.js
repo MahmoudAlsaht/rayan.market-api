@@ -30,13 +30,12 @@ const fetchProfile = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
 });
 exports.fetchProfile = fetchProfile;
 const updateUserPhoneAndUsername = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a;
     try {
         const { profile_id } = req.params;
-        const { phone, username, password } = req.body;
+        const { phone, username } = req.body;
         const profile = yield profile_1.default.findById(profile_id).populate({ path: 'user' });
         const user = yield user_1.default.findById((_a = profile === null || profile === void 0 ? void 0 : profile.user) === null || _a === void 0 ? void 0 : _a._id);
-        (0, utils_1.checkPassword)(password, (_b = user === null || user === void 0 ? void 0 : user.password) === null || _b === void 0 ? void 0 : _b.hash);
         if (phone && phone.length > 0)
             user.phone = phone;
         if (username && username.length > 0)
@@ -57,13 +56,13 @@ const updateUserPhoneAndUsername = (req, res, next) => __awaiter(void 0, void 0,
 });
 exports.updateUserPhoneAndUsername = updateUserPhoneAndUsername;
 const updateUserPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c, _d;
+    var _b, _c;
     try {
         const { profile_id } = req.params;
         const { newPassword, currentPassword } = req.body;
         const profile = yield profile_1.default.findById(profile_id).populate({ path: 'user' });
-        const user = yield user_1.default.findById((_c = profile === null || profile === void 0 ? void 0 : profile.user) === null || _c === void 0 ? void 0 : _c._id);
-        (0, utils_1.checkPassword)(currentPassword, (_d = user === null || user === void 0 ? void 0 : user.password) === null || _d === void 0 ? void 0 : _d.hash);
+        const user = yield user_1.default.findById((_b = profile === null || profile === void 0 ? void 0 : profile.user) === null || _b === void 0 ? void 0 : _b._id);
+        (0, utils_1.checkPassword)(currentPassword, (_c = user === null || user === void 0 ? void 0 : user.password) === null || _c === void 0 ? void 0 : _c.hash);
         if (newPassword)
             user.password = yield (0, utils_1.genPassword)(newPassword);
         yield user.save();
@@ -76,13 +75,13 @@ const updateUserPassword = (req, res, next) => __awaiter(void 0, void 0, void 0,
 });
 exports.updateUserPassword = updateUserPassword;
 const removeAccount = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _e, _f;
+    var _d, _e;
     try {
         const { profile_id } = req.params;
         const { password } = req.body;
         const profile = yield profile_1.default.findById(profile_id).populate({ path: 'user' });
-        const user = yield user_1.default.findById((_e = profile === null || profile === void 0 ? void 0 : profile.user) === null || _e === void 0 ? void 0 : _e._id);
-        (0, utils_1.checkPassword)(password, (_f = user === null || user === void 0 ? void 0 : user.password) === null || _f === void 0 ? void 0 : _f.hash);
+        const user = yield user_1.default.findById((_d = profile === null || profile === void 0 ? void 0 : profile.user) === null || _d === void 0 ? void 0 : _d._id);
+        (0, utils_1.checkPassword)(password, (_e = user === null || user === void 0 ? void 0 : user.password) === null || _e === void 0 ? void 0 : _e.hash);
         yield (user === null || user === void 0 ? void 0 : user.deleteOne());
         res.sendStatus(200);
     }

@@ -28,13 +28,12 @@ export const updateUserPhoneAndUsername = async (
 ) => {
 	try {
 		const { profile_id } = req.params;
-		const { phone, username, password } = req.body;
+		const { phone, username } = req.body;
 
 		const profile = await Profile.findById(
 			profile_id,
 		).populate({ path: 'user' });
 		const user = await User.findById(profile?.user?._id);
-		checkPassword(password, user?.password?.hash);
 
 		if (phone && phone.length > 0) user.phone = phone;
 		if (username && username.length > 0)

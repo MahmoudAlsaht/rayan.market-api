@@ -96,9 +96,12 @@ export const createProduct = async (
 		});
 		if (isOffer) product.offerExpiresDate = offerExpiresDate;
 		const category = await Category.findById(categoryId);
-		const brand = await Brand.findById(categoryId);
+		const brand = await Brand.findById(brandId);
+
 		category.products.push(product);
+
 		brand.products.push(product);
+
 		product.category = category;
 		product.brand = brand;
 		if (imagesUrls && imagesUrls.length > 0) {

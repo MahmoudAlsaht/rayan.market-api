@@ -78,7 +78,7 @@ const createProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         if (isOffer)
             product.offerExpiresDate = offerExpiresDate;
         const category = yield category_1.default.findById(categoryId);
-        const brand = yield brand_1.default.findById(categoryId);
+        const brand = yield brand_1.default.findById(brandId);
         category.products.push(product);
         brand.products.push(product);
         product.category = category;

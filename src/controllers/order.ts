@@ -65,9 +65,9 @@ export const createOrder = async (
 			contactId,
 		} = req.body;
 
-		console.log(userId);
-
+		console.log(contactId);
 		const contact = await Contact.findById(contactId);
+
 		const order = new Order({
 			totalPrice: parseInt(totalPrice),
 			products,
@@ -79,8 +79,6 @@ export const createOrder = async (
 		const user = isUserRegistered
 			? await User.findById(userId)
 			: await AnonymousUser.findById(userId);
-
-		console.log(user);
 
 		order.user = user;
 		user.orders.push(order);
