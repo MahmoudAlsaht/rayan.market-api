@@ -8,11 +8,6 @@ import {
 	deleteProduct,
 	filterProducts,
 } from '../controllers/product';
-import {
-	getProductImages,
-	getProductImage,
-	removeImage,
-} from '../controllers/productImages';
 import { verifyToken } from '../middlewares';
 
 const router = express.Router();
@@ -32,14 +27,5 @@ router
 	.get(expressAsyncHandler(getProduct))
 	.put(expressAsyncHandler(updateProduct))
 	.delete(expressAsyncHandler(deleteProduct));
-
-router
-	.route('/:product_id/images')
-	.get(expressAsyncHandler(getProductImages));
-
-router
-	.route('/:product_id/images/:image_id')
-	.get(expressAsyncHandler(getProductImage))
-	.delete(expressAsyncHandler(removeImage));
 
 export default router;

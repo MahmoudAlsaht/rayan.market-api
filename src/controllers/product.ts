@@ -14,7 +14,7 @@ export const getProducts = async (
 ) => {
 	try {
 		const products = await Product.find()
-			.populate('productImages')
+			.populate('productImage')
 			.populate('category')
 			.populate('brand');
 		const sendProducts = [];
@@ -58,7 +58,7 @@ export const filterProducts = async (
 ) => {
 	try {
 		const products = await Product.find()
-			.populate('productImages')
+			.populate('productImage')
 			.populate('category')
 			.populate('brand');
 		res.status(200).send(products);
@@ -67,6 +67,7 @@ export const filterProducts = async (
 		res.status(404);
 	}
 };
+
 export const createProduct = async (
 	req: Request,
 	res: Response,
@@ -79,7 +80,7 @@ export const createProduct = async (
 			brandId,
 			price,
 			quantity,
-			imagesUrls,
+			imageUrl,
 			newPrice,
 			isOffer,
 			offerExpiresDate,
@@ -94,6 +95,7 @@ export const createProduct = async (
 			createdAt: new Date(),
 			lastModified: new Date(),
 		});
+
 		if (isOffer) product.offerExpiresDate = offerExpiresDate;
 		const category = await Category.findById(categoryId);
 		const brand = await Brand.findById(brandId);
@@ -104,18 +106,18 @@ export const createProduct = async (
 
 		product.category = category;
 		product.brand = brand;
-		if (imagesUrls && imagesUrls.length > 0) {
-			for (const imageUrl of imagesUrls) {
-				const image = new Image({
-					path: imageUrl?.url,
-					filename: `products/${categoryId}/${imageUrl?.fileName}'s-Image`,
-					imageType: 'productImage',
-					doc: product,
-				});
-				await image.save();
-				product.productImages.push(image);
-			}
+
+		if (imageUrl) {
+			const image = new Image({
+				path: imageUrl?.url,
+				filename: `products/${name}/${imageUrl?.fileName}'s-Image`,
+				imageType: 'productImage',
+				doc: product,
+			});
+			await image.save();
+			product.productImage = image;
 		}
+
 		await product.save();
 		await category.save();
 		await brand.save();
@@ -136,7 +138,7 @@ export const getProduct = async (
 		const { product_id } = req.params;
 		const product = await Product.findById(
 			product_id,
-		).populate('productImages');
+		).populate('productImage');
 
 		res.status(200).send(product);
 	} catch (e: any) {
@@ -158,7 +160,7 @@ export const updateProduct = async (
 			quantity,
 			category,
 			brand,
-			imagesUrls,
+			imageUrl,
 			newPrice,
 			isOffer,
 			offerExpiresDate,
@@ -166,7 +168,7 @@ export const updateProduct = async (
 
 		const product = await Product.findById(
 			product_id,
-		).populate('productImages');
+		).populate('productImage');
 
 		product.lastModified = new Date();
 		if (name) product.name = name;
@@ -179,18 +181,21 @@ export const updateProduct = async (
 		if (isOffer) product.offerExpiresDate = offerExpiresDate;
 		product.isOffer = isOffer;
 
-		if (imagesUrls && imagesUrls.length > 0) {
-			for (const imageUrl of imagesUrls) {
-				const image = await new Image({
-					path: imageUrl?.url,
-					filename: `products/${category}/${imageUrl?.fileName}'s-Image`,
-					imageType: 'productImage',
-					doc: product,
-				});
-				await image.save();
-				product.productImages.push(image);
-			}
+		if (imageUrl) {
+			await deleteImage(product?.productImage?.filename);
+			await Image.findByIdAndDelete(
+				product?.productImage?._id,
+			);
+			const image = new Image({
+				path: imageUrl?.url,
+				filename: `products/${name}/${imageUrl?.fileName}'s-Image`,
+				imageType: 'productImage',
+				doc: product,
+			});
+			await image.save();
+			product.productImage = image;
 		}
+
 		await product.save();
 
 		res.status(200).send(product);
@@ -208,7 +213,7 @@ export const deleteProduct = async (
 	try {
 		const { product_id } = req.params;
 		const product = await Product.findById(product_id)
-			.populate('productImages')
+			.populate('productImage')
 			.populate('category')
 			.populate('brand');
 
@@ -231,10 +236,10 @@ export const deleteProduct = async (
 
 		await brand.save();
 
-		for (const image of product?.productImages) {
-			await deleteImage(image?.filename);
-			await Image.findByIdAndDelete(image?._id);
-		}
+		await deleteImage(product?.productImage?.filename);
+		await Image.findByIdAndDelete(
+			product?.productImage?._id,
+		);
 
 		await product.deleteOne();
 		res.status(200).send(product_id);

@@ -19,12 +19,10 @@ const ProductSchema = new mongoose_1.Schema({
         type: 'string',
         required: true,
     },
-    productImages: [
-        {
-            type: mongoose_1.Schema.Types.ObjectId,
-            ref: 'Image',
-        },
-    ],
+    productImage: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'Image',
+    },
     category: {
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Category',
@@ -48,9 +46,9 @@ const ProductSchema = new mongoose_1.Schema({
 const Product = (0, mongoose_1.model)('Product', ProductSchema);
 ProductSchema.pre('deleteOne', { document: true, query: false }, function () {
     return __awaiter(this, void 0, void 0, function* () {
-        yield image_1.default.deleteMany({
+        yield image_1.default.deleteOne({
             _id: {
-                $in: this.productImages,
+                $in: this.productImage,
             },
         });
     });

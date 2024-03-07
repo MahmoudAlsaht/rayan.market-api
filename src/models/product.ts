@@ -6,7 +6,7 @@ import { TBrand } from './brand';
 export type TProduct = {
 	_id: string;
 	name: string;
-	productImages?: TImage[] | null;
+	productImage?: TImage | null;
 	createdAt: Date;
 	lastModified: Date;
 	price: number;
@@ -24,12 +24,10 @@ const ProductSchema = new Schema<TProduct>({
 		type: 'string',
 		required: true,
 	},
-	productImages: [
-		{
-			type: Schema.Types.ObjectId,
-			ref: 'Image',
-		},
-	],
+	productImage: {
+		type: Schema.Types.ObjectId,
+		ref: 'Image',
+	},
 	category: {
 		type: Schema.Types.ObjectId,
 		ref: 'Category',
@@ -57,9 +55,9 @@ ProductSchema.pre(
 	'deleteOne',
 	{ document: true, query: false },
 	async function () {
-		await Image.deleteMany({
+		await Image.deleteOne({
 			_id: {
-				$in: this.productImages,
+				$in: this.productImage,
 			},
 		});
 	},
