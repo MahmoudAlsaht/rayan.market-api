@@ -6,7 +6,7 @@ import {
 	updateBanner,
 	createBanner,
 	deleteBanner,
-	updateBannersActivity,
+	// updateBannersActivity,
 } from '../controllers/banner';
 import {
 	getBannerImages,
@@ -25,7 +25,7 @@ router
 router
 	.route('/:banner_id')
 	.get(expressAsyncHandler(getBanner))
-	.patch(expressAsyncHandler(updateBannersActivity))
+	// .patch(expressAsyncHandler(updateBannersActivity))
 	.put(expressAsyncHandler(updateBanner))
 	.delete(expressAsyncHandler(deleteBanner));
 

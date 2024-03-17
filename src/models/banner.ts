@@ -1,12 +1,15 @@
 import { model, Schema } from 'mongoose';
 import Image, { TImage } from './image';
+import { TCategory } from './category';
+import { TBrand } from './brand';
 
 export type TBanner = {
 	_id: string;
 	name: string;
 	bannerImages?: TImage[] | null;
 	createdAt: Date;
-	active: boolean;
+	bannerType?: string;
+	doc?: TCategory | TBrand;
 };
 
 const BannerSchema = new Schema<TBanner>({
@@ -24,9 +27,19 @@ const BannerSchema = new Schema<TBanner>({
 		type: Date,
 		required: true,
 	},
-	active: {
-		type: Boolean,
-		default: false,
+	bannerType: {
+		type: String,
+		default: 'normal',
+	},
+	doc: {
+		type: Schema.Types.ObjectId,
+		ref: function () {
+			return this.bannerType === 'brand'
+				? 'Brand'
+				: this.bannerType === 'category'
+				? 'Category'
+				: null;
+		},
 	},
 });
 
