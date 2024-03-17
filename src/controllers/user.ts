@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from 'express';
-import User from '../models/user';
+import User, { TUser } from '../models/user';
 import Profile from '../models/profile';
 import ExpressError from '../middlewares/expressError';
 import { checkPassword, genPassword } from '../utils';
@@ -32,6 +32,47 @@ export const checkUser = async (
 		});
 	} catch (e: any) {
 		console.log(e);
+		next(new ExpressError(e.message, 404));
+	}
+};
+
+export const editUserRole = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { userId, role } = req.body;
+		const user = await User.findById(userId);
+		if (user) user.role = role;
+		await user.save();
+		res.sendStatus(200);
+	} catch (e: any) {
+		console.log(e);
+		next(new ExpressError(e.message, 404));
+	}
+};
+
+export const getUsers = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const users: TUser[] = await User.find();
+
+		const usersWithoutPasswords = users.map((user) => {
+			return {
+				username: user?.username,
+				phone: user?.phone,
+				role: user?.role,
+				profile: user?.profile,
+				_id: user?._id,
+			};
+		});
+
+		res.status(200).send(usersWithoutPasswords);
+	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
 	}
 };

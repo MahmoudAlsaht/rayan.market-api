@@ -3,6 +3,8 @@ import expressAsyncHandler from 'express-async-handler';
 import {
 	checkUser,
 	createAnonymousUser,
+	editUserRole,
+	getUsers,
 	signin,
 	signup,
 } from '../controllers/user';
@@ -10,6 +12,11 @@ import {
 const router = express.Router();
 
 router.get('/', expressAsyncHandler(checkUser));
+
+router
+	.route('/users')
+	.get(expressAsyncHandler(getUsers))
+	.post(expressAsyncHandler(editUserRole));
 
 router.post('/signup', expressAsyncHandler(signup));
 
