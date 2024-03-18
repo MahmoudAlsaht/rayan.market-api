@@ -17,6 +17,7 @@ export type TProduct = {
 	isOffer?: boolean;
 	offerExpiresDate?: number;
 	remaining?: number;
+	views: number;
 };
 
 const ProductSchema = new Schema<TProduct>({
@@ -47,6 +48,7 @@ const ProductSchema = new Schema<TProduct>({
 	isOffer: { type: Boolean, default: false },
 	offerExpiresDate: { type: Number, default: 0 },
 	remaining: Number,
+	views: { type: Number, default: 0 },
 });
 
 const Product = model<TProduct>('Product', ProductSchema);

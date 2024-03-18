@@ -205,6 +205,23 @@ export const updateProduct = async (
 	}
 };
 
+export const updateProductViews = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { product_id } = req.params;
+		const product = await Product.findById(product_id);
+		product.views += 1;
+		await product.save();
+		res.sendStatus(200);
+	} catch (e: any) {
+		next(new ExpressError(e.message, 404));
+		res.status(404);
+	}
+};
+
 export const deleteProduct = async (
 	req: Request,
 	res: Response,

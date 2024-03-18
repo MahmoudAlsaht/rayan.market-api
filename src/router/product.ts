@@ -7,6 +7,7 @@ import {
 	createProduct,
 	deleteProduct,
 	filterProducts,
+	updateProductViews,
 } from '../controllers/product';
 import { verifyToken } from '../middlewares';
 
@@ -26,6 +27,7 @@ router
 	.route('/:product_id')
 	.get(expressAsyncHandler(getProduct))
 	.put(expressAsyncHandler(updateProduct))
+	.patch(expressAsyncHandler(updateProductViews))
 	.delete(expressAsyncHandler(deleteProduct));
 
 export default router;
