@@ -12,7 +12,8 @@ export const getBrands = async (
 	try {
 		const brands = await Brand.find()
 			.populate('image')
-			.populate('products');
+			.populate('products')
+			.populate('banner');
 
 		res.status(200).send(brands);
 	} catch (e: any) {
@@ -30,7 +31,11 @@ export const getBrand = async (
 		const { brand_id } = req.params;
 		const brand = await Brand.findById(brand_id)
 			.populate('products')
-			.populate('image');
+			.populate('image')
+			.populate({
+				path: 'banner',
+				populate: 'bannerImages',
+			});
 		res.status(200).send(brand);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));

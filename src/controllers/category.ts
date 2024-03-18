@@ -12,7 +12,8 @@ export const getCategories = async (
 	try {
 		const categories = await Category.find()
 			.populate('image')
-			.populate('products');
+			.populate('products')
+			.populate('banner');
 
 		res.status(200).send(categories);
 	} catch (e: any) {
@@ -30,7 +31,11 @@ export const getCategory = async (
 		const { category_id } = req.params;
 		const category = await Category.findById(category_id)
 			.populate('products')
-			.populate('image');
+			.populate('image')
+			.populate({
+				path: 'banner',
+				populate: 'bannerImages',
+			});
 		res.status(200).send(category);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));

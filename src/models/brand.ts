@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose';
 import { TProduct } from './product';
 import { TImage } from './image';
+import { TBanner } from './banner';
 
 export type TBrand = {
 	_id: string;
@@ -8,6 +9,7 @@ export type TBrand = {
 	products: TProduct[];
 	createdAt: Date;
 	image: TImage | null;
+	banner?: TBanner | null;
 };
 
 const BrandSchema = new Schema<TBrand>({
@@ -25,6 +27,10 @@ const BrandSchema = new Schema<TBrand>({
 	image: {
 		type: Schema.Types.ObjectId,
 		ref: 'Image',
+	},
+	banner: {
+		type: Schema.Types.ObjectId,
+		ref: 'Banner',
 	},
 	createdAt: Date,
 });

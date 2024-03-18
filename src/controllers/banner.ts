@@ -45,6 +45,11 @@ export const createBanner = async (
 			createdAt: new Date(),
 		});
 
+		if (doc) {
+			doc.banner = banner;
+			await doc.save();
+		}
+
 		if (imagesUrls && imagesUrls.length > 0) {
 			for (const imageUrl of imagesUrls) {
 				const image = new Image({
