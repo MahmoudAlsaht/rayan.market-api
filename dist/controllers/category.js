@@ -21,7 +21,8 @@ const getCategories = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     try {
         const categories = yield category_1.default.find()
             .populate('image')
-            .populate('products');
+            .populate('products')
+            .populate('banner');
         res.status(200).send(categories);
     }
     catch (e) {
@@ -35,7 +36,11 @@ const getCategory = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         const { category_id } = req.params;
         const category = yield category_1.default.findById(category_id)
             .populate('products')
-            .populate('image');
+            .populate('image')
+            .populate({
+            path: 'banner',
+            populate: 'bannerImages',
+        });
         res.status(200).send(category);
     }
     catch (e) {

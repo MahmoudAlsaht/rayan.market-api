@@ -29,9 +29,19 @@ const BannerSchema = new mongoose_1.Schema({
         type: Date,
         required: true,
     },
-    active: {
-        type: Boolean,
-        default: false,
+    bannerType: {
+        type: String,
+        default: 'normal',
+    },
+    doc: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: function () {
+            return this.bannerType === 'brand'
+                ? 'Brand'
+                : this.bannerType === 'category'
+                    ? 'Category'
+                    : null;
+        },
     },
 });
 const Banner = (0, mongoose_1.model)('Banner', BannerSchema);

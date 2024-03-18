@@ -15,7 +15,7 @@ router
 router
     .route('/:banner_id')
     .get((0, express_async_handler_1.default)(banner_1.getBanner))
-    .patch((0, express_async_handler_1.default)(banner_1.updateBannersActivity))
+    // .patch(expressAsyncHandler(updateBannersActivity))
     .put((0, express_async_handler_1.default)(banner_1.updateBanner))
     .delete((0, express_async_handler_1.default)(banner_1.deleteBanner));
 router

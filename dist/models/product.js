@@ -42,6 +42,7 @@ const ProductSchema = new mongoose_1.Schema({
     isOffer: { type: Boolean, default: false },
     offerExpiresDate: { type: Number, default: 0 },
     remaining: Number,
+    views: { type: Number, default: 0 },
 });
 const Product = (0, mongoose_1.model)('Product', ProductSchema);
 ProductSchema.pre('deleteOne', { document: true, query: false }, function () {

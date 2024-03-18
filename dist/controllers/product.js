@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProduct = exports.updateProduct = exports.getProduct = exports.createProduct = exports.filterProducts = exports.getProducts = void 0;
+exports.deleteProduct = exports.updateProductViews = exports.updateProduct = exports.getProduct = exports.createProduct = exports.filterProducts = exports.getProducts = void 0;
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const product_1 = __importDefault(require("../models/product"));
 const image_1 = __importDefault(require("../models/image"));
@@ -161,6 +161,20 @@ const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     }
 });
 exports.updateProduct = updateProduct;
+const updateProductViews = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { product_id } = req.params;
+        const product = yield product_1.default.findById(product_id);
+        product.views += 1;
+        yield product.save();
+        res.sendStatus(200);
+    }
+    catch (e) {
+        next(new expressError_1.default(e.message, 404));
+        res.status(404);
+    }
+});
+exports.updateProductViews = updateProductViews;
 const deleteProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     var _c, _d, _e, _f;
     try {

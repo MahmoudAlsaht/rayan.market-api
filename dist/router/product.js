@@ -16,6 +16,7 @@ router
     .route('/:product_id')
     .get((0, express_async_handler_1.default)(product_1.getProduct))
     .put((0, express_async_handler_1.default)(product_1.updateProduct))
+    .patch((0, express_async_handler_1.default)(product_1.updateProductViews))
     .delete((0, express_async_handler_1.default)(product_1.deleteProduct));
 exports.default = router;
 //# sourceMappingURL=product.js.map

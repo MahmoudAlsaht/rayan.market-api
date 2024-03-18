@@ -21,7 +21,8 @@ const getBrands = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     try {
         const brands = yield brand_1.default.find()
             .populate('image')
-            .populate('products');
+            .populate('products')
+            .populate('banner');
         res.status(200).send(brands);
     }
     catch (e) {
@@ -35,7 +36,11 @@ const getBrand = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         const { brand_id } = req.params;
         const brand = yield brand_1.default.findById(brand_id)
             .populate('products')
-            .populate('image');
+            .populate('image')
+            .populate({
+            path: 'banner',
+            populate: 'bannerImages',
+        });
         res.status(200).send(brand);
     }
     catch (e) {

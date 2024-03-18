@@ -17,6 +17,10 @@ const CategorySchema = new mongoose_1.Schema({
         type: mongoose_1.Schema.Types.ObjectId,
         ref: 'Image',
     },
+    banner: {
+        type: mongoose_1.Schema.Types.ObjectId,
+        ref: 'Banner',
+    },
     createdAt: Date,
 });
 const Category = (0, mongoose_1.model)('Category', CategorySchema);

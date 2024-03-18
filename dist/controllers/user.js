@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAnonymousUser = exports.signin = exports.signup = exports.checkUser = void 0;
+exports.createAnonymousUser = exports.signin = exports.signup = exports.getUsers = exports.editUserRole = exports.checkUser = void 0;
 const user_1 = __importDefault(require("../models/user"));
 const profile_1 = __importDefault(require("../models/profile"));
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
@@ -43,6 +43,40 @@ const checkUser = (req, res, next) => __awaiter(void 0, void 0, void 0, function
     }
 });
 exports.checkUser = checkUser;
+const editUserRole = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { userId, role } = req.body;
+        const user = yield user_1.default.findById(userId);
+        if (user)
+            user.role = role;
+        yield user.save();
+        res.sendStatus(200);
+    }
+    catch (e) {
+        console.log(e);
+        next(new expressError_1.default(e.message, 404));
+    }
+});
+exports.editUserRole = editUserRole;
+const getUsers = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const users = yield user_1.default.find();
+        const usersWithoutPasswords = users.map((user) => {
+            return {
+                username: user === null || user === void 0 ? void 0 : user.username,
+                phone: user === null || user === void 0 ? void 0 : user.phone,
+                role: user === null || user === void 0 ? void 0 : user.role,
+                profile: user === null || user === void 0 ? void 0 : user.profile,
+                _id: user === null || user === void 0 ? void 0 : user._id,
+            };
+        });
+        res.status(200).send(usersWithoutPasswords);
+    }
+    catch (e) {
+        next(new expressError_1.default(e.message, 404));
+    }
+});
+exports.getUsers = getUsers;
 const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { username, phone, password } = req.body;
