@@ -4,7 +4,7 @@ import Product from '../models/product';
 import Image from '../models/image';
 import Category from '../models/category';
 import { deleteImage } from '../firebase/firestore/destroyFile';
-import { checkIfOfferEnded, remainingDays } from '../utils';
+import { checkIfOfferEnded } from '../utils';
 import Brand from '../models/brand';
 
 export const getProducts = async (

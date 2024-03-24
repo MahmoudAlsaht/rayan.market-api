@@ -20,6 +20,7 @@ import productRouter from './router/product';
 import bannerRouter from './router/banner';
 import contactRouter from './router/contact';
 import orderRouter from './router/order';
+import labelRouter from './router/label';
 
 const application = () => {
 	const app = express();
@@ -46,6 +47,7 @@ const application = () => {
 	app.use('/banner', bannerRouter);
 	app.use('/account/:profile_id', contactRouter);
 	app.use('/order', orderRouter);
+	app.use('/label', labelRouter);
 
 	app.use(
 		(

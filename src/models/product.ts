@@ -2,6 +2,7 @@ import { model, Schema } from 'mongoose';
 import Image, { TImage } from './image';
 import { TCategory } from './category';
 import { TBrand } from './brand';
+import { TLabel } from './label';
 
 export type TProduct = {
 	_id: string;
@@ -18,6 +19,7 @@ export type TProduct = {
 	offerExpiresDate?: number;
 	remaining?: number;
 	views: number;
+	labels?: TLabel[] | null;
 };
 
 const ProductSchema = new Schema<TProduct>({
@@ -49,6 +51,7 @@ const ProductSchema = new Schema<TProduct>({
 	offerExpiresDate: { type: Number, default: 0 },
 	remaining: Number,
 	views: { type: Number, default: 0 },
+	labels: [{ type: Schema.Types.ObjectId, ref: 'Label' }],
 });
 
 const Product = model<TProduct>('Product', ProductSchema);
