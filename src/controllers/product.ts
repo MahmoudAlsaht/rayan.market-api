@@ -6,6 +6,7 @@ import Category from '../models/category';
 import { deleteImage } from '../firebase/firestore/destroyFile';
 import { checkIfOfferEnded } from '../utils';
 import Brand from '../models/brand';
+import Label from '../models/label';
 
 export const getProducts = async (
 	req: Request,
@@ -84,6 +85,7 @@ export const createProduct = async (
 			newPrice,
 			isOffer,
 			offerExpiresDate,
+			labels,
 		} = req.body;
 
 		const product = new Product({
@@ -95,6 +97,14 @@ export const createProduct = async (
 			createdAt: new Date(),
 			lastModified: new Date(),
 		});
+
+		if (labels)
+			for (const selectedLabel of labels) {
+				const label = await Label.findById(
+					selectedLabel?._id,
+				);
+				product?.labels.push(label);
+			}
 
 		if (isOffer) product.offerExpiresDate = offerExpiresDate;
 		const category = await Category.findById(categoryId);
@@ -164,6 +174,7 @@ export const updateProduct = async (
 			newPrice,
 			isOffer,
 			offerExpiresDate,
+			labels,
 		} = req.body;
 
 		const product = await Product.findById(
@@ -180,6 +191,14 @@ export const updateProduct = async (
 		if (newPrice) product.newPrice = newPrice;
 		if (isOffer) product.offerExpiresDate = offerExpiresDate;
 		product.isOffer = isOffer;
+
+		if (labels)
+			for (const selectedLabel of labels) {
+				const label = await Label.findById(
+					selectedLabel?._id,
+				);
+				product?.labels.push(label);
+			}
 
 		if (imageUrl) {
 			await deleteImage(product?.productImage?.filename);

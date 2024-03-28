@@ -10,7 +10,10 @@ export const createLabel = async (
 ) => {
 	try {
 		const { labelValue } = req.body;
-		const label = new Label({ value: labelValue });
+		let label;
+		label =
+			(await Label.findOne({ value: labelValue })) ||
+			new Label({ value: labelValue });
 		await label.save();
 		res.status(200).send(label);
 	} catch (e: any) {

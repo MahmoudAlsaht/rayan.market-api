@@ -8,7 +8,7 @@ export type TLabel = {
 };
 
 const LabelSchema = new Schema<TLabel>({
-	value: { type: String, unique: true },
+	value: { type: String, unique: false },
 	products: [{ type: Schema.Types.ObjectId, ref: 'Product' }],
 });
 
