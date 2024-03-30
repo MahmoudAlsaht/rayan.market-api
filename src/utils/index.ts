@@ -1,5 +1,8 @@
 import bcrypt from 'bcrypt';
 import { TUser } from '../models/user';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 
 export const genPassword = async (password: string) => {
 	const salt = await bcrypt.genSalt(10);
@@ -49,6 +52,28 @@ export const checkIfOfferEnded = (
 	return days > expireDate;
 };
 
+export const checkIfDateInBetween = (
+	start: string,
+	end: string,
+) => {
+	if (!start || !end) return false;
+
+	dayjs.extend(utc);
+	dayjs.extend(timezone);
+	dayjs.tz.setDefault('Asia/Amman');
+
+	const startDate = new Date(start).getTime();
+	const endDate = new Date(end).getTime();
+
+	const currentDate = dayjs().format('YYYY-MM-DD');
+
+	const isBetween =
+		new Date(currentDate).getTime() >= startDate &&
+		new Date(currentDate).getTime() <= endDate;
+
+	return isBetween;
+};
+
 export const remainingDays = (
 	createdAt: Date,
 	expireDate: number,
@@ -57,7 +82,6 @@ export const remainingDays = (
 	const created = new Date(createdAt);
 	const diff = todyDate.getTime() - created.getTime();
 	const days = Math.round(diff / (1000 * 3600 * 24));
-	console.log(expireDate - days);
 	return expireDate - days;
 };
 

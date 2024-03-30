@@ -16,7 +16,10 @@ export type TProduct = {
 	category: TCategory;
 	brand: TBrand;
 	isOffer?: boolean;
+	isEndDate?: boolean;
 	offerExpiresDate?: number;
+	startOfferDate?: string | null;
+	endOfferDate?: string | null;
 	remaining?: number;
 	views: number;
 	labels?: TLabel[] | null;
@@ -48,7 +51,10 @@ const ProductSchema = new Schema<TProduct>({
 	newPrice: Number,
 	quantity: { type: Number, required: true },
 	isOffer: { type: Boolean, default: false },
+	isEndDate: { type: Boolean, default: false },
 	offerExpiresDate: { type: Number, default: 0 },
+	startOfferDate: String,
+	endOfferDate: String,
 	remaining: Number,
 	views: { type: Number, default: 0 },
 	labels: [{ type: Schema.Types.ObjectId, ref: 'Label' }],

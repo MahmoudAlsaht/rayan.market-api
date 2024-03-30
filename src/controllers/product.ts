@@ -4,7 +4,10 @@ import Product from '../models/product';
 import Image from '../models/image';
 import Category from '../models/category';
 import { deleteImage } from '../firebase/firestore/destroyFile';
-import { checkIfOfferEnded } from '../utils';
+import {
+	checkIfDateInBetween,
+	checkIfOfferEnded,
+} from '../utils';
 import Brand from '../models/brand';
 import Label from '../models/label';
 
@@ -22,23 +25,47 @@ export const getProducts = async (
 
 		for (const product of products) {
 			if (product?.isOffer) {
-				if (
-					checkIfOfferEnded(
-						product?.lastModified,
-						product?.offerExpiresDate,
-					)
-				) {
-					product.isOffer = false;
-					product.newPrice = null;
-					product.offerExpiresDate = 0;
-					(product.lastModified = new Date()),
-						await product.save();
-					sendProducts.push({
-						...product,
-						isOffer: false,
-						newPrice: null,
-						offerExpiresDate: 0,
-					});
+				if (product?.isEndDate) {
+					if (
+						!checkIfDateInBetween(
+							product?.startOfferDate,
+							product?.endOfferDate,
+						)
+					) {
+						product.isOffer = false;
+						product.isEndDate = false;
+						product.startOfferDate = null;
+						product.endOfferDate = null;
+						product.newPrice = null;
+						product.offerExpiresDate = 0;
+						(product.lastModified = new Date()),
+							await product.save();
+						sendProducts.push({
+							...product,
+							isOffer: false,
+							newPrice: null,
+							offerExpiresDate: 0,
+						});
+					}
+				} else {
+					if (
+						checkIfOfferEnded(
+							product?.lastModified,
+							product?.offerExpiresDate,
+						)
+					) {
+						product.isOffer = false;
+						product.newPrice = null;
+						product.offerExpiresDate = 0;
+						(product.lastModified = new Date()),
+							await product.save();
+						sendProducts.push({
+							...product,
+							isOffer: false,
+							newPrice: null,
+							offerExpiresDate: 0,
+						});
+					}
 				}
 			}
 			sendProducts.push(product);
@@ -86,16 +113,24 @@ export const createProduct = async (
 			isOffer,
 			offerExpiresDate,
 			labels,
+			startDate,
+			endDate,
+			isEndDate,
 		} = req.body;
 
+		console.log(req.body);
 		const product = new Product({
 			name,
 			price: parseFloat(price),
 			quantity: parseInt(quantity),
 			newPrice: newPrice && parseFloat(newPrice),
 			isOffer,
+			isEndDate,
+			offerExpiresDate: offerExpiresDate || null,
 			createdAt: new Date(),
 			lastModified: new Date(),
+			startOfferDate: startDate || null,
+			endOfferDate: endDate || null,
 		});
 
 		if (labels)
@@ -106,7 +141,6 @@ export const createProduct = async (
 				product?.labels.push(label);
 			}
 
-		if (isOffer) product.offerExpiresDate = offerExpiresDate;
 		const category = await Category.findById(categoryId);
 		const brand = await Brand.findById(brandId);
 
@@ -175,6 +209,9 @@ export const updateProduct = async (
 			isOffer,
 			offerExpiresDate,
 			labels,
+			startDate,
+			endDate,
+			isEndDate,
 		} = req.body;
 
 		const product = await Product.findById(
@@ -189,8 +226,11 @@ export const updateProduct = async (
 		if (category) product.category = category;
 		if (brand) product.brand = brand;
 		if (newPrice) product.newPrice = newPrice;
-		if (isOffer) product.offerExpiresDate = offerExpiresDate;
+		product.offerExpiresDate = offerExpiresDate || null;
 		product.isOffer = isOffer;
+		product.isEndDate = isEndDate;
+		product.startOfferDate = startDate || null;
+		product.endOfferDate = endDate || null;
 
 		if (labels)
 			for (const selectedLabel of labels) {
