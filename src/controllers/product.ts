@@ -214,15 +214,36 @@ export const updateProduct = async (
 			isEndDate,
 		} = req.body;
 
-		const product = await Product.findById(
-			product_id,
-		).populate('productImage');
+		const product = await Product.findById(product_id)
+			.populate('productImage')
+			.populate('category');
 
 		product.lastModified = new Date();
 		if (name) product.name = name;
 		if (price) product.price = parseFloat(price);
 		if (quantity) product.quantity = quantity;
-		// TODO: remove the product from former cat and brand and add it to the new ones
+
+		// remove the product from former cat and brand and add it to the new ones
+		const formerCat = await Category.findById(
+			product?.category?._id,
+		);
+		await formerCat.updateOne({
+			$pull: { products: product?._id },
+		});
+		const formerBrand = await Brand.findById(
+			product?.brand?._id,
+		);
+		await formerBrand.updateOne({
+			$pull: { products: product?._id },
+		});
+		const currCat = await Category.findById(category);
+		currCat.products.push(product);
+		await currCat.save();
+		const currBrand = await Brand.findById(brand);
+		currBrand.products.push(product);
+		await currBrand.save();
+
+		// update product
 		if (category) product.category = category;
 		if (brand) product.brand = brand;
 		if (newPrice) product.newPrice = newPrice;
