@@ -57,8 +57,8 @@ export const getProducts = async (
 						product.isOffer = false;
 						product.newPrice = null;
 						product.offerExpiresDate = 0;
-						(product.lastModified = new Date()),
-							await product.save();
+						product.lastModified = new Date();
+						await product.save();
 						sendProducts.push({
 							...product,
 							isOffer: false,
