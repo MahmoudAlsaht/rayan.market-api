@@ -12,18 +12,22 @@ export const getPromos = async (
 		const promos = await PromoCode.find();
 		const sendPromos = [];
 		for (const promo of promos) {
-			if (!promo?.expired) {
-				if (
-					!checkIfDateInBetween(
-						promo?.startDate,
-						promo?.endDate,
-					)
-				) {
-					promo.expired = true;
-					promo.startDate = null;
-					promo.endDate = null;
-					await promo.save();
-				}
+			if (promo?.expired) {
+				promo.expired = true;
+				promo.startDate = null;
+				promo.endDate = null;
+				await promo.save();
+			}			
+			if (
+				!checkIfDateInBetween(
+					promo?.startDate,
+					promo?.endDate,
+				)
+			) {
+				promo.expired = true;
+				promo.startDate = null;
+				promo.endDate = null;
+				await promo.save();
 			}
 			sendPromos.push(promo);
 		}
@@ -48,6 +52,31 @@ export const createPromo = async (
 			endDate: endDate || null,
 		});
 		await promo.save();
+		res.status(200).send(promo);
+	} catch (e: any) {
+		console.error(e);
+		next(new ExpressError(e.message, 404));
+	}
+};
+
+export const updatePromo = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { promo_id } = req.params;
+		const { code, discount, startDate, endDate, expired } =
+			req.body;
+		const promo = await PromoCode.findById(promo_id);
+
+		promo.code = code;
+		promo.discount = discount;
+		promo.startDate = startDate || null;
+		promo.endDate = endDate || null;
+		promo.expired = expired;
+		await promo.save();
+
 		res.status(200).send(promo);
 	} catch (e: any) {
 		console.error(e);
