@@ -2,6 +2,7 @@ import express from 'express';
 import expressAsyncHandler from 'express-async-handler';
 import {
 	createPromo,
+	deletePromo,
 	getPromos,
 	updatePromo,
 } from '../controllers/promo';
@@ -13,6 +14,9 @@ router
 	.post(expressAsyncHandler(createPromo))
 	.get(expressAsyncHandler(getPromos));
 
-router.route('/:promo_id').put(expressAsyncHandler(updatePromo));
+router
+	.route('/:promo_id')
+	.put(expressAsyncHandler(updatePromo))
+	.delete(expressAsyncHandler(deletePromo));
 
 export default router;

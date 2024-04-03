@@ -17,7 +17,7 @@ export const getPromos = async (
 				promo.startDate = null;
 				promo.endDate = null;
 				await promo.save();
-			}			
+			}
 			if (
 				!checkIfDateInBetween(
 					promo?.startDate,
@@ -80,6 +80,21 @@ export const updatePromo = async (
 		res.status(200).send(promo);
 	} catch (e: any) {
 		console.error(e);
+		next(new ExpressError(e.message, 404));
+	}
+};
+
+export const deletePromo = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { promo_id } = req.params;
+		await PromoCode.findByIdAndDelete(promo_id);
+
+		res.sendStatus(200);
+	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
 	}
 };
