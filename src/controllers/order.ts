@@ -6,11 +6,13 @@ import User from '../models/user';
 import AnonymousUser from '../models/anonymousUser';
 import Contact from '../models/contact';
 import {
+	applyDiscount,
 	genOrderId,
 	isAdmin,
 	isAuthenticated,
 	isStaff,
 } from '../utils';
+import PromoCode from '../models/promoCode';
 
 export const getOrders = async (
 	req: Request,
@@ -64,18 +66,27 @@ export const createOrder = async (
 			userId,
 			contactId,
 			paymentMethod,
+			promoCode,
 		} = req.body;
 
-		console.log(contactId);
 		const contact = await Contact.findById(contactId);
 
+		const promo = await PromoCode.findOne({
+			code: promoCode,
+		});
 		const order = new Order({
-			totalPrice: parseInt(totalPrice),
+			totalPrice: promo
+				? applyDiscount(
+						parseFloat(totalPrice as string),
+						promo?.discount,
+				  )
+				: parseFloat(totalPrice),
 			products,
 			isUserRegistered,
 			contact,
 			orderId: genOrderId(),
 			paymentMethod,
+			promoCode: promo,
 		});
 
 		const user = isUserRegistered

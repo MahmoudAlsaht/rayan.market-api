@@ -59,6 +59,23 @@ export const createPromo = async (
 	}
 };
 
+export const getPromo = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { promoCode } = req.params;
+		const promo = await PromoCode.findOne({
+			code: promoCode,
+		});
+		res.status(200).send(promo);
+	} catch (e: any) {
+		console.error(e);
+		next(new ExpressError(e.message, 404));
+	}
+};
+
 export const updatePromo = async (
 	req: Request,
 	res: Response,

@@ -93,3 +93,12 @@ export const genOrderId = () => {
 	}
 	return orderId;
 };
+
+export function applyDiscount(
+	totalPrice: number,
+	discountPercentage: number,
+) {
+	const discount = totalPrice * (discountPercentage / 100);
+	const discountedTotal = totalPrice - discount;
+	return discountedTotal;
+}
