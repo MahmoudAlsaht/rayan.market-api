@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-type TPromoCode = {
+export type TPromoCode = {
 	_id: string;
 	code: string;
 	discount: number;
@@ -10,7 +10,7 @@ type TPromoCode = {
 };
 
 const PromoSchema = new Schema<TPromoCode>({
-	code: String,
+	code: { type: String, unique: true },
 	discount: Number,
 	expired: { type: Boolean, default: false },
 	startDate: String,

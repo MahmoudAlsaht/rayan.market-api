@@ -63,6 +63,7 @@ export const createOrder = async (
 			isUserRegistered,
 			userId,
 			contactId,
+			paymentMethod,
 		} = req.body;
 
 		console.log(contactId);
@@ -74,6 +75,7 @@ export const createOrder = async (
 			isUserRegistered,
 			contact,
 			orderId: genOrderId(),
+			paymentMethod,
 		});
 
 		const user = isUserRegistered

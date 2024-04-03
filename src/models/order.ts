@@ -3,6 +3,7 @@ import { TProduct } from './product';
 import { TContactInfo } from './contact';
 import { TUser } from './user';
 import { TAnonymousUser } from './anonymousUser';
+import { TPromoCode } from './promoCode';
 
 export type TOrderProduct = {
 	_id: string;
@@ -23,6 +24,8 @@ export type TOrder = {
 	status: string;
 	isUserRegistered: boolean;
 	user: TUser | TAnonymousUser;
+	promoCode?: TPromoCode | null;
+	paymentMethod: string;
 };
 
 const OrderSchema = new Schema<TOrder>({
@@ -53,6 +56,8 @@ const OrderSchema = new Schema<TOrder>({
 	status: { type: String, default: 'pending' },
 	isUserRegistered: Boolean,
 	totalPrice: Number,
+	promoCode: { type: Schema.Types.ObjectId, ref: 'PromoCode' },
+	paymentMethod: String,
 });
 
 const Order = model<TOrder>('Order', OrderSchema);
