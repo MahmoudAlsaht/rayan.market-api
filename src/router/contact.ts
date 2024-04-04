@@ -7,6 +7,13 @@ import {
 	updateContact,
 	deleteContact,
 } from '../controllers/contact';
+import {
+	createDistrict,
+	deleteDistrict,
+	getDistrict,
+	getDistricts,
+	updateDistrict,
+} from '../controllers/district';
 const router = express.Router({ mergeParams: true });
 
 router
@@ -19,5 +26,16 @@ router
 	.get(expressAsyncHandler(getContact))
 	.delete(expressAsyncHandler(deleteContact))
 	.put(expressAsyncHandler(updateContact));
+
+router
+	.route('/district')
+	.get(expressAsyncHandler(getDistricts))
+	.post(expressAsyncHandler(createDistrict));
+
+router
+	.route('/district/:district_id')
+	.get(expressAsyncHandler(getDistrict))
+	.put(expressAsyncHandler(updateDistrict))
+	.delete(expressAsyncHandler(deleteDistrict));
 
 export default router;

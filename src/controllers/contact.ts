@@ -28,11 +28,11 @@ export const createContact = async (
 ) => {
 	try {
 		const { profile_id } = req.params;
-		const { city, street, contactNumber } = req.body;
+		const { district, contactNumber } = req.body;
 
 		const profile = await Profile.findById(profile_id);
 		const contact = await new Contact({
-			address: { city, street },
+			district,
 			contactNumber,
 			profile,
 		});
@@ -71,11 +71,10 @@ export const updateContact = async (
 ) => {
 	try {
 		const { contact_id } = req.params;
-		const { city, street, contactNumber } = req.body;
+		const { district, contactNumber } = req.body;
 
 		const contact = await Contact.findById(contact_id);
-		if (city) contact.address.city = city;
-		if (street) contact.address.street = street;
+		if (district) contact.district = district;
 		if (contactNumber) contact.contactNumber = contactNumber;
 
 		await contact.save();
