@@ -45,7 +45,11 @@ export const getOrder = async (
 		const { order_id } = req.params;
 		const order = await Order.findById(order_id)
 			.populate('user')
-			.populate('contact');
+			.populate({
+				path: 'contact',
+				populate: { path: 'district' },
+			});
+		console.log(order);
 		res.status(200).send(order);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));

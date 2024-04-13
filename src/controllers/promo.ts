@@ -69,6 +69,28 @@ export const getPromo = async (
 		const promo = await PromoCode.findOne({
 			code: promoCode,
 		});
+		console.log(
+			!checkIfDateInBetween(
+				promo?.startDate,
+				promo?.endDate,
+			),
+		);
+		if (promo?.expired) {
+			promo.startDate = null;
+			promo.endDate = null;
+			await promo.save();
+		}
+		if (
+			!checkIfDateInBetween(
+				promo?.startDate,
+				promo?.endDate,
+			)
+		) {
+			promo.expired = true;
+			promo.startDate = null;
+			promo.endDate = null;
+			await promo.save();
+		}
 		res.status(200).send(promo);
 	} catch (e: any) {
 		console.error(e);

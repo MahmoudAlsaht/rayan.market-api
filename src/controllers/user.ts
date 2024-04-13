@@ -6,6 +6,7 @@ import { checkPassword, genPassword } from '../utils';
 import AnonymousUser from '../models/anonymousUser';
 import Contact from '../models/contact';
 import jwt from 'jsonwebtoken';
+import District from '../models/district';
 
 const { SECRET_1 } = process.env;
 
@@ -170,7 +171,7 @@ export const createAnonymousUser = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { name, city, street, phone } = req.body;
+		const { name, districtId, phone } = req.body;
 
 		const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
 
@@ -178,11 +179,10 @@ export const createAnonymousUser = async (
 			throw new Error('Invalid username');
 		}
 
+		const district = await District.findById(districtId);
+
 		const contact = new Contact({
-			address: {
-				city,
-				street,
-			},
+			district,
 			contactNumber: phone,
 		});
 		await contact.save();

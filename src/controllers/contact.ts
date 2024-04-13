@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
 import Profile from '../models/profile';
 import Contact from '../models/contact';
+import District from '../models/district';
 
 export const getContacts = async (
 	req: Request,
@@ -12,7 +13,10 @@ export const getContacts = async (
 		const { profile_id } = req.params;
 		const profile = await Profile.findById(
 			profile_id,
-		).populate('contacts');
+		).populate({
+			path: 'contacts',
+			populate: { path: 'district' },
+		});
 
 		res.status(200).send(profile?.contacts);
 	} catch (e: any) {
@@ -31,8 +35,9 @@ export const createContact = async (
 		const { district, contactNumber } = req.body;
 
 		const profile = await Profile.findById(profile_id);
+		const foundDistrict = await District.findById(district);
 		const contact = await new Contact({
-			district,
+			district: foundDistrict,
 			contactNumber,
 			profile,
 		});
@@ -55,7 +60,9 @@ export const getContact = async (
 ) => {
 	try {
 		const { contact_id } = req.params;
-		const contact = await Contact.findById(contact_id);
+		const contact = await Contact.findById(
+			contact_id,
+		).populate('district');
 
 		res.status(200).send(contact);
 	} catch (e: any) {

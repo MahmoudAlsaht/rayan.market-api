@@ -76,9 +76,7 @@ export const deleteDistrict = async (
 ) => {
 	try {
 		const { district_id } = req.params;
-		const district = await District.findByIdAndDelete(
-			district_id,
-		);
+		await District.findByIdAndDelete(district_id);
 		res.status(200).send(district_id);
 	} catch (e: any) {
 		console.error(e.message);
