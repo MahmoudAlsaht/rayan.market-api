@@ -154,25 +154,3 @@ export const deleteCategory = async (
 		res.status(400);
 	}
 };
-
-export const removeImage = async (
-	req: Request,
-	res: Response,
-	next: NextFunction,
-) => {
-	try {
-		const { category_id } = req.params;
-		const category = await Category.findById(
-			category_id,
-		).populate('image');
-		const imageId = category?.image?._id;
-		await deleteImage(category?.image?.filename);
-		category.image = null;
-
-		await category.save();
-		res.status(200).send(imageId);
-	} catch (e: any) {
-		next(new ExpressError(e.message, 404));
-		res.status(404);
-	}
-};

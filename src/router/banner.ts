@@ -6,7 +6,6 @@ import {
 	updateBanner,
 	createBanner,
 	deleteBanner,
-	// updateBannersActivity,
 } from '../controllers/banner';
 import {
 	getBannerImages,
@@ -14,19 +13,28 @@ import {
 	removeImage,
 	updateImageLink,
 } from '../controllers/bannerImages';
+import multer from 'multer';
+import { storage } from '../cloudinary';
+
+const upload = multer({ storage });
 
 const router = express.Router({ mergeParams: true });
 
 router
 	.route('/')
 	.get(expressAsyncHandler(getBanners))
-	.post(expressAsyncHandler(createBanner));
+	.post(
+		upload.array('files', 4),
+		expressAsyncHandler(createBanner),
+	);
 
 router
 	.route('/:banner_id')
 	.get(expressAsyncHandler(getBanner))
-	// .patch(expressAsyncHandler(updateBannersActivity))
-	.put(expressAsyncHandler(updateBanner))
+	.put(
+		upload.array('files', 4),
+		expressAsyncHandler(updateBanner),
+	)
 	.delete(expressAsyncHandler(deleteBanner));
 
 router

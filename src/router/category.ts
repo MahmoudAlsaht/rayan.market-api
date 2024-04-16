@@ -7,7 +7,6 @@ import {
 	getCategory,
 	updateCategory,
 	getCategoryProducts,
-	removeImage,
 } from '../controllers/category';
 import multer from 'multer';
 import { storage } from '../cloudinary';
@@ -31,7 +30,6 @@ router
 		upload.single('file'),
 		expressAsyncHandler(updateCategory),
 	)
-	.patch(expressAsyncHandler(removeImage))
 	.delete(expressAsyncHandler(deleteCategory));
 
 router.get(

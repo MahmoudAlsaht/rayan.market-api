@@ -2,9 +2,14 @@ import { Request, Response, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
 import Banner from '../models/banner';
 import Image from '../models/image';
-import { deleteImage } from '../firebase/firestore/destroyFile';
+import { deleteImage } from '../utils';
 import Brand from '../models/brand';
 import Category from '../models/category';
+
+type TFile = {
+	filename: string;
+	path: string;
+};
 
 export const getBanners = async (
 	req: Request,
@@ -50,11 +55,12 @@ export const createBanner = async (
 			await doc.save();
 		}
 
-		if (imagesUrls && imagesUrls.length > 0) {
-			for (const imageUrl of imagesUrls) {
+		if (req.files) {
+			for (const file of req.files as TFile[]) {
+				const { filename, path } = file;
 				const image = new Image({
-					path: imageUrl?.url,
-					filename: `banners/${name}/${imageUrl?.fileName}'s-Image`,
+					path,
+					filename,
 					imageType: 'bannerImages',
 					doc: banner,
 				});
@@ -65,6 +71,9 @@ export const createBanner = async (
 		await banner.save();
 		res.status(200).send(banner);
 	} catch (e: any) {
+		for (const file of req.files as TFile[]) {
+			await deleteImage(req.file?.filename);
+		}
 		console.log(e);
 		next(new ExpressError(e.message, 404));
 		res.status(404);
@@ -96,7 +105,7 @@ export const updateBanner = async (
 ) => {
 	try {
 		const { banner_id } = req.params;
-		const { name, imagesUrls } = req.body;
+		const { name } = req.body;
 
 		const banner = await Banner.findById(banner_id).populate(
 			'bannerImages',
@@ -104,11 +113,12 @@ export const updateBanner = async (
 
 		if (name) banner.name = name;
 
-		if (imagesUrls && imagesUrls.length > 0) {
-			for (const imageUrl of imagesUrls) {
+		if (req.files) {
+			for (const file of req.files as TFile[]) {
+				const { filename, path } = file;
 				const image = await new Image({
-					path: imageUrl?.url,
-					filename: `banners/${name}/${imageUrl?.fileName}'s-Image`,
+					path,
+					filename,
 					imageType: 'bannerImages',
 					doc: banner,
 				});
@@ -120,45 +130,13 @@ export const updateBanner = async (
 
 		res.status(200).send(banner);
 	} catch (e: any) {
+		for (const file of req.files as TFile[]) {
+			await deleteImage(req.file?.filename);
+		}
 		next(new ExpressError(e.message, 404));
 		res.status(404);
 	}
 };
-
-// export const updateBannersActivity = async (
-// 	req: Request,
-// 	res: Response,
-// 	next: NextFunction,
-// ) => {
-// 	try {
-// 		const { banner_id } = req.params;
-// 		const { active } = req.body;
-
-// 		const banner = await Banner.findById(banner_id).populate(
-// 			'bannerImages',
-// 		);
-// 		const banners = await Banner.find().populate(
-// 			'bannerImages',
-// 		);
-
-// 		for (const banner of banners) {
-// 			banner.active = false;
-// 			await banner.save();
-// 		}
-
-// 		banner.active = active;
-
-// 		await banner.save();
-
-// 		const sendBanners = banners.map((b) =>
-// 			b?.id === banner.id ? banner : b,
-// 		);
-// 		res.status(200).send(sendBanners);
-// 	} catch (e: any) {
-// 		next(new ExpressError(e.message, 404));
-// 		res.status(404);
-// 	}
-// };
 
 export const deleteBanner = async (
 	req: Request,

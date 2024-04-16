@@ -2,7 +2,7 @@ import { Response, Request, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
 import Brand from '../models/brand';
 import Image from '../models/image';
-import { deleteImage } from '../firebase/firestore/destroyFile';
+import { deleteImage } from '../utils';
 
 export const getBrands = async (
 	req: Request,
@@ -43,39 +43,23 @@ export const getBrand = async (
 	}
 };
 
-export const getBrandProducts = async (
-	req: Request,
-	res: Response,
-	next: NextFunction,
-) => {
-	try {
-		const { brand_id } = req.params;
-		const brand = await Brand.findById(brand_id)
-			.populate('products')
-			.populate('image');
-		res.status(200).send(brand?.products);
-	} catch (e: any) {
-		next(new ExpressError(e.message, 404));
-		res.status(400);
-	}
-};
-
 export const createBrand = async (
 	req: Request,
 	res: Response,
 	next: NextFunction,
 ) => {
 	try {
-		const { name, imageUrl } = req.body;
+		const { name } = req.body;
 		const brand = await new Brand({
 			name,
 			createdAt: new Date(),
 		});
 
-		if (imageUrl) {
+		if (req.file) {
+			const { filename, path } = req.file;
 			const image = new Image({
-				path: imageUrl?.url,
-				filename: `brands/${name}/${imageUrl?.fileName}'s-Image`,
+				path,
+				filename,
 				imageType: 'BrandImage',
 				doc: brand,
 			});
@@ -86,6 +70,7 @@ export const createBrand = async (
 		await brand.save();
 		res.status(200).send(brand);
 	} catch (e: any) {
+		await deleteImage(req.file?.filename);
 		next(new ExpressError(e.message, 404));
 		res.status(400);
 	}
@@ -97,26 +82,25 @@ export const updateBrand = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { name, imageUrl } = req.body;
+		const { name } = req.body;
 		const { brand_id } = req.params;
 		const brand = await Brand.findById(brand_id).populate(
 			'image',
 		);
-		if (name && name?.length > 0) brand.name = name;
+		if (name !== 'undefined' && name?.length > 0)
+			brand.name = name;
 
-		if (imageUrl) {
+		if (req.file) {
+			const { filename, path } = req.file;
 			if (brand.image) {
 				await deleteImage(brand?.image?.filename);
-				await Image.findByIdAndDelete(brand?.image?._id);
 			}
-			const image = new Image({
-				path: imageUrl?.url,
-				filename: `brands/${name}/${imageUrl?.fileName}'s-Image`,
-				imageType: 'BrandImage',
-				doc: brand,
-			});
+			const image =
+				(await Image.findById(brand?.image?._id)) ||
+				new Image({ brand });
+			image.filename = filename;
+			image.path = path;
 			await image.save();
-
 			brand.image = image;
 		}
 
@@ -124,6 +108,7 @@ export const updateBrand = async (
 
 		res.status(200).send(brand);
 	} catch (e: any) {
+		await deleteImage(req.file?.filename);
 		next(new ExpressError(e.message, 404));
 		res.status(400);
 	}
@@ -149,27 +134,5 @@ export const deleteBrand = async (
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
 		res.status(400);
-	}
-};
-
-export const removeImage = async (
-	req: Request,
-	res: Response,
-	next: NextFunction,
-) => {
-	try {
-		const { brand_id } = req.params;
-		const brand = await Brand.findById(brand_id).populate(
-			'image',
-		);
-		const imageId = brand?.image?._id;
-		await deleteImage(brand?.image?.filename);
-		brand.image = null;
-
-		await brand.save();
-		res.status(200).send(imageId);
-	} catch (e: any) {
-		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };

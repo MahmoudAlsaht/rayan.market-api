@@ -6,26 +6,25 @@ import {
 	getBrands,
 	getBrand,
 	updateBrand,
-	getBrandProducts,
-	removeImage,
 } from '../controllers/brand';
+import multer from 'multer';
+import { storage } from '../cloudinary';
+
+const upload = multer({ storage });
 const router = express.Router();
 
 router
 	.route('/')
 	.get(expressAsyncHandler(getBrands))
-	.post(expressAsyncHandler(createBrand));
+	.post(
+		upload.single('file'),
+		expressAsyncHandler(createBrand),
+	);
 
 router
 	.route('/:brand_id')
 	.get(expressAsyncHandler(getBrand))
-	.put(expressAsyncHandler(updateBrand))
-	.patch(expressAsyncHandler(removeImage))
+	.put(upload.single('file'), expressAsyncHandler(updateBrand))
 	.delete(expressAsyncHandler(deleteBrand));
-
-router.get(
-	'/:brand_id/products',
-	expressAsyncHandler(getBrandProducts),
-);
 
 export default router;

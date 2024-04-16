@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
 import Banner from '../models/banner';
 import Image from '../models/image';
-import { deleteImage } from '../firebase/firestore/destroyFile';
+import { deleteImage } from '../utils';
 
 export const getBannerImages = async (
 	req: Request,
