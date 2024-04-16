@@ -9,14 +9,20 @@ import {
 	filterProducts,
 	updateProductViews,
 } from '../controllers/product';
-import { verifyToken } from '../middlewares';
+import { storage } from '../cloudinary';
+import multer from 'multer';
+
+const upload = multer({ storage });
 
 const router = express.Router();
 
 router
 	.route('/')
 	.get(expressAsyncHandler(getProducts))
-	.post(expressAsyncHandler(createProduct));
+	.post(
+		upload.single('file'),
+		expressAsyncHandler(createProduct),
+	);
 
 router.get(
 	'/filter-products',
@@ -26,7 +32,10 @@ router.get(
 router
 	.route('/:product_id')
 	.get(expressAsyncHandler(getProduct))
-	.put(expressAsyncHandler(updateProduct))
+	.put(
+		upload.single('file'),
+		expressAsyncHandler(updateProduct),
+	)
 	.patch(expressAsyncHandler(updateProductViews))
 	.delete(expressAsyncHandler(deleteProduct));
 

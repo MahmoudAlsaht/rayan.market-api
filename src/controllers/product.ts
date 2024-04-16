@@ -3,7 +3,7 @@ import ExpressError from '../middlewares/expressError';
 import Product from '../models/product';
 import Image from '../models/image';
 import Category from '../models/category';
-import { deleteImage } from '../firebase/firestore/destroyFile';
+import { deleteImage } from '../utils';
 import {
 	checkIfDateInBetween,
 	checkIfOfferEnded,
@@ -108,37 +108,49 @@ export const createProduct = async (
 			brandId,
 			price,
 			quantity,
-			imageUrl,
 			newPrice,
 			isOffer,
 			offerExpiresDate,
 			labels,
+			label,
 			startDate,
 			endDate,
 			isEndDate,
 		} = req.body;
 
-		console.log(req.body);
 		const product = new Product({
 			name,
 			price: parseFloat(price),
 			quantity: parseInt(quantity),
-			newPrice: newPrice && parseFloat(newPrice),
-			isOffer,
-			isEndDate,
-			offerExpiresDate: offerExpiresDate || null,
+			newPrice:
+				newPrice !== 'NaN' ? parseFloat(newPrice) : null,
+			isOffer: isOffer === 'true' ? true : false,
+			isEndDate: isEndDate === 'true' ? true : false,
+			offerExpiresDate:
+				offerExpiresDate === 'null'
+					? 0
+					: offerExpiresDate,
 			createdAt: new Date(),
 			lastModified: new Date(),
-			startOfferDate: startDate || null,
-			endOfferDate: endDate || null,
+			startOfferDate:
+				startDate !== 'undefined' ? startDate : null,
+			endOfferDate:
+				endDate !== 'undefined' ? endDate : null,
 		});
 
-		if (labels)
-			for (const selectedLabel of labels) {
-				const label = await Label.findById(
-					selectedLabel?._id,
+		if (label || labels)
+			if (labels)
+				for (const selectedLabel of labels) {
+					const label = await Label.findById(
+						selectedLabel,
+					);
+					product?.labels.push(label);
+				}
+			else {
+				const selectedLabel = await Label.findById(
+					label,
 				);
-				product?.labels.push(label);
+				product?.labels.push(selectedLabel);
 			}
 
 		const category = await Category.findById(categoryId);
@@ -151,10 +163,11 @@ export const createProduct = async (
 		product.category = category;
 		product.brand = brand;
 
-		if (imageUrl) {
+		if (req.file) {
+			const { filename, path } = req.file;
 			const image = new Image({
-				path: imageUrl?.url,
-				filename: `products/${name}/${imageUrl?.fileName}'s-Image`,
+				path: path,
+				filename: filename,
 				imageType: 'productImage',
 				doc: product,
 			});
@@ -168,6 +181,7 @@ export const createProduct = async (
 		res.status(200).send(product);
 	} catch (e: any) {
 		console.log(e);
+		await deleteImage(req.file?.filename);
 		next(new ExpressError(e.message, 404));
 		res.status(404);
 	}
@@ -198,17 +212,18 @@ export const updateProduct = async (
 ) => {
 	try {
 		const { product_id } = req.params;
+
 		const {
 			name,
 			price,
 			quantity,
-			category,
-			brand,
-			imageUrl,
+			categoryId,
+			brandId,
 			newPrice,
 			isOffer,
 			offerExpiresDate,
 			labels,
+			label,
 			startDate,
 			endDate,
 			isEndDate,
@@ -222,56 +237,71 @@ export const updateProduct = async (
 		if (name) product.name = name;
 		if (price) product.price = parseFloat(price);
 		if (quantity) product.quantity = quantity;
-
-		// remove the product from former cat and brand and add it to the new ones
-		const formerCat = await Category.findById(
-			product?.category?._id,
-		);
-		await formerCat.updateOne({
-			$pull: { products: product?._id },
-		});
-		const formerBrand = await Brand.findById(
-			product?.brand?._id,
-		);
-		await formerBrand.updateOne({
-			$pull: { products: product?._id },
-		});
-		const currCat = await Category.findById(category);
-		currCat.products.push(product);
-		await currCat.save();
-		const currBrand = await Brand.findById(brand);
-		currBrand.products.push(product);
-		await currBrand.save();
-
+		if (newPrice) {
+			product.newPrice =
+				newPrice !== 'NaN' ? parseFloat(newPrice) : null;
+		}
+		product.isOffer = isOffer === 'true' ? true : false;
+		product.isEndDate = isEndDate === 'true' ? true : false;
+		if (offerExpiresDate !== 'undefined')
+			product.offerExpiresDate = offerExpiresDate;
+		if (startDate !== 'undefined')
+			product.startOfferDate = startDate;
+		if (endDate !== 'undefined')
+			product.endOfferDate = endDate;
 		// update product
-		if (category) product.category = category;
-		if (brand) product.brand = brand;
-		if (newPrice) product.newPrice = newPrice;
-		product.offerExpiresDate = offerExpiresDate || null;
-		product.isOffer = isOffer;
-		product.isEndDate = isEndDate;
-		product.startOfferDate = startDate || null;
-		product.endOfferDate = endDate || null;
+		if (categoryId !== 'undefined') {
+			// remove the product from former cat and brand and add it to the new ones
+			const formerCat = await Category.findById(
+				product?.category?._id,
+			);
+			if (formerCat)
+				await formerCat?.updateOne({
+					$pull: { products: product?._id },
+				});
+			const currCat = await Category.findById(categoryId);
+			product.category = currCat;
+			currCat?.products.push(product);
+			await currCat.save();
+		}
+		if (brandId !== 'undefined') {
+			const formerBrand = await Brand.findById(
+				product?.brand?._id,
+			);
+			if (formerBrand)
+				await formerBrand?.updateOne({
+					$pull: { products: product?._id },
+				});
 
-		if (labels)
-			for (const selectedLabel of labels) {
-				const label = await Label.findById(
-					selectedLabel?._id,
+			const currBrand = await Brand.findById(brandId);
+			product.category = currBrand;
+			currBrand.products.push(product);
+			await currBrand.save();
+		}
+
+		if (label || labels)
+			if (labels)
+				for (const selectedLabel of labels) {
+					const label = await Label.findById(
+						selectedLabel,
+					);
+					product?.labels.push(label);
+				}
+			else {
+				const selectedLabel = await Label.findById(
+					label,
 				);
-				product?.labels.push(label);
+				product?.labels.push(selectedLabel);
 			}
 
-		if (imageUrl) {
-			await deleteImage(product?.productImage?.filename);
-			await Image.findByIdAndDelete(
+		if (req.file) {
+			const { filename, path } = req.file;
+			const image = await Image.findById(
 				product?.productImage?._id,
 			);
-			const image = new Image({
-				path: imageUrl?.url,
-				filename: `products/${name}/${imageUrl?.fileName}'s-Image`,
-				imageType: 'productImage',
-				doc: product,
-			});
+			await deleteImage(image?.filename);
+			if (filename) image.filename = filename;
+			if (path) image.path = path;
 			await image.save();
 			product.productImage = image;
 		}
@@ -280,6 +310,7 @@ export const updateProduct = async (
 
 		res.status(200).send(product);
 	} catch (e: any) {
+		console.log(e);
 		next(new ExpressError(e.message, 404));
 		res.status(404);
 	}

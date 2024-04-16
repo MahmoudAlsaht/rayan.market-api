@@ -3,6 +3,7 @@ import { TUser } from '../models/user';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
+import cloudinary from '../cloudinary';
 
 export const genPassword = async (password: string) => {
 	const salt = await bcrypt.genSalt(10);
@@ -102,3 +103,11 @@ export function applyDiscount(
 	const discountedTotal = totalPrice - discount;
 	return discountedTotal;
 }
+
+export const deleteImage = async (filename: string) => {
+	try {
+		await cloudinary.uploader.destroy(filename);
+	} catch (e: any) {
+		console.log(e);
+	}
+};
