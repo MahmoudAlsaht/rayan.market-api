@@ -11,7 +11,6 @@ import express, {
 import { connectDB } from './db';
 import cors from 'cors';
 import mongoSanitize from 'express-mongo-sanitize';
-import firebaseDb from './firebase/config';
 import userRouter from './router/user';
 import profileRouter from './router/profile';
 import categoryRouter from './router/category';
@@ -30,7 +29,6 @@ const application = () => {
 	const port = process.env.PORT || 5000;
 
 	connectDB();
-	firebaseDb();
 
 	app.use(express.json());
 	app.use(express.urlencoded({ extended: false }));
