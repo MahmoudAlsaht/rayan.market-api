@@ -2,7 +2,7 @@ import { Response, Request, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
 import Category from '../models/category';
 import Image from '../models/image';
-import { deleteImage } from '../firebase/firestore/destroyFile';
+import { deleteImage } from '../utils';
 
 export const getCategories = async (
 	req: Request,
@@ -66,16 +66,17 @@ export const createCategory = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { name, imageUrl } = req.body;
+		const { name } = req.body;
 		const category = await new Category({
 			name,
 			createdAt: new Date(),
 		});
 
-		if (imageUrl) {
+		if (req.file) {
+			const { filename, path } = req.file;
 			const image = new Image({
-				path: imageUrl?.url,
-				filename: `categories/${name}/${imageUrl?.fileName}'s-Image`,
+				path,
+				filename,
 				imageType: 'CategoryImage',
 				doc: category,
 			});
@@ -86,6 +87,7 @@ export const createCategory = async (
 		await category.save();
 		res.status(200).send(category);
 	} catch (e: any) {
+		await deleteImage(req.file?.filename);
 		next(new ExpressError(e.message, 404));
 		res.status(400);
 	}
@@ -97,28 +99,27 @@ export const updateCategory = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { name, imageUrl } = req.body;
+		const { name } = req.body;
 		const { category_id } = req.params;
 		const category = await Category.findById(
 			category_id,
 		).populate('image');
-		if (name && name?.length > 0) category.name = name;
 
-		if (imageUrl) {
+		console.log(req.body.name);
+		if (name !== 'undefined' && name?.length > 0)
+			category.name = name;
+
+		if (req.file) {
+			const { filename, path } = req.file;
 			if (category.image) {
 				await deleteImage(category?.image?.filename);
-				await Image.findByIdAndDelete(
-					category?.image?._id,
-				);
 			}
-			const image = new Image({
-				path: imageUrl?.url,
-				filename: `categories/${name}/${imageUrl?.fileName}'s-Image`,
-				imageType: 'CategoryImage',
-				doc: category,
-			});
+			const image =
+				(await Image.findById(category?.image?._id)) ||
+				new Image({ category });
+			image.filename = filename;
+			image.path = path;
 			await image.save();
-
 			category.image = image;
 		}
 

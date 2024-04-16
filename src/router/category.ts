@@ -9,17 +9,28 @@ import {
 	getCategoryProducts,
 	removeImage,
 } from '../controllers/category';
+import multer from 'multer';
+import { storage } from '../cloudinary';
+
+const upload = multer({ storage });
+
 const router = express.Router();
 
 router
 	.route('/')
 	.get(expressAsyncHandler(getCategories))
-	.post(expressAsyncHandler(createCategory));
+	.post(
+		upload.single('file'),
+		expressAsyncHandler(createCategory),
+	);
 
 router
 	.route('/:category_id')
 	.get(expressAsyncHandler(getCategory))
-	.put(expressAsyncHandler(updateCategory))
+	.put(
+		upload.single('file'),
+		expressAsyncHandler(updateCategory),
+	)
 	.patch(expressAsyncHandler(removeImage))
 	.delete(expressAsyncHandler(deleteCategory));
 
