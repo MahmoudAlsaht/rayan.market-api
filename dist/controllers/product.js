@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -17,25 +8,51 @@ const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const product_1 = __importDefault(require("../models/product"));
 const image_1 = __importDefault(require("../models/image"));
 const category_1 = __importDefault(require("../models/category"));
-const destroyFile_1 = require("../firebase/firestore/destroyFile");
 const utils_1 = require("../utils");
+const utils_2 = require("../utils");
 const brand_1 = __importDefault(require("../models/brand"));
-const getProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const label_1 = __importDefault(require("../models/label"));
+const getProducts = async (req, res, next) => {
     try {
-        const products = yield product_1.default.find()
+        const products = await product_1.default.find()
             .populate('productImage')
             .populate('category')
             .populate('brand');
         const sendProducts = [];
         for (const product of products) {
-            if (product === null || product === void 0 ? void 0 : product.isOffer) {
-                if ((0, utils_1.checkIfOfferEnded)(product === null || product === void 0 ? void 0 : product.lastModified, product === null || product === void 0 ? void 0 : product.offerExpiresDate)) {
-                    product.isOffer = false;
-                    product.newPrice = null;
-                    product.offerExpiresDate = 0;
-                    (product.lastModified = new Date()),
-                        yield product.save();
-                    sendProducts.push(Object.assign(Object.assign({}, product), { isOffer: false, newPrice: null, offerExpiresDate: 0 }));
+            if (product?.isOffer) {
+                if (product?.isEndDate) {
+                    if (!(0, utils_2.checkIfDateInBetween)(product?.startOfferDate, product?.endOfferDate)) {
+                        product.isOffer = false;
+                        product.isEndDate = false;
+                        product.startOfferDate = null;
+                        product.endOfferDate = null;
+                        product.newPrice = null;
+                        product.offerExpiresDate = 0;
+                        (product.lastModified = new Date()),
+                            await product.save();
+                        sendProducts.push({
+                            ...product,
+                            isOffer: false,
+                            newPrice: null,
+                            offerExpiresDate: 0,
+                        });
+                    }
+                }
+                else {
+                    if ((0, utils_2.checkIfOfferEnded)(product?.lastModified, product?.offerExpiresDate)) {
+                        product.isOffer = false;
+                        product.newPrice = null;
+                        product.offerExpiresDate = 0;
+                        product.lastModified = new Date();
+                        await product.save();
+                        sendProducts.push({
+                            ...product,
+                            isOffer: false,
+                            newPrice: null,
+                            offerExpiresDate: 0,
+                        });
+                    }
                 }
             }
             sendProducts.push(product);
@@ -47,11 +64,11 @@ const getProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         res.status(404);
         5;
     }
-});
+};
 exports.getProducts = getProducts;
-const filterProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const filterProducts = async (req, res, next) => {
     try {
-        const products = yield product_1.default.find()
+        const products = await product_1.default.find()
             .populate('productImage')
             .populate('category')
             .populate('brand');
@@ -61,68 +78,85 @@ const filterProducts = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.filterProducts = filterProducts;
-const createProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const createProduct = async (req, res, next) => {
     try {
-        const { name, categoryId, brandId, price, quantity, imageUrl, newPrice, isOffer, offerExpiresDate, } = req.body;
+        const { name, categoryId, brandId, price, quantity, newPrice, isOffer, offerExpiresDate, labels, label, startDate, endDate, isEndDate, } = req.body;
         const product = new product_1.default({
             name,
             price: parseFloat(price),
             quantity: parseInt(quantity),
-            newPrice: newPrice && parseFloat(newPrice),
-            isOffer,
+            newPrice: newPrice !== 'NaN' ? parseFloat(newPrice) : null,
+            isOffer: isOffer === 'true' ? true : false,
+            isEndDate: isEndDate === 'true' ? true : false,
+            offerExpiresDate: offerExpiresDate === 'null'
+                ? 0
+                : offerExpiresDate,
             createdAt: new Date(),
             lastModified: new Date(),
+            startOfferDate: startDate !== 'undefined' ? startDate : null,
+            endOfferDate: endDate !== 'undefined' ? endDate : null,
         });
-        if (isOffer)
-            product.offerExpiresDate = offerExpiresDate;
-        const category = yield category_1.default.findById(categoryId);
-        const brand = yield brand_1.default.findById(brandId);
+        if (label || labels)
+            if (labels)
+                for (const selectedLabel of labels) {
+                    const label = await label_1.default.findById(selectedLabel);
+                    product?.labels.push(label);
+                }
+            else {
+                const selectedLabel = await label_1.default.findById(label);
+                product?.labels.push(selectedLabel);
+            }
+        const category = await category_1.default.findById(categoryId);
+        const brand = await brand_1.default.findById(brandId);
         category.products.push(product);
         brand.products.push(product);
         product.category = category;
         product.brand = brand;
-        if (imageUrl) {
+        if (req.file) {
+            const { filename, path } = req.file;
             const image = new image_1.default({
-                path: imageUrl === null || imageUrl === void 0 ? void 0 : imageUrl.url,
-                filename: `products/${name}/${imageUrl === null || imageUrl === void 0 ? void 0 : imageUrl.fileName}'s-Image`,
+                path: path,
+                filename: filename,
                 imageType: 'productImage',
                 doc: product,
             });
-            yield image.save();
+            await image.save();
             product.productImage = image;
         }
-        yield product.save();
-        yield category.save();
-        yield brand.save();
+        await product.save();
+        await category.save();
+        await brand.save();
         res.status(200).send(product);
     }
     catch (e) {
         console.log(e);
+        await (0, utils_1.deleteImage)(req.file?.filename);
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.createProduct = createProduct;
-const getProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getProduct = async (req, res, next) => {
     try {
         const { product_id } = req.params;
-        const product = yield product_1.default.findById(product_id).populate('productImage');
+        const product = await product_1.default.findById(product_id).populate('productImage');
         res.status(200).send(product);
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.getProduct = getProduct;
-const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+const updateProduct = async (req, res, next) => {
     try {
         const { product_id } = req.params;
-        const { name, price, quantity, category, brand, imageUrl, newPrice, isOffer, offerExpiresDate, } = req.body;
-        const product = yield product_1.default.findById(product_id).populate('productImage');
+        const { name, price, quantity, categoryId, brandId, newPrice, isOffer, offerExpiresDate, labels, label, startDate, endDate, isEndDate, } = req.body;
+        const product = await product_1.default.findById(product_id)
+            .populate('productImage')
+            .populate('category');
         product.lastModified = new Date();
         if (name)
             product.name = name;
@@ -130,78 +164,113 @@ const updateProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, func
             product.price = parseFloat(price);
         if (quantity)
             product.quantity = quantity;
-        // TODO: remove the product from former cat and brand and add it to the new ones
-        if (category)
-            product.category = category;
-        if (brand)
-            product.brand = brand;
-        if (newPrice)
-            product.newPrice = newPrice;
-        if (isOffer)
+        if (newPrice) {
+            product.newPrice =
+                newPrice !== 'NaN' ? parseFloat(newPrice) : null;
+        }
+        product.isOffer = isOffer === 'true' ? true : false;
+        product.isEndDate = isEndDate === 'true' ? true : false;
+        if (offerExpiresDate !== 'undefined')
             product.offerExpiresDate = offerExpiresDate;
-        product.isOffer = isOffer;
-        if (imageUrl) {
-            yield (0, destroyFile_1.deleteImage)((_a = product === null || product === void 0 ? void 0 : product.productImage) === null || _a === void 0 ? void 0 : _a.filename);
-            yield image_1.default.findByIdAndDelete((_b = product === null || product === void 0 ? void 0 : product.productImage) === null || _b === void 0 ? void 0 : _b._id);
-            const image = new image_1.default({
-                path: imageUrl === null || imageUrl === void 0 ? void 0 : imageUrl.url,
-                filename: `products/${name}/${imageUrl === null || imageUrl === void 0 ? void 0 : imageUrl.fileName}'s-Image`,
-                imageType: 'productImage',
-                doc: product,
-            });
-            yield image.save();
+        if (startDate !== 'undefined')
+            product.startOfferDate = startDate;
+        if (endDate !== 'undefined')
+            product.endOfferDate = endDate;
+        // update product
+        if (categoryId !== 'undefined') {
+            // remove the product from former cat and brand and add it to the new ones
+            const formerCat = await category_1.default.findById(product?.category?._id);
+            if (formerCat)
+                await formerCat?.updateOne({
+                    $pull: { products: product?._id },
+                });
+            const currCat = await category_1.default.findById(categoryId);
+            product.category = currCat;
+            currCat?.products.push(product);
+            await currCat.save();
+        }
+        if (brandId !== 'undefined') {
+            const formerBrand = await brand_1.default.findById(product?.brand?._id);
+            if (formerBrand)
+                await formerBrand?.updateOne({
+                    $pull: { products: product?._id },
+                });
+            const currBrand = await brand_1.default.findById(brandId);
+            product.category = currBrand;
+            currBrand.products.push(product);
+            await currBrand.save();
+        }
+        if (label || labels)
+            if (labels)
+                for (const selectedLabel of labels) {
+                    const label = await label_1.default.findById(selectedLabel);
+                    product?.labels.push(label);
+                }
+            else {
+                const selectedLabel = await label_1.default.findById(label);
+                product?.labels.push(selectedLabel);
+            }
+        if (req.file) {
+            const { filename, path } = req.file;
+            const image = await image_1.default.findById(product?.productImage?._id);
+            await (0, utils_1.deleteImage)(image?.filename);
+            if (filename)
+                image.filename = filename;
+            if (path)
+                image.path = path;
+            await image.save();
             product.productImage = image;
         }
-        yield product.save();
+        await product.save();
         res.status(200).send(product);
     }
     catch (e) {
+        console.log(e);
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.updateProduct = updateProduct;
-const updateProductViews = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateProductViews = async (req, res, next) => {
     try {
         const { product_id } = req.params;
-        const product = yield product_1.default.findById(product_id);
+        const product = await product_1.default.findById(product_id);
         product.views += 1;
-        yield product.save();
+        await product.save();
         res.sendStatus(200);
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.updateProductViews = updateProductViews;
-const deleteProduct = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _c, _d, _e, _f;
+const deleteProduct = async (req, res, next) => {
     try {
         const { product_id } = req.params;
-        const product = yield product_1.default.findById(product_id)
+        const product = await product_1.default.findById(product_id)
             .populate('productImage')
             .populate('category')
             .populate('brand');
-        const category = yield category_1.default.findById((_c = product === null || product === void 0 ? void 0 : product.category) === null || _c === void 0 ? void 0 : _c._id).populate('products');
-        yield category.updateOne({
+        const category = await category_1.default.findById(product?.category?._id).populate('products');
+        await category.updateOne({
             $pull: { products: product_id },
         });
-        yield category.save();
-        const brand = yield brand_1.default.findById((_d = product === null || product === void 0 ? void 0 : product.brand) === null || _d === void 0 ? void 0 : _d._id).populate('products');
-        yield brand.updateOne({
+        await category.save();
+        const brand = await brand_1.default.findById(product?.brand?._id).populate('products');
+        await brand.updateOne({
             $pull: { products: product_id },
         });
-        yield brand.save();
-        yield (0, destroyFile_1.deleteImage)((_e = product === null || product === void 0 ? void 0 : product.productImage) === null || _e === void 0 ? void 0 : _e.filename);
-        yield image_1.default.findByIdAndDelete((_f = product === null || product === void 0 ? void 0 : product.productImage) === null || _f === void 0 ? void 0 : _f._id);
-        yield product.deleteOne();
+        await brand.save();
+        await (0, utils_1.deleteImage)(product?.productImage?.filename);
+        await image_1.default.findByIdAndDelete(product?.productImage?._id);
+        await product.deleteOne();
         res.status(200).send(product_id);
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.deleteProduct = deleteProduct;
 //# sourceMappingURL=product.js.map

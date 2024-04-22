@@ -2,10 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const ContactSchema = new mongoose_1.Schema({
-    address: {
-        city: String,
-        street: String,
-    },
+    district: { type: mongoose_1.Schema.Types.ObjectId, ref: 'District' },
     contactNumber: String,
     profile: {
         type: mongoose_1.Schema.Types.ObjectId,

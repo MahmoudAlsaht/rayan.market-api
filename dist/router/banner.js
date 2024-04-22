@@ -7,16 +7,18 @@ const express_1 = __importDefault(require("express"));
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const banner_1 = require("../controllers/banner");
 const bannerImages_1 = require("../controllers/bannerImages");
+const multer_1 = __importDefault(require("multer"));
+const cloudinary_1 = require("../cloudinary");
+const upload = (0, multer_1.default)({ storage: cloudinary_1.storage });
 const router = express_1.default.Router({ mergeParams: true });
 router
     .route('/')
     .get((0, express_async_handler_1.default)(banner_1.getBanners))
-    .post((0, express_async_handler_1.default)(banner_1.createBanner));
+    .post(upload.array('files', 4), (0, express_async_handler_1.default)(banner_1.createBanner));
 router
     .route('/:banner_id')
     .get((0, express_async_handler_1.default)(banner_1.getBanner))
-    // .patch(expressAsyncHandler(updateBannersActivity))
-    .put((0, express_async_handler_1.default)(banner_1.updateBanner))
+    .put(upload.array('files', 4), (0, express_async_handler_1.default)(banner_1.updateBanner))
     .delete((0, express_async_handler_1.default)(banner_1.deleteBanner));
 router
     .route('/:banner_id/images')

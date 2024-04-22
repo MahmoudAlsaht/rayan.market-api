@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -16,87 +7,90 @@ exports.deleteContact = exports.updateContact = exports.getContact = exports.cre
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const profile_1 = __importDefault(require("../models/profile"));
 const contact_1 = __importDefault(require("../models/contact"));
-const getContacts = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const district_1 = __importDefault(require("../models/district"));
+const getContacts = async (req, res, next) => {
     try {
         const { profile_id } = req.params;
-        const profile = yield profile_1.default.findById(profile_id).populate('contacts');
-        res.status(200).send(profile === null || profile === void 0 ? void 0 : profile.contacts);
+        const profile = await profile_1.default.findById(profile_id).populate({
+            path: 'contacts',
+            populate: { path: 'district' },
+        });
+        res.status(200).send(profile?.contacts);
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.getContacts = getContacts;
-const createContact = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const createContact = async (req, res, next) => {
     try {
         const { profile_id } = req.params;
-        const { city, street, contactNumber } = req.body;
-        const profile = yield profile_1.default.findById(profile_id);
-        const contact = yield new contact_1.default({
-            address: { city, street },
+        const { district, contactNumber } = req.body;
+        const profile = await profile_1.default.findById(profile_id);
+        const foundDistrict = await district_1.default.findById(district);
+        const contact = await new contact_1.default({
+            district: foundDistrict,
             contactNumber,
             profile,
         });
         profile.contacts.push(contact);
-        yield profile.save();
-        yield contact.save();
+        await profile.save();
+        await contact.save();
         res.status(200).send(contact);
     }
     catch (e) {
         console.log(e);
         next(new expressError_1.default(e.message, 404));
     }
-});
+};
 exports.createContact = createContact;
-const getContact = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getContact = async (req, res, next) => {
     try {
         const { contact_id } = req.params;
-        const contact = yield contact_1.default.findById(contact_id);
+        const contact = await contact_1.default.findById(contact_id).populate('district');
         res.status(200).send(contact);
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.getContact = getContact;
-const updateContact = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateContact = async (req, res, next) => {
     try {
         const { contact_id } = req.params;
-        const { city, street, contactNumber } = req.body;
-        const contact = yield contact_1.default.findById(contact_id);
-        if (city)
-            contact.address.city = city;
-        if (street)
-            contact.address.street = street;
+        const { district, contactNumber } = req.body;
+        const contact = await contact_1.default.findById(contact_id);
+        if (district)
+            contact.district = district;
         if (contactNumber)
             contact.contactNumber = contactNumber;
-        yield contact.save();
+        await contact.save();
         res.status(200).send(contact);
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.updateContact = updateContact;
-const deleteContact = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteContact = async (req, res, next) => {
     try {
         const { profile_id, contact_id } = req.params;
-        const profile = yield profile_1.default.findById(profile_id);
-        const contact = yield contact_1.default.findById(contact_id);
-        yield profile.updateOne({
+        const profile = await profile_1.default.findById(profile_id);
+        const contact = await contact_1.default.findById(contact_id);
+        await profile.updateOne({
             $pull: { contacts: contact_id },
         });
-        yield profile.save();
-        yield contact.deleteOne();
+        await profile.save();
+        await contact.deleteOne();
         res.status(200).send(contact_id);
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.deleteContact = deleteContact;
 //# sourceMappingURL=contact.js.map

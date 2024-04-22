@@ -29,6 +29,8 @@ const OrderSchema = new mongoose_1.Schema({
     status: { type: String, default: 'pending' },
     isUserRegistered: Boolean,
     totalPrice: Number,
+    promoCode: { type: mongoose_1.Schema.Types.ObjectId, ref: 'PromoCode' },
+    paymentMethod: String,
 });
 const Order = (0, mongoose_1.model)('Order', OrderSchema);
 exports.default = Order;

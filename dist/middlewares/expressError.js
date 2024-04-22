@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 class ExpressError extends Error {
+    message;
+    statusCode;
     constructor(message, statusCode) {
         super();
         this.message = message;

@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -20,15 +11,16 @@ const user_1 = __importDefault(require("../models/user"));
 const anonymousUser_1 = __importDefault(require("../models/anonymousUser"));
 const contact_1 = __importDefault(require("../models/contact"));
 const utils_1 = require("../utils");
-const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const promoCode_1 = __importDefault(require("../models/promoCode"));
+const getOrders = async (req, res, next) => {
     try {
         const { userId } = req.body;
         let orders;
         if (userId !== '') {
-            orders = yield order_1.default.find({ user: userId });
+            orders = await order_1.default.find({ user: userId });
         }
         else {
-            orders = yield order_1.default.find();
+            orders = await order_1.default.find();
         }
         res.status(200).send(orders);
     }
@@ -36,62 +28,72 @@ const getOrders = (req, res, next) => __awaiter(void 0, void 0, void 0, function
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.getOrders = getOrders;
-const getOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const getOrder = async (req, res, next) => {
     try {
         const { order_id } = req.params;
-        const order = yield order_1.default.findById(order_id)
+        const order = await order_1.default.findById(order_id)
             .populate('user')
-            .populate('contact');
+            .populate({
+            path: 'contact',
+            populate: { path: 'district' },
+        });
+        console.log(order);
         res.status(200).send(order);
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.getOrder = getOrder;
-const createOrder = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const createOrder = async (req, res, next) => {
     try {
-        const { products, totalPrice, isUserRegistered, userId, contactId, } = req.body;
-        console.log(contactId);
-        const contact = yield contact_1.default.findById(contactId);
+        const { products, totalPrice, isUserRegistered, userId, contactId, paymentMethod, promoCode, } = req.body;
+        const contact = await contact_1.default.findById(contactId);
+        const promo = await promoCode_1.default.findOne({
+            code: promoCode,
+        });
         const order = new order_1.default({
-            totalPrice: parseInt(totalPrice),
+            totalPrice: promo
+                ? (0, utils_1.applyDiscount)(parseFloat(totalPrice), promo?.discount)
+                : parseFloat(totalPrice),
             products,
             isUserRegistered,
             contact,
             orderId: (0, utils_1.genOrderId)(),
+            paymentMethod,
+            promoCode: promo,
         });
         const user = isUserRegistered
-            ? yield user_1.default.findById(userId)
-            : yield anonymousUser_1.default.findById(userId);
+            ? await user_1.default.findById(userId)
+            : await anonymousUser_1.default.findById(userId);
         order.user = user;
         user.orders.push(order);
-        yield user.save();
-        yield order.save();
+        await user.save();
+        await order.save();
         for (const product of products) {
-            const fetchedProduct = yield product_1.default.findById(product === null || product === void 0 ? void 0 : product._id);
+            const fetchedProduct = await product_1.default.findById(product?._id);
             fetchedProduct.quantity =
-                fetchedProduct.quantity - (product === null || product === void 0 ? void 0 : product.counter);
-            yield fetchedProduct.save();
+                fetchedProduct.quantity - product?.counter;
+            await fetchedProduct.save();
         }
-        yield order.save();
+        await order.save();
         res.status(200).send(order);
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
         res.status(404);
     }
-});
+};
 exports.createOrder = createOrder;
-const updateOrderStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const updateOrderStatus = async (req, res, next) => {
     try {
         const { order_id } = req.params;
         const { updatedStatus, userId } = req.body;
-        const user = yield user_1.default.findById(userId);
-        const order = yield order_1.default.findById(order_id).populate('user');
+        const user = await user_1.default.findById(userId);
+        const order = await order_1.default.findById(order_id).populate('user');
         if (updatedStatus === 'accepted' ||
             updatedStatus === 'rejected' ||
             updatedStatus === 'completed') {
@@ -108,13 +110,13 @@ const updateOrderStatus = (req, res, next) => __awaiter(void 0, void 0, void 0, 
             throw new Error('Unexpected status: ' + updatedStatus);
         }
         order.status = updatedStatus;
-        yield order.save();
+        await order.save();
         res.status(200).send(order);
     }
     catch (e) {
         next(new expressError_1.default(e.message, e.status));
         res.status(404);
     }
-});
+};
 exports.updateOrderStatus = updateOrderStatus;
 //# sourceMappingURL=order.js.map

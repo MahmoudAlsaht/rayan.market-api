@@ -11,7 +11,6 @@ const express_1 = __importDefault(require("express"));
 const db_1 = require("./db");
 const cors_1 = __importDefault(require("cors"));
 const express_mongo_sanitize_1 = __importDefault(require("express-mongo-sanitize"));
-const config_1 = __importDefault(require("./firebase/config"));
 const user_1 = __importDefault(require("./router/user"));
 const profile_1 = __importDefault(require("./router/profile"));
 const category_1 = __importDefault(require("./router/category"));
@@ -20,11 +19,13 @@ const product_1 = __importDefault(require("./router/product"));
 const banner_1 = __importDefault(require("./router/banner"));
 const contact_1 = __importDefault(require("./router/contact"));
 const order_1 = __importDefault(require("./router/order"));
+const label_1 = __importDefault(require("./router/label"));
+const promoCode_1 = __importDefault(require("./router/promoCode"));
+const district_1 = __importDefault(require("./router/district"));
 const application = () => {
     const app = (0, express_1.default)();
     const port = process.env.PORT || 5000;
     (0, db_1.connectDB)();
-    (0, config_1.default)();
     app.use(express_1.default.json());
     app.use(express_1.default.urlencoded({ extended: false }));
     app.use((0, cors_1.default)({ origin: '*' }));
@@ -39,6 +40,9 @@ const application = () => {
     app.use('/banner', banner_1.default);
     app.use('/account/:profile_id', contact_1.default);
     app.use('/order', order_1.default);
+    app.use('/label', label_1.default);
+    app.use('/promo', promoCode_1.default);
+    app.use('/district', district_1.default);
     app.use((err, req, res, next) => {
         const { statusCode = 500 } = err;
         if (!err.message)
