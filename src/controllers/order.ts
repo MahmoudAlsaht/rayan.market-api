@@ -24,7 +24,7 @@ export const getOrders = async (
 
 		const user = await User.findById(userId);
 		let orders;
-		if (user?.role !== 'customer') {
+		if (user?.role === 'customer') {
 			orders = await Order.find({ user: userId });
 		} else {
 			orders = await Order.find();

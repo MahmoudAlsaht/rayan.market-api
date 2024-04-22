@@ -17,7 +17,7 @@ const getOrders = async (req, res, next) => {
         const { userId } = req.body;
         const user = await user_1.default.findById(userId);
         let orders;
-        if (user?.role !== 'customer') {
+        if (user?.role === 'customer') {
             orders = await order_1.default.find({ user: userId });
         }
         else {
