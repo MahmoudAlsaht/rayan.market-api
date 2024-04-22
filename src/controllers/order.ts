@@ -30,11 +30,9 @@ export const getOrders = async (
 			orders = await Order.find();
 		}
 
-		console.log(orders);
 		res.status(200).send(orders);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -55,7 +53,6 @@ export const getOrder = async (
 		res.status(200).send(order);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -119,7 +116,6 @@ export const createOrder = async (
 		res.status(200).send(order);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -160,6 +156,5 @@ export const updateOrderStatus = async (
 		res.status(200).send(order);
 	} catch (e: any) {
 		next(new ExpressError(e.message, e.status));
-		res.status(404);
 	}
 };

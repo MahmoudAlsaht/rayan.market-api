@@ -23,12 +23,10 @@ const getOrders = async (req, res, next) => {
         else {
             orders = await order_1.default.find();
         }
-        console.log(orders);
         res.status(200).send(orders);
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.getOrders = getOrders;
@@ -46,7 +44,6 @@ const getOrder = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.getOrder = getOrder;
@@ -86,7 +83,6 @@ const createOrder = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.createOrder = createOrder;
@@ -117,7 +113,6 @@ const updateOrderStatus = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, e.status));
-        res.status(404);
     }
 };
 exports.updateOrderStatus = updateOrderStatus;
