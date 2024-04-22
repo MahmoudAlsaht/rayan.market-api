@@ -2,7 +2,11 @@ import { Response, Request, NextFunction } from 'express';
 import User, { TUser } from '../models/user';
 import Profile from '../models/profile';
 import ExpressError from '../middlewares/expressError';
-import { checkPassword, genPassword } from '../utils';
+import {
+	checkPassword,
+	genPassword,
+	generateRandomSixDigit,
+} from '../utils';
 import AnonymousUser from '../models/anonymousUser';
 import Contact from '../models/contact';
 import jwt from 'jsonwebtoken';
@@ -32,7 +36,6 @@ export const checkUser = async (
 			_id: user?._id,
 		});
 	} catch (e: any) {
-		console.log(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -49,7 +52,6 @@ export const editUserRole = async (
 		await user.save();
 		res.sendStatus(200);
 	} catch (e: any) {
-		console.log(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -124,7 +126,6 @@ export const signup = async (
 			},
 		});
 	} catch (e: any) {
-		console.log(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -161,7 +162,6 @@ export const signin = async (
 		});
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404).send({ error: e.message });
 	}
 };
 
@@ -197,6 +197,81 @@ export const createAnonymousUser = async (
 		res.status(200).send(anonymousUser);
 	} catch (e: any) {
 		console.log(e);
+		next(new ExpressError(e.message, 404));
+	}
+};
+
+export const generateVerificationCode = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { phone } = req.body;
+		const user = await User.findOne({ phone });
+
+		if (user == null)
+			throw new Error('Invalid User Credentials');
+
+		user.verificationCode = generateRandomSixDigit();
+
+		await user.save();
+		res.status(200).send(user?._id);
+	} catch (e: any) {
+		next(new ExpressError(e.message, 404));
+	}
+};
+
+export const checkResetPassword = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { user_id } = req.params;
+		const { verificationCode } = req.body;
+		const user = await User.findById(user_id);
+
+		if (user == null)
+			throw new Error('Invalid User Credentials');
+
+		if (user?.verificationCode !== verificationCode)
+			throw new Error('Invalid Code');
+
+		user.verificationCode = null;
+		await user.save();
+		res.status(200).send();
+	} catch (e: any) {
+		next(new ExpressError(e.message, 404));
+	}
+};
+
+export const updatePassword = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { user_id } = req.params;
+		const { password, passwordConfirmation } = req.body;
+		const user = await User.findById(user_id);
+
+		if (user == null)
+			throw new Error('Invalid User Credentials');
+
+		if (
+			passwordConfirmation !== password ||
+			passwordConfirmation === '' ||
+			password === '' ||
+			passwordConfirmation == null ||
+			password == null
+		)
+			throw new Error('Invalid Password');
+
+		user.password = await genPassword(password);
+		await user.save();
+		res.status(200).send();
+	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
 	}
 };

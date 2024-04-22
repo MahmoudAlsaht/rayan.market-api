@@ -15,5 +15,8 @@ router
 router.post('/signup', (0, express_async_handler_1.default)(user_1.signup));
 router.post('/signin', (0, express_async_handler_1.default)(user_1.signin));
 router.post('/anonymous', (0, express_async_handler_1.default)(user_1.createAnonymousUser));
+router.post('/reset-password', (0, express_async_handler_1.default)(user_1.generateVerificationCode));
+router.post('/reset-password/:user_id', (0, express_async_handler_1.default)(user_1.checkResetPassword));
+router.post('/reset-password/:user_id/update-password', (0, express_async_handler_1.default)(user_1.updatePassword));
 exports.default = router;
 //# sourceMappingURL=user.js.map

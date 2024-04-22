@@ -5,8 +5,11 @@ import {
 	createAnonymousUser,
 	editUserRole,
 	getUsers,
+	generateVerificationCode,
 	signin,
 	signup,
+	checkResetPassword,
+	updatePassword,
 } from '../controllers/user';
 
 const router = express.Router();
@@ -25,6 +28,21 @@ router.post('/signin', expressAsyncHandler(signin));
 router.post(
 	'/anonymous',
 	expressAsyncHandler(createAnonymousUser),
+);
+
+router.post(
+	'/reset-password',
+	expressAsyncHandler(generateVerificationCode),
+);
+
+router.post(
+	'/reset-password/:user_id',
+	expressAsyncHandler(checkResetPassword),
+);
+
+router.post(
+	'/reset-password/:user_id/update-password',
+	expressAsyncHandler(updatePassword),
 );
 
 export default router;

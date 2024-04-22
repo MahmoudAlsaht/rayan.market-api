@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAnonymousUser = exports.signin = exports.signup = exports.getUsers = exports.editUserRole = exports.checkUser = void 0;
+exports.updatePassword = exports.checkResetPassword = exports.generateVerificationCode = exports.createAnonymousUser = exports.signin = exports.signup = exports.getUsers = exports.editUserRole = exports.checkUser = void 0;
 const user_1 = __importDefault(require("../models/user"));
 const profile_1 = __importDefault(require("../models/profile"));
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
@@ -30,7 +30,6 @@ const checkUser = async (req, res, next) => {
         });
     }
     catch (e) {
-        console.log(e);
         next(new expressError_1.default(e.message, 404));
     }
 };
@@ -45,7 +44,6 @@ const editUserRole = async (req, res, next) => {
         res.sendStatus(200);
     }
     catch (e) {
-        console.log(e);
         next(new expressError_1.default(e.message, 404));
     }
 };
@@ -101,7 +99,6 @@ const signup = async (req, res, next) => {
         });
     }
     catch (e) {
-        console.log(e);
         next(new expressError_1.default(e.message, 404));
     }
 };
@@ -127,7 +124,6 @@ const signin = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404).send({ error: e.message });
     }
 };
 exports.signin = signin;
@@ -158,4 +154,59 @@ const createAnonymousUser = async (req, res, next) => {
     }
 };
 exports.createAnonymousUser = createAnonymousUser;
+const generateVerificationCode = async (req, res, next) => {
+    try {
+        const { phone } = req.body;
+        const user = await user_1.default.findOne({ phone });
+        if (user == null)
+            throw new Error('Invalid User Credentials');
+        user.verificationCode = (0, utils_1.generateRandomSixDigit)();
+        await user.save();
+        res.status(200).send(user?._id);
+    }
+    catch (e) {
+        next(new expressError_1.default(e.message, 404));
+    }
+};
+exports.generateVerificationCode = generateVerificationCode;
+const checkResetPassword = async (req, res, next) => {
+    try {
+        const { user_id } = req.params;
+        const { verificationCode } = req.body;
+        const user = await user_1.default.findById(user_id);
+        if (user == null)
+            throw new Error('Invalid User Credentials');
+        if (user?.verificationCode !== verificationCode)
+            throw new Error('Invalid Code');
+        user.verificationCode = null;
+        await user.save();
+        res.status(200).send();
+    }
+    catch (e) {
+        next(new expressError_1.default(e.message, 404));
+    }
+};
+exports.checkResetPassword = checkResetPassword;
+const updatePassword = async (req, res, next) => {
+    try {
+        const { user_id } = req.params;
+        const { password, passwordConfirmation } = req.body;
+        const user = await user_1.default.findById(user_id);
+        if (user == null)
+            throw new Error('Invalid User Credentials');
+        if (passwordConfirmation !== password ||
+            passwordConfirmation === '' ||
+            password === '' ||
+            passwordConfirmation == null ||
+            password == null)
+            throw new Error('Invalid Password');
+        user.password = await (0, utils_1.genPassword)(password);
+        await user.save();
+        res.status(200).send();
+    }
+    catch (e) {
+        next(new expressError_1.default(e.message, 404));
+    }
+};
+exports.updatePassword = updatePassword;
 //# sourceMappingURL=user.js.map

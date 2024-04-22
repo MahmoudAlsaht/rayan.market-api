@@ -10,6 +10,7 @@ export type TUser = {
 	role: string;
 	profile: TProfile;
 	orders?: TOrder[];
+	verificationCode?: string | null;
 };
 
 const UserSchema = new Schema<TUser>({
@@ -28,6 +29,7 @@ const UserSchema = new Schema<TUser>({
 	role: { type: String, required: true, default: 'customer' },
 	profile: { type: Schema.Types.ObjectId, ref: 'Profile' },
 	orders: [{ type: Schema.Types.ObjectId, ref: 'Order' }],
+	verificationCode: String || null,
 });
 
 UserSchema.pre(

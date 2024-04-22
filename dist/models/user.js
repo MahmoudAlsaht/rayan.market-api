@@ -21,6 +21,7 @@ const UserSchema = new mongoose_1.Schema({
     role: { type: String, required: true, default: 'customer' },
     profile: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Profile' },
     orders: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Order' }],
+    verificationCode: String || null,
 });
 UserSchema.pre('deleteOne', { document: true, query: false }, async function () {
     await profile_1.default.deleteOne({
