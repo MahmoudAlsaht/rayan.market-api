@@ -20,12 +20,15 @@ const getOrders = async (req, res, next) => {
         if (user?.role === 'customer') {
             orders = await order_1.default.find({ user: userId });
         }
-        else {
+        else if (user?.role === 'admin' ||
+            user?.role === 'staff' ||
+            user?.role === 'editor') {
             orders = await order_1.default.find();
         }
         res.status(200).send(orders);
     }
     catch (e) {
+        console.error(e.message);
         next(new expressError_1.default(e.message, 404));
     }
 };

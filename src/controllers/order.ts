@@ -21,17 +21,21 @@ export const getOrders = async (
 ) => {
 	try {
 		const { userId } = req.body;
-
 		const user = await User.findById(userId);
 		let orders;
 		if (user?.role === 'customer') {
 			orders = await Order.find({ user: userId });
-		} else {
+		} else if (
+			user?.role === 'admin' ||
+			user?.role === 'staff' ||
+			user?.role === 'editor'
+		) {
 			orders = await Order.find();
 		}
 
 		res.status(200).send(orders);
 	} catch (e: any) {
+		console.error(e.message);
 		next(new ExpressError(e.message, 404));
 	}
 };
