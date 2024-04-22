@@ -13,7 +13,7 @@ cloudinary_1.v2.config({
 exports.storage = new multer_storage_cloudinary_1.CloudinaryStorage({
     cloudinary: cloudinary_1.v2,
     params: {
-        folder: 'AlRayan-International-Markets',
+        folder: process.env.CLOUDINARY_FOLDER_NAME,
         allowedFormat: async (req, file) => [
             'png',
             'jpeg',
