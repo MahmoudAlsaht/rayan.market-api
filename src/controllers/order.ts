@@ -22,8 +22,9 @@ export const getOrders = async (
 	try {
 		const { userId } = req.body;
 
+		const user = await User.findById(userId);
 		let orders;
-		if (userId !== '') {
+		if (user?.role !== 'customer') {
 			orders = await Order.find({ user: userId });
 		} else {
 			orders = await Order.find();

@@ -15,8 +15,9 @@ const promoCode_1 = __importDefault(require("../models/promoCode"));
 const getOrders = async (req, res, next) => {
     try {
         const { userId } = req.body;
+        const user = await user_1.default.findById(userId);
         let orders;
-        if (userId !== '') {
+        if (user?.role !== 'customer') {
             orders = await order_1.default.find({ user: userId });
         }
         else {
