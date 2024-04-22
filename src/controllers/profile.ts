@@ -17,7 +17,6 @@ export const fetchProfile = async (
 		res.status(200).send(profile);
 	} catch (e) {
 		next(new ExpressError(e.message, 404));
-		res.status(404).send({ error: e.message });
 	}
 };
 
@@ -50,7 +49,6 @@ export const updateUserPhoneAndUsername = async (
 		});
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404).send({ error: e.message });
 	}
 };
 
@@ -77,7 +75,6 @@ export const updateUserPassword = async (
 		res.sendStatus(200);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404).send({ error: e.message });
 	}
 };
 
@@ -101,6 +98,5 @@ export const removeAccount = async (
 		res.sendStatus(200);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(400);
 	}
 };

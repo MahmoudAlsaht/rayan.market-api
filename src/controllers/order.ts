@@ -23,6 +23,7 @@ export const getOrders = async (
 		const { userId } = req.body;
 
 		const user = await User.findById(userId);
+		console.log(user);
 		let orders;
 		if (user?.role === 'customer') {
 			orders = await Order.find({ user: userId });
@@ -30,6 +31,7 @@ export const getOrders = async (
 			orders = await Order.find();
 		}
 
+		console.log(orders);
 		res.status(200).send(orders);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));

@@ -16,7 +16,6 @@ const fetchProfile = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404).send({ error: e.message });
     }
 };
 exports.fetchProfile = fetchProfile;
@@ -41,7 +40,6 @@ const updateUserPhoneAndUsername = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404).send({ error: e.message });
     }
 };
 exports.updateUserPhoneAndUsername = updateUserPhoneAndUsername;
@@ -59,7 +57,6 @@ const updateUserPassword = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404).send({ error: e.message });
     }
 };
 exports.updateUserPassword = updateUserPassword;
@@ -75,7 +72,6 @@ const removeAccount = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(400);
     }
 };
 exports.removeAccount = removeAccount;
