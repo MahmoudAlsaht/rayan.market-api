@@ -18,7 +18,7 @@ cloudinary.config({
 export const storage = new CloudinaryStorage({
 	cloudinary,
 	params: {
-		folder: 'AlRayan-International-Markets',
+		folder: process.env.CLOUDINARY_FOLDER_NAME,
 		allowedFormat: async (req, file) => [
 			'png',
 			'jpeg',
