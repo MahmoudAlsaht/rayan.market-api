@@ -12,7 +12,10 @@ const getCategories = async (req, res, next) => {
     try {
         const categories = await category_1.default.find()
             .populate('image')
-            .populate('products')
+            .populate({
+            path: 'products',
+            populate: { path: 'productImage' },
+        })
             .populate('banner');
         res.status(200).send(categories);
     }
@@ -26,7 +29,10 @@ const getCategory = async (req, res, next) => {
     try {
         const { category_id } = req.params;
         const category = await category_1.default.findById(category_id)
-            .populate('products')
+            .populate({
+            path: 'products',
+            populate: { path: 'productImage' },
+        })
             .populate('image')
             .populate({
             path: 'banner',
@@ -44,7 +50,10 @@ const getCategoryProducts = async (req, res, next) => {
     try {
         const { category_id } = req.params;
         const category = await category_1.default.findById(category_id)
-            .populate('products')
+            .populate({
+            path: 'products',
+            populate: { path: 'productImage' },
+        })
             .populate('image');
         res.status(200).send(category?.products);
     }

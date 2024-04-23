@@ -125,9 +125,9 @@ const createProduct = async (req, res, next) => {
             await image.save();
             product.productImage = image;
         }
-        await product.save();
         await category.save();
         await brand.save();
+        await product.save();
         res.status(200).send(product);
     }
     catch (e) {

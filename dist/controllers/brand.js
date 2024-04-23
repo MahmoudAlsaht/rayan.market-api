@@ -12,7 +12,10 @@ const getBrands = async (req, res, next) => {
     try {
         const brands = await brand_1.default.find()
             .populate('image')
-            .populate('products')
+            .populate({
+            path: 'products',
+            populate: { path: 'productImage' },
+        })
             .populate('banner');
         res.status(200).send(brands);
     }
@@ -26,7 +29,10 @@ const getBrand = async (req, res, next) => {
     try {
         const { brand_id } = req.params;
         const brand = await brand_1.default.findById(brand_id)
-            .populate('products')
+            .populate({
+            path: 'products',
+            populate: { path: 'productImage' },
+        })
             .populate('image')
             .populate({
             path: 'banner',

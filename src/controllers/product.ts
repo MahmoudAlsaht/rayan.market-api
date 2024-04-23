@@ -175,9 +175,9 @@ export const createProduct = async (
 			product.productImage = image;
 		}
 
-		await product.save();
 		await category.save();
 		await brand.save();
+		await product.save();
 		res.status(200).send(product);
 	} catch (e: any) {
 		console.log(e);
