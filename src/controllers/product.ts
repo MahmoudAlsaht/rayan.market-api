@@ -20,7 +20,8 @@ export const getProducts = async (
 		const products = await Product.find()
 			.populate('productImage')
 			.populate('category')
-			.populate('brand');
+			.populate('brand')
+			.populate('labels');
 		const sendProducts = [];
 
 		for (const product of products) {
@@ -145,12 +146,16 @@ export const createProduct = async (
 						selectedLabel,
 					);
 					product?.labels.push(label);
+					label.products.push(product);
+					await label.save();
 				}
 			else {
 				const selectedLabel = await Label.findById(
 					label,
 				);
 				product?.labels.push(selectedLabel);
+				selectedLabel.products.push(product);
+				await selectedLabel.save();
 			}
 
 		const category = await Category.findById(categoryId);
@@ -286,12 +291,16 @@ export const updateProduct = async (
 						selectedLabel,
 					);
 					product?.labels.push(label);
+					label.products.push(product);
+					await label.save();
 				}
 			else {
 				const selectedLabel = await Label.findById(
 					label,
 				);
 				product?.labels.push(selectedLabel);
+				selectedLabel.products.push(product);
+				await selectedLabel.save();
 			}
 
 		if (req.file) {

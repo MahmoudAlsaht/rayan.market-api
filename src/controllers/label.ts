@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
-import Product from '../models/product';
 import Label from '../models/label';
 
 export const createLabel = async (
@@ -28,7 +27,10 @@ export const getLabels = async (
 	next: NextFunction,
 ) => {
 	try {
-		const labels = await Label.find().populate('products');
+		const labels = await Label.find().populate({
+			path: 'products',
+			populate: 'productImage',
+		});
 		res.status(200).send(labels);
 	} catch (e: any) {
 		console.log(e.message);
