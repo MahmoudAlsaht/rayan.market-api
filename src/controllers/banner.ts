@@ -33,8 +33,7 @@ export const createBanner = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { name, imagesUrls, type, category, brand } =
-			req.body;
+		const { name, type, category, brand } = req.body;
 
 		const doc =
 			type === 'brand'
@@ -43,12 +42,15 @@ export const createBanner = async (
 				? await Category.findById(category)
 				: null;
 
-		const banner = new Banner({
-			name,
-			bannerType: type,
-			doc,
-			createdAt: new Date(),
-		});
+		const banner =
+			type === 'main' || type === 'offers'
+				? await Banner.findOne({ bannerType: type })
+				: new Banner({
+						name,
+						bannerType: type,
+						doc,
+						createdAt: new Date(),
+				  });
 
 		if (doc) {
 			doc.banner = banner;
@@ -90,6 +92,24 @@ export const getBanner = async (
 		const banner = await Banner.findById(banner_id).populate(
 			'bannerImages',
 		);
+
+		res.status(200).send(banner);
+	} catch (e: any) {
+		next(new ExpressError(e.message, 404));
+		res.status(404);
+	}
+};
+
+export const getBannerByType = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { type } = req.body;
+		const banner = await Banner.findOne({
+			bannerType: type,
+		}).populate('bannerImages');
 
 		res.status(200).send(banner);
 	} catch (e: any) {

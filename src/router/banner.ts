@@ -6,6 +6,7 @@ import {
 	updateBanner,
 	createBanner,
 	deleteBanner,
+	getBannerByType,
 } from '../controllers/banner';
 import {
 	getBannerImages,
@@ -36,6 +37,8 @@ router
 		expressAsyncHandler(updateBanner),
 	)
 	.delete(expressAsyncHandler(deleteBanner));
+
+router.route('/type').post(expressAsyncHandler(getBannerByType));
 
 router
 	.route('/:banner_id/images')
