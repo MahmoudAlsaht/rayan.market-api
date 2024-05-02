@@ -22,6 +22,7 @@ export type TProduct = {
 	endOfferDate?: string | null;
 	remaining?: number;
 	views: number;
+	numberOfPurchases: number;
 	labels?: TLabel[] | null;
 };
 
@@ -57,6 +58,7 @@ const ProductSchema = new Schema<TProduct>({
 	endOfferDate: String,
 	remaining: Number,
 	views: { type: Number, default: 0 },
+	numberOfPurchases: { type: Number, default: 0 },
 	labels: [{ type: Schema.Types.ObjectId, ref: 'Label' }],
 });
 

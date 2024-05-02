@@ -112,6 +112,7 @@ export const createOrder = async (
 			);
 			fetchedProduct.quantity =
 				fetchedProduct.quantity - product?.counter;
+			fetchedProduct.numberOfPurchases += 1;
 			await fetchedProduct.save();
 		}
 
