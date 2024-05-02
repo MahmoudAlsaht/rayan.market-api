@@ -11,6 +11,6 @@ router
     .route('/')
     .get((0, express_async_handler_1.default)(label_1.getLabels))
     .post((0, express_async_handler_1.default)(label_1.createLabel));
-router.get('/:labelId', (0, express_async_handler_1.default)(label_1.getLabel));
+router.get('/:label_id', (0, express_async_handler_1.default)(label_1.getLabel));
 exports.default = router;
 //# sourceMappingURL=label.js.map

@@ -20,6 +20,7 @@ router
     .get((0, express_async_handler_1.default)(banner_1.getBanner))
     .put(upload.array('files', 4), (0, express_async_handler_1.default)(banner_1.updateBanner))
     .delete((0, express_async_handler_1.default)(banner_1.deleteBanner));
+router.route('/type').post((0, express_async_handler_1.default)(banner_1.getBannerByType));
 router
     .route('/:banner_id/images')
     .get((0, express_async_handler_1.default)(bannerImages_1.getBannerImages));

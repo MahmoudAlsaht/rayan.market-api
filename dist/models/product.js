@@ -37,6 +37,7 @@ const ProductSchema = new mongoose_1.Schema({
     endOfferDate: String,
     remaining: Number,
     views: { type: Number, default: 0 },
+    numberOfPurchases: { type: Number, default: 0 },
     labels: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Label' }],
 });
 const Product = (0, mongoose_1.model)('Product', ProductSchema);

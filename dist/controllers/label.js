@@ -24,7 +24,10 @@ const createLabel = async (req, res, next) => {
 exports.createLabel = createLabel;
 const getLabels = async (req, res, next) => {
     try {
-        const labels = await label_1.default.find().populate('products');
+        const labels = await label_1.default.find().populate({
+            path: 'products',
+            populate: 'productImage',
+        });
         res.status(200).send(labels);
     }
     catch (e) {
@@ -35,8 +38,11 @@ const getLabels = async (req, res, next) => {
 exports.getLabels = getLabels;
 const getLabel = async (req, res, next) => {
     try {
-        const { labelId } = req.params;
-        const label = await label_1.default.findById(labelId).populate('products');
+        const { label_id } = req.params;
+        const label = await label_1.default.findById(label_id).populate({
+            path: 'products',
+            populate: 'productImage',
+        });
         res.status(200).send(label);
     }
     catch (e) {

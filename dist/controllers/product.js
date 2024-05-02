@@ -17,7 +17,8 @@ const getProducts = async (req, res, next) => {
         const products = await product_1.default.find()
             .populate('productImage')
             .populate('category')
-            .populate('brand');
+            .populate('brand')
+            .populate('labels');
         const sendProducts = [];
         for (const product of products) {
             if (product?.isOffer) {
@@ -103,10 +104,14 @@ const createProduct = async (req, res, next) => {
                 for (const selectedLabel of labels) {
                     const label = await label_1.default.findById(selectedLabel);
                     product?.labels.push(label);
+                    label.products.push(product);
+                    await label.save();
                 }
             else {
                 const selectedLabel = await label_1.default.findById(label);
                 product?.labels.push(selectedLabel);
+                selectedLabel.products.push(product);
+                await selectedLabel.save();
             }
         const category = await category_1.default.findById(categoryId);
         const brand = await brand_1.default.findById(brandId);
@@ -141,7 +146,9 @@ exports.createProduct = createProduct;
 const getProduct = async (req, res, next) => {
     try {
         const { product_id } = req.params;
-        const product = await product_1.default.findById(product_id).populate('productImage');
+        const product = await product_1.default.findById(product_id)
+            .populate('productImage')
+            .populate('labels');
         res.status(200).send(product);
     }
     catch (e) {
@@ -205,10 +212,14 @@ const updateProduct = async (req, res, next) => {
                 for (const selectedLabel of labels) {
                     const label = await label_1.default.findById(selectedLabel);
                     product?.labels.push(label);
+                    label.products.push(product);
+                    await label.save();
                 }
             else {
                 const selectedLabel = await label_1.default.findById(label);
                 product?.labels.push(selectedLabel);
+                selectedLabel.products.push(product);
+                await selectedLabel.save();
             }
         if (req.file) {
             const { filename, path } = req.file;

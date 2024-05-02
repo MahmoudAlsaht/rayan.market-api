@@ -13,6 +13,6 @@ router
 	.get(expressAsyncHandler(getLabels))
 	.post(expressAsyncHandler(createLabel));
 
-router.get('/:labelId', expressAsyncHandler(getLabel));
+router.get('/:label_id', expressAsyncHandler(getLabel));
 
 export default router;

@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteBanner = exports.updateBanner = exports.getBanner = exports.createBanner = exports.getBanners = void 0;
+exports.deleteBanner = exports.updateBanner = exports.getBannerByType = exports.getBanner = exports.createBanner = exports.getBanners = void 0;
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const banner_1 = __importDefault(require("../models/banner"));
 const image_1 = __importDefault(require("../models/image"));
@@ -23,18 +23,20 @@ const getBanners = async (req, res, next) => {
 exports.getBanners = getBanners;
 const createBanner = async (req, res, next) => {
     try {
-        const { name, imagesUrls, type, category, brand } = req.body;
+        const { name, type, category, brand } = req.body;
         const doc = type === 'brand'
             ? await brand_1.default.findById(brand)
             : type === 'category'
                 ? await category_1.default.findById(category)
                 : null;
-        const banner = new banner_1.default({
-            name,
-            bannerType: type,
-            doc,
-            createdAt: new Date(),
-        });
+        const banner = type === 'main' || type === 'offers'
+            ? await banner_1.default.findOne({ bannerType: type })
+            : new banner_1.default({
+                name,
+                bannerType: type,
+                doc,
+                createdAt: new Date(),
+            });
         if (doc) {
             doc.banner = banner;
             await doc.save();
@@ -77,6 +79,20 @@ const getBanner = async (req, res, next) => {
     }
 };
 exports.getBanner = getBanner;
+const getBannerByType = async (req, res, next) => {
+    try {
+        const { type } = req.body;
+        const banner = await banner_1.default.findOne({
+            bannerType: type,
+        }).populate('bannerImages');
+        res.status(200).send(banner);
+    }
+    catch (e) {
+        next(new expressError_1.default(e.message, 404));
+        res.status(404);
+    }
+};
+exports.getBannerByType = getBannerByType;
 const updateBanner = async (req, res, next) => {
     try {
         const { banner_id } = req.params;

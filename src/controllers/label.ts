@@ -44,10 +44,11 @@ export const getLabel = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { labelId } = req.params;
-		const label = await Label.findById(labelId).populate(
-			'products',
-		);
+		const { label_id } = req.params;
+		const label = await Label.findById(label_id).populate({
+			path: 'products',
+			populate: 'productImage',
+		});
 		res.status(200).send(label);
 	} catch (e: any) {
 		console.log(e.message);

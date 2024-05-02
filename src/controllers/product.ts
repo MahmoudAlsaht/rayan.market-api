@@ -199,9 +199,9 @@ export const getProduct = async (
 ) => {
 	try {
 		const { product_id } = req.params;
-		const product = await Product.findById(
-			product_id,
-		).populate('productImage');
+		const product = await Product.findById(product_id)
+			.populate('productImage')
+			.populate('labels');
 
 		res.status(200).send(product);
 	} catch (e: any) {

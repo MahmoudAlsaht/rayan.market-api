@@ -79,6 +79,7 @@ const createOrder = async (req, res, next) => {
             const fetchedProduct = await product_1.default.findById(product?._id);
             fetchedProduct.quantity =
                 fetchedProduct.quantity - product?.counter;
+            fetchedProduct.numberOfPurchases += 1;
             await fetchedProduct.save();
         }
         await order.save();
