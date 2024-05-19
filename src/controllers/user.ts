@@ -275,3 +275,54 @@ export const updatePassword = async (
 		next(new ExpressError(e.message, 404));
 	}
 };
+
+export const createUser = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { username, phone, password, adminId, role } =
+			req.body;
+		console.log('hit route create user');
+
+		const admin = await User.findById(adminId);
+
+		if (admin == null || admin?.role !== 'admin')
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
+		const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
+
+		if (username.search(usernameRegrex) !== -1) {
+			throw new Error('Invalid username');
+		}
+
+		const user = await new User({
+			phone,
+			username,
+			email: null,
+			password: await genPassword(password),
+			role,
+		});
+
+		const profile = await new Profile({
+			user,
+		});
+
+		user.profile = profile?.id;
+
+		await user.save();
+		await profile.save();
+
+		res.status(200).send({
+			username: user?.username,
+			phone: user?.phone,
+			role: user?.role,
+			profile: profile?.id,
+			_id: user?._id,
+		});
+	} catch (e: any) {
+		console.log(e);
+		next(new ExpressError(e.message, 404));
+	}
+};

@@ -53,7 +53,6 @@ export const getOrder = async (
 				path: 'contact',
 				populate: { path: 'district' },
 			});
-		console.log(order);
 		res.status(200).send(order);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));

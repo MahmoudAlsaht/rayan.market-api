@@ -10,11 +10,14 @@ import {
 	signup,
 	checkResetPassword,
 	updatePassword,
+	createUser,
 } from '../controllers/user';
 
 const router = express.Router();
 
 router.get('/', expressAsyncHandler(checkUser));
+
+router.post('/create-user', expressAsyncHandler(createUser));
 
 router
 	.route('/users')

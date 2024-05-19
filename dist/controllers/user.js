@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updatePassword = exports.checkResetPassword = exports.generateVerificationCode = exports.createAnonymousUser = exports.signin = exports.signup = exports.getUsers = exports.editUserRole = exports.checkUser = void 0;
+exports.createUser = exports.updatePassword = exports.checkResetPassword = exports.generateVerificationCode = exports.createAnonymousUser = exports.signin = exports.signup = exports.getUsers = exports.editUserRole = exports.checkUser = void 0;
 const user_1 = __importDefault(require("../models/user"));
 const profile_1 = __importDefault(require("../models/profile"));
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
@@ -209,4 +209,42 @@ const updatePassword = async (req, res, next) => {
     }
 };
 exports.updatePassword = updatePassword;
+const createUser = async (req, res, next) => {
+    try {
+        const { username, phone, password, adminId, role } = req.body;
+        console.log('hit route create user');
+        const admin = await user_1.default.findById(adminId);
+        if (admin == null || admin?.role !== 'admin')
+            throw new Error('YOU ARE NOT AUTHORIZED');
+        const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
+        if (username.search(usernameRegrex) !== -1) {
+            throw new Error('Invalid username');
+        }
+        const user = await new user_1.default({
+            phone,
+            username,
+            email: null,
+            password: await (0, utils_1.genPassword)(password),
+            role,
+        });
+        const profile = await new profile_1.default({
+            user,
+        });
+        user.profile = profile?.id;
+        await user.save();
+        await profile.save();
+        res.status(200).send({
+            username: user?.username,
+            phone: user?.phone,
+            role: user?.role,
+            profile: profile?.id,
+            _id: user?._id,
+        });
+    }
+    catch (e) {
+        console.log(e);
+        next(new expressError_1.default(e.message, 404));
+    }
+};
+exports.createUser = createUser;
 //# sourceMappingURL=user.js.map

@@ -42,7 +42,6 @@ const getOrder = async (req, res, next) => {
             path: 'contact',
             populate: { path: 'district' },
         });
-        console.log(order);
         res.status(200).send(order);
     }
     catch (e) {

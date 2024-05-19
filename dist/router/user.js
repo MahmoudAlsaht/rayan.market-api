@@ -8,6 +8,7 @@ const express_async_handler_1 = __importDefault(require("express-async-handler")
 const user_1 = require("../controllers/user");
 const router = express_1.default.Router();
 router.get('/', (0, express_async_handler_1.default)(user_1.checkUser));
+router.post('/create-user', (0, express_async_handler_1.default)(user_1.createUser));
 router
     .route('/users')
     .get((0, express_async_handler_1.default)(user_1.getUsers))
