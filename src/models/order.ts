@@ -17,8 +17,9 @@ export type TOrderProduct = {
 export type TOrder = {
 	_id: string;
 	contact: TContactInfo;
+	shippingFees: string;
 	products: TOrderProduct[];
-	totalPrice: number;
+	totalPrice: string;
 	createdAt: Date;
 	orderId: string;
 	status: string;
@@ -26,6 +27,7 @@ export type TOrder = {
 	user: TUser | TAnonymousUser;
 	promoCode?: TPromoCode | null;
 	paymentMethod: string;
+	billTotal: string;
 };
 
 const OrderSchema = new Schema<TOrder>({
@@ -55,9 +57,11 @@ const OrderSchema = new Schema<TOrder>({
 	createdAt: { type: Date, default: new Date() },
 	status: { type: String, default: 'pending' },
 	isUserRegistered: Boolean,
-	totalPrice: Number,
+	totalPrice: String,
+	billTotal: String,
 	promoCode: { type: Schema.Types.ObjectId, ref: 'PromoCode' },
 	paymentMethod: String,
+	shippingFees: { type: String },
 });
 
 const Order = model<TOrder>('Order', OrderSchema);

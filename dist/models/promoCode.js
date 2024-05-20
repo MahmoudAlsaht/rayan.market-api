@@ -5,6 +5,7 @@ const PromoSchema = new mongoose_1.Schema({
     code: { type: String, unique: true },
     discount: Number,
     expired: { type: Boolean, default: false },
+    promoType: { type: String, default: 'product' },
     startDate: String,
     endDate: String,
 });

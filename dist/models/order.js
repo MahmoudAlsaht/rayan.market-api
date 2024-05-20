@@ -28,9 +28,11 @@ const OrderSchema = new mongoose_1.Schema({
     createdAt: { type: Date, default: new Date() },
     status: { type: String, default: 'pending' },
     isUserRegistered: Boolean,
-    totalPrice: Number,
+    totalPrice: String,
+    billTotal: String,
     promoCode: { type: mongoose_1.Schema.Types.ObjectId, ref: 'PromoCode' },
     paymentMethod: String,
+    shippingFees: { type: String },
 });
 const Order = (0, mongoose_1.model)('Order', OrderSchema);
 exports.default = Order;

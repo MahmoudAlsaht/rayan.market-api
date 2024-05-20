@@ -36,12 +36,13 @@ const getPromos = async (req, res, next) => {
 exports.getPromos = getPromos;
 const createPromo = async (req, res, next) => {
     try {
-        const { code, discount, startDate, endDate } = req.body;
+        const { code, discount, startDate, endDate, promoType } = req.body;
         const promo = new promoCode_1.default({
             code,
             discount,
             startDate: startDate || null,
             endDate: endDate || null,
+            promoType,
         });
         await promo.save();
         res.status(200).send(promo);
@@ -58,7 +59,6 @@ const getPromo = async (req, res, next) => {
         const promo = await promoCode_1.default.findOne({
             code: promoCode,
         });
-        console.log(!(0, utils_1.checkIfDateInBetween)(promo?.startDate, promo?.endDate));
         if (promo?.expired) {
             promo.startDate = null;
             promo.endDate = null;
@@ -73,7 +73,6 @@ const getPromo = async (req, res, next) => {
         res.status(200).send(promo);
     }
     catch (e) {
-        console.error(e);
         next(new expressError_1.default(e.message, 404));
     }
 };

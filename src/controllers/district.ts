@@ -25,7 +25,7 @@ export const createDistrict = async (
 		const { name, shippingFees } = req.body;
 		const district = new District({
 			name,
-			shippingFees: shippingFees || 2,
+			shippingFees: shippingFees || '2',
 		});
 		await district.save();
 		res.status(200).send(district);

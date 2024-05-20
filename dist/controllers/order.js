@@ -12,6 +12,7 @@ const anonymousUser_1 = __importDefault(require("../models/anonymousUser"));
 const contact_1 = __importDefault(require("../models/contact"));
 const utils_1 = require("../utils");
 const promoCode_1 = __importDefault(require("../models/promoCode"));
+const district_1 = __importDefault(require("../models/district"));
 const getOrders = async (req, res, next) => {
     try {
         const { userId } = req.body;
@@ -52,12 +53,13 @@ exports.getOrder = getOrder;
 const createOrder = async (req, res, next) => {
     try {
         const { products, totalPrice, isUserRegistered, userId, contactId, paymentMethod, promoCode, } = req.body;
-        const contact = await contact_1.default.findById(contactId);
+        const contact = await contact_1.default.findById(contactId).populate('district');
         const promo = await promoCode_1.default.findOne({
             code: promoCode,
         });
+        const district = await district_1.default.findById(contact?.district?._id);
         const order = new order_1.default({
-            totalPrice: promo
+            billTotal: promo && promo?.promoType === 'product'
                 ? (0, utils_1.applyDiscount)(parseFloat(totalPrice), promo?.discount)
                 : parseFloat(totalPrice),
             products,
@@ -66,7 +68,12 @@ const createOrder = async (req, res, next) => {
             orderId: (0, utils_1.genOrderId)(),
             paymentMethod,
             promoCode: promo,
+            shippingFees: promo && promo?.promoType === 'shipping'
+                ? (0, utils_1.applyDiscount)(parseFloat(contact?.district?.shippingFees), promo?.discount)
+                : parseFloat(contact?.district?.shippingFees),
         });
+        order.totalPrice = `${parseFloat(order?.billTotal) +
+            parseFloat(order?.shippingFees)}`;
         const user = isUserRegistered
             ? await user_1.default.findById(userId)
             : await anonymousUser_1.default.findById(userId);
@@ -85,6 +92,7 @@ const createOrder = async (req, res, next) => {
         res.status(200).send(order);
     }
     catch (e) {
+        console.log(e);
         next(new expressError_1.default(e.message, 404));
     }
 };

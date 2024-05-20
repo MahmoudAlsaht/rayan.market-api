@@ -13,6 +13,7 @@ import {
 	isStaff,
 } from '../utils';
 import PromoCode from '../models/promoCode';
+import District from '../models/district';
 
 export const getOrders = async (
 	req: Request,
@@ -75,25 +76,47 @@ export const createOrder = async (
 			promoCode,
 		} = req.body;
 
-		const contact = await Contact.findById(contactId);
+		const contact = await Contact.findById(
+			contactId,
+		).populate('district');
 
 		const promo = await PromoCode.findOne({
 			code: promoCode,
 		});
+		const district = await District.findById(
+			contact?.district?._id,
+		);
 		const order = new Order({
-			totalPrice: promo
-				? applyDiscount(
-						parseFloat(totalPrice as string),
-						promo?.discount,
-				  )
-				: parseFloat(totalPrice),
+			billTotal:
+				promo && promo?.promoType === 'product'
+					? applyDiscount(
+							parseFloat(totalPrice as string),
+							promo?.discount,
+					  )
+					: parseFloat(totalPrice),
 			products,
 			isUserRegistered,
 			contact,
 			orderId: genOrderId(),
 			paymentMethod,
 			promoCode: promo,
+			shippingFees:
+				promo && promo?.promoType === 'shipping'
+					? applyDiscount(
+							parseFloat(
+								contact?.district?.shippingFees,
+							),
+							promo?.discount,
+					  )
+					: parseFloat(
+							contact?.district?.shippingFees,
+					  ),
 		});
+
+		order.totalPrice = `${
+			parseFloat(order?.billTotal) +
+			parseFloat(order?.shippingFees)
+		}`;
 
 		const user = isUserRegistered
 			? await User.findById(userId)
@@ -119,6 +142,7 @@ export const createOrder = async (
 
 		res.status(200).send(order);
 	} catch (e: any) {
+		console.log(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
