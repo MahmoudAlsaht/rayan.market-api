@@ -6,13 +6,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const user_1 = require("../controllers/user");
+const middlewares_1 = require("../middlewares");
 const router = express_1.default.Router();
-router.get('/', (0, express_async_handler_1.default)(user_1.checkUser));
-router.post('/create-user', (0, express_async_handler_1.default)(user_1.createUser));
+router.get('/', middlewares_1.checkUserToken, (0, express_async_handler_1.default)(user_1.checkUser));
+router.post('/create-user', middlewares_1.checkUserToken, (0, express_async_handler_1.default)(user_1.createUser));
 router
     .route('/users')
-    .get((0, express_async_handler_1.default)(user_1.getUsers))
-    .post((0, express_async_handler_1.default)(user_1.editUserRole));
+    .get(middlewares_1.checkUserToken, (0, express_async_handler_1.default)(user_1.getUsers))
+    .post(middlewares_1.checkUserToken, (0, express_async_handler_1.default)(user_1.editUserRole));
 router.post('/signup', (0, express_async_handler_1.default)(user_1.signup));
 router.post('/signin', (0, express_async_handler_1.default)(user_1.signin));
 router.post('/anonymous', (0, express_async_handler_1.default)(user_1.createAnonymousUser));

@@ -6,8 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getLabel = exports.getLabels = exports.createLabel = void 0;
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const label_1 = __importDefault(require("../models/label"));
+const utils_1 = require("../utils");
 const createLabel = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { labelValue } = req.body;
         let label;
         label =
@@ -17,13 +21,15 @@ const createLabel = async (req, res, next) => {
         res.status(200).send(label);
     }
     catch (e) {
-        console.log(e.message);
         next(new expressError_1.default(e.message, 404));
     }
 };
 exports.createLabel = createLabel;
 const getLabels = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const labels = await label_1.default.find().populate({
             path: 'products',
             populate: 'productImage',
@@ -31,7 +37,6 @@ const getLabels = async (req, res, next) => {
         res.status(200).send(labels);
     }
     catch (e) {
-        console.log(e.message);
         next(new expressError_1.default(e.message, 404));
     }
 };
@@ -46,7 +51,6 @@ const getLabel = async (req, res, next) => {
         res.status(200).send(label);
     }
     catch (e) {
-        console.log(e.message);
         next(new expressError_1.default(e.message, 404));
     }
 };

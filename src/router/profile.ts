@@ -6,6 +6,7 @@ import {
 	updateUserPhoneAndUsername,
 	updateUserPassword,
 } from '../controllers/profile';
+import { checkUserToken } from '../middlewares';
 const router = express.Router();
 
 router.get(
@@ -15,16 +16,19 @@ router.get(
 
 router.post(
 	'/profile/:profile_id/updateUserPhoneAndUsername',
+	checkUserToken,
 	expressAsyncHandler(updateUserPhoneAndUsername),
 );
 
 router.post(
 	'/profile/:profile_id/updateUserPassword',
+	checkUserToken,
 	expressAsyncHandler(updateUserPassword),
 );
 
 router.delete(
 	'/profile/:profile_id/delete-account',
+	checkUserToken,
 	expressAsyncHandler(removeAccount),
 );
 

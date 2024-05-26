@@ -27,19 +27,25 @@ export const isAuthenticated = async (user: TUser | null) => {
 export const isAdmin = async (user: TUser | null) => {
 	return !isAuthenticated(user)
 		? false
-		: user.role === 'admin';
+		: user?.role === 'admin';
+};
+
+export const isEditor = async (user: TUser | null) => {
+	return !isAuthenticated(user)
+		? false
+		: user?.role === 'editor';
 };
 
 export const isStaff = async (user: TUser | null) => {
 	return !isAuthenticated(user)
 		? false
-		: user.role === 'staff';
+		: user?.role === 'staff';
 };
 
 export const isCustomer = async (user: TUser | null) => {
 	return !isAuthenticated(user)
 		? false
-		: user.role === 'customer';
+		: user?.role === 'customer';
 };
 
 export const checkIfOfferEnded = (

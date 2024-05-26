@@ -21,7 +21,6 @@ const getBrands = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(400);
     }
 };
 exports.getBrands = getBrands;
@@ -48,6 +47,9 @@ const getBrand = async (req, res, next) => {
 exports.getBrand = getBrand;
 const createBrand = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { name } = req.body;
         const brand = await new brand_1.default({
             name,
@@ -70,12 +72,14 @@ const createBrand = async (req, res, next) => {
     catch (e) {
         await (0, utils_1.deleteImage)(req.file?.filename);
         next(new expressError_1.default(e.message, 404));
-        res.status(400);
     }
 };
 exports.createBrand = createBrand;
 const updateBrand = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { name } = req.body;
         const { brand_id } = req.params;
         const brand = await brand_1.default.findById(brand_id).populate('image');
@@ -99,12 +103,14 @@ const updateBrand = async (req, res, next) => {
     catch (e) {
         await (0, utils_1.deleteImage)(req.file?.filename);
         next(new expressError_1.default(e.message, 404));
-        res.status(400);
     }
 };
 exports.updateBrand = updateBrand;
 const deleteBrand = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { brand_id } = req.params;
         const brand = await brand_1.default.findById(brand_id).populate('image');
         await (0, utils_1.deleteImage)(brand?.image?.filename);
@@ -114,7 +120,6 @@ const deleteBrand = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(400);
     }
 };
 exports.deleteBrand = deleteBrand;

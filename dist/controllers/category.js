@@ -21,7 +21,6 @@ const getCategories = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(400);
     }
 };
 exports.getCategories = getCategories;
@@ -42,7 +41,6 @@ const getCategory = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(400);
     }
 };
 exports.getCategory = getCategory;
@@ -59,12 +57,14 @@ const getCategoryProducts = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(400);
     }
 };
 exports.getCategoryProducts = getCategoryProducts;
 const createCategory = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error();
         const { name } = req.body;
         const category = await new category_1.default({
             name,
@@ -87,12 +87,14 @@ const createCategory = async (req, res, next) => {
     catch (e) {
         await (0, utils_1.deleteImage)(req.file?.filename);
         next(new expressError_1.default(e.message, 404));
-        res.status(400);
     }
 };
 exports.createCategory = createCategory;
 const updateCategory = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error();
         const { name } = req.body;
         const { category_id } = req.params;
         const category = await category_1.default.findById(category_id).populate('image');
@@ -116,12 +118,14 @@ const updateCategory = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(400);
     }
 };
 exports.updateCategory = updateCategory;
 const deleteCategory = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error();
         const { category_id } = req.params;
         const category = await category_1.default.findById(category_id).populate('image');
         await (0, utils_1.deleteImage)(category?.image?.filename);
@@ -131,7 +135,6 @@ const deleteCategory = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(400);
     }
 };
 exports.deleteCategory = deleteCategory;

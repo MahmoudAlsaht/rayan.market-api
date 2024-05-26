@@ -2,9 +2,10 @@ import { Request, Response, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
 import Banner from '../models/banner';
 import Image from '../models/image';
-import { deleteImage } from '../utils';
+import { deleteImage, isAdmin, isEditor } from '../utils';
 import Brand from '../models/brand';
 import Category from '../models/category';
+import { CustomUserRequest } from '../middlewares';
 
 type TFile = {
 	filename: string;
@@ -23,7 +24,6 @@ export const getBanners = async (
 		res.status(200).send(banners);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -33,6 +33,10 @@ export const createBanner = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { name, type, category, brand } = req.body;
 
 		const doc =
@@ -78,7 +82,6 @@ export const createBanner = async (
 		}
 		console.log(e);
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -96,7 +99,6 @@ export const getBanner = async (
 		res.status(200).send(banner);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -110,11 +112,9 @@ export const getBannerByType = async (
 		const banner = await Banner.findOne({
 			bannerType: type,
 		}).populate('bannerImages');
-
 		res.status(200).send(banner);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -124,6 +124,10 @@ export const updateBanner = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { banner_id } = req.params;
 		const { name } = req.body;
 
@@ -154,7 +158,6 @@ export const updateBanner = async (
 			await deleteImage(req.file?.filename);
 		}
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -164,6 +167,10 @@ export const deleteBanner = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { banner_id } = req.params;
 		const banner = await Banner.findById(banner_id).populate(
 			'bannerImages',
@@ -178,6 +185,5 @@ export const deleteBanner = async (
 		res.status(200).send(banner_id);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };

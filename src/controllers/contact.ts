@@ -3,6 +3,8 @@ import ExpressError from '../middlewares/expressError';
 import Profile from '../models/profile';
 import Contact from '../models/contact';
 import District from '../models/district';
+import { CustomUserRequest } from '../middlewares';
+import { isAuthenticated } from '../utils';
 
 export const getContacts = async (
 	req: Request,
@@ -31,6 +33,10 @@ export const createContact = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAuthenticated(user))
+			throw new Error('YOU ARE NOT A USER');
+
 		const { profile_id } = req.params;
 		const { district, contactNumber } = req.body;
 
@@ -48,7 +54,6 @@ export const createContact = async (
 
 		res.status(200).send(contact);
 	} catch (e: any) {
-		console.log(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -77,6 +82,10 @@ export const updateContact = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAuthenticated(user))
+			throw new Error('YOU ARE NOT A USER');
+
 		const { contact_id } = req.params;
 		const { district, contactNumber } = req.body;
 
@@ -99,6 +108,10 @@ export const deleteContact = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAuthenticated(user))
+			throw new Error('YOU ARE NOT A USER');
+
 		const { profile_id, contact_id } = req.params;
 		const profile = await Profile.findById(profile_id);
 		const contact = await Contact.findById(contact_id);

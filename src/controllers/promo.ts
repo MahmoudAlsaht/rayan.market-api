@@ -1,7 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
 import PromoCode from '../models/promoCode';
-import { checkIfDateInBetween } from '../utils';
+import {
+	checkIfDateInBetween,
+	isAdmin,
+	isEditor,
+} from '../utils';
+import { CustomUserRequest } from '../middlewares';
 
 export const getPromos = async (
 	req: Request,
@@ -33,7 +38,6 @@ export const getPromos = async (
 		}
 		res.status(200).json(sendPromos);
 	} catch (e: any) {
-		console.error(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -44,6 +48,10 @@ export const createPromo = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { code, discount, startDate, endDate, promoType } =
 			req.body;
 		const promo = new PromoCode({
@@ -99,6 +107,10 @@ export const updatePromo = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { promo_id } = req.params;
 		const { code, discount, startDate, endDate, expired } =
 			req.body;
@@ -113,7 +125,6 @@ export const updatePromo = async (
 
 		res.status(200).send(promo);
 	} catch (e: any) {
-		console.error(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -124,6 +135,10 @@ export const deletePromo = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { promo_id } = req.params;
 		await PromoCode.findByIdAndDelete(promo_id);
 

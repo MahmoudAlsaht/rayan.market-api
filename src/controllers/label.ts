@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
 import Label from '../models/label';
+import { CustomUserRequest } from '../middlewares';
+import { isAdmin, isEditor } from '../utils';
 
 export const createLabel = async (
 	req: Request,
@@ -8,6 +10,10 @@ export const createLabel = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { labelValue } = req.body;
 		let label;
 		label =
@@ -16,7 +22,6 @@ export const createLabel = async (
 		await label.save();
 		res.status(200).send(label);
 	} catch (e: any) {
-		console.log(e.message);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -27,13 +32,16 @@ export const getLabels = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const labels = await Label.find().populate({
 			path: 'products',
 			populate: 'productImage',
 		});
 		res.status(200).send(labels);
 	} catch (e: any) {
-		console.log(e.message);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -51,7 +59,6 @@ export const getLabel = async (
 		});
 		res.status(200).send(label);
 	} catch (e: any) {
-		console.log(e.message);
 		next(new ExpressError(e.message, 404));
 	}
 };

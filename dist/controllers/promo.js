@@ -29,13 +29,15 @@ const getPromos = async (req, res, next) => {
         res.status(200).json(sendPromos);
     }
     catch (e) {
-        console.error(e);
         next(new expressError_1.default(e.message, 404));
     }
 };
 exports.getPromos = getPromos;
 const createPromo = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { code, discount, startDate, endDate, promoType } = req.body;
         const promo = new promoCode_1.default({
             code,
@@ -79,6 +81,9 @@ const getPromo = async (req, res, next) => {
 exports.getPromo = getPromo;
 const updatePromo = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { promo_id } = req.params;
         const { code, discount, startDate, endDate, expired } = req.body;
         const promo = await promoCode_1.default.findById(promo_id);
@@ -91,13 +96,15 @@ const updatePromo = async (req, res, next) => {
         res.status(200).send(promo);
     }
     catch (e) {
-        console.error(e);
         next(new expressError_1.default(e.message, 404));
     }
 };
 exports.updatePromo = updatePromo;
 const deletePromo = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { promo_id } = req.params;
         await promoCode_1.default.findByIdAndDelete(promo_id);
         res.sendStatus(200);

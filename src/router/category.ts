@@ -10,6 +10,7 @@ import {
 } from '../controllers/category';
 import multer from 'multer';
 import { storage } from '../cloudinary';
+import { checkUserToken } from '../middlewares';
 
 const upload = multer({ storage });
 
@@ -19,6 +20,7 @@ router
 	.route('/')
 	.get(expressAsyncHandler(getCategories))
 	.post(
+		checkUserToken,
 		upload.single('file'),
 		expressAsyncHandler(createCategory),
 	);
@@ -27,10 +29,11 @@ router
 	.route('/:category_id')
 	.get(expressAsyncHandler(getCategory))
 	.put(
+		checkUserToken,
 		upload.single('file'),
 		expressAsyncHandler(updateCategory),
 	)
-	.delete(expressAsyncHandler(deleteCategory));
+	.delete(checkUserToken, expressAsyncHandler(deleteCategory));
 
 router.get(
 	'/:category_id/products',

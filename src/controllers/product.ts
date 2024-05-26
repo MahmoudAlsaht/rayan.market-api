@@ -3,13 +3,14 @@ import ExpressError from '../middlewares/expressError';
 import Product from '../models/product';
 import Image from '../models/image';
 import Category from '../models/category';
-import { deleteImage } from '../utils';
+import { deleteImage, isAdmin, isEditor } from '../utils';
 import {
 	checkIfDateInBetween,
 	checkIfOfferEnded,
 } from '../utils';
 import Brand from '../models/brand';
 import Label from '../models/label';
+import { CustomUserRequest } from '../middlewares';
 
 export const getProducts = async (
 	req: Request,
@@ -75,8 +76,6 @@ export const getProducts = async (
 		res.status(200).send(sendProducts);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
-		5;
 	}
 };
 
@@ -93,7 +92,6 @@ export const filterProducts = async (
 		res.status(200).send(products);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -103,6 +101,10 @@ export const createProduct = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const {
 			name,
 			categoryId,
@@ -185,10 +187,8 @@ export const createProduct = async (
 		await product.save();
 		res.status(200).send(product);
 	} catch (e: any) {
-		console.log(e);
 		await deleteImage(req.file?.filename);
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -206,7 +206,6 @@ export const getProduct = async (
 		res.status(200).send(product);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -216,6 +215,10 @@ export const updateProduct = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { product_id } = req.params;
 
 		const {
@@ -319,9 +322,7 @@ export const updateProduct = async (
 
 		res.status(200).send(product);
 	} catch (e: any) {
-		console.log(e);
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -331,6 +332,10 @@ export const updateProductViews = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { product_id } = req.params;
 		const product = await Product.findById(product_id);
 		product.views += 1;
@@ -338,7 +343,6 @@ export const updateProductViews = async (
 		res.sendStatus(200);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };
 
@@ -348,6 +352,10 @@ export const deleteProduct = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { product_id } = req.params;
 		const product = await Product.findById(product_id)
 			.populate('productImage')
@@ -382,6 +390,5 @@ export const deleteProduct = async (
 		res.status(200).send(product_id);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(404);
 	}
 };

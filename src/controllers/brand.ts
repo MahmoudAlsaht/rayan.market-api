@@ -2,7 +2,8 @@ import { Response, Request, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
 import Brand from '../models/brand';
 import Image from '../models/image';
-import { deleteImage } from '../utils';
+import { deleteImage, isAdmin, isEditor } from '../utils';
+import { CustomUserRequest } from '../middlewares';
 
 export const getBrands = async (
 	req: Request,
@@ -21,7 +22,6 @@ export const getBrands = async (
 		res.status(200).send(brands);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(400);
 	}
 };
 
@@ -55,6 +55,10 @@ export const createBrand = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { name } = req.body;
 		const brand = await new Brand({
 			name,
@@ -78,7 +82,6 @@ export const createBrand = async (
 	} catch (e: any) {
 		await deleteImage(req.file?.filename);
 		next(new ExpressError(e.message, 404));
-		res.status(400);
 	}
 };
 
@@ -88,6 +91,10 @@ export const updateBrand = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { name } = req.body;
 		const { brand_id } = req.params;
 		const brand = await Brand.findById(brand_id).populate(
@@ -116,7 +123,6 @@ export const updateBrand = async (
 	} catch (e: any) {
 		await deleteImage(req.file?.filename);
 		next(new ExpressError(e.message, 404));
-		res.status(400);
 	}
 };
 
@@ -126,6 +132,10 @@ export const deleteBrand = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { brand_id } = req.params;
 		const brand = await Brand.findById(brand_id).populate(
 			'image',
@@ -139,6 +149,5 @@ export const deleteBrand = async (
 		res.sendStatus(200);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(400);
 	}
 };

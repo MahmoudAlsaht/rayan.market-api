@@ -15,11 +15,10 @@ const promoCode_1 = __importDefault(require("../models/promoCode"));
 const district_1 = __importDefault(require("../models/district"));
 const getOrders = async (req, res, next) => {
     try {
-        const { userId } = req.body;
-        const user = await user_1.default.findById(userId);
+        const { user } = req;
         let orders;
         if (user?.role === 'customer') {
-            orders = await order_1.default.find({ user: userId });
+            orders = await order_1.default.find({ user: user?._id });
         }
         else if (user?.role === 'admin' ||
             user?.role === 'staff' ||
@@ -29,7 +28,6 @@ const getOrders = async (req, res, next) => {
         res.status(200).send(orders);
     }
     catch (e) {
-        console.error(e.message);
         next(new expressError_1.default(e.message, 404));
     }
 };
@@ -92,7 +90,6 @@ const createOrder = async (req, res, next) => {
         res.status(200).send(order);
     }
     catch (e) {
-        console.log(e);
         next(new expressError_1.default(e.message, 404));
     }
 };
@@ -100,8 +97,8 @@ exports.createOrder = createOrder;
 const updateOrderStatus = async (req, res, next) => {
     try {
         const { order_id } = req.params;
-        const { updatedStatus, userId } = req.body;
-        const user = await user_1.default.findById(userId);
+        const { updatedStatus } = req.body;
+        const { user } = req;
         const order = await order_1.default.findById(order_id).populate('user');
         if (updatedStatus === 'accepted' ||
             updatedStatus === 'rejected' ||

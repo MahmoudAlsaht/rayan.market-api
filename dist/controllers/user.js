@@ -15,12 +15,7 @@ const district_1 = __importDefault(require("../models/district"));
 const { SECRET_1 } = process.env;
 const checkUser = async (req, res, next) => {
     try {
-        const authHeader = req.headers['authorization'];
-        const token = authHeader && authHeader.split(' ')[1];
-        if (token == null)
-            throw new Error();
-        const decoded = jsonwebtoken_1.default.verify(token, SECRET_1);
-        const user = await user_1.default.findById(decoded.id);
+        const { user } = req;
         res.status(200).send({
             username: user?.username,
             phone: user?.phone,
@@ -36,6 +31,9 @@ const checkUser = async (req, res, next) => {
 exports.checkUser = checkUser;
 const editUserRole = async (req, res, next) => {
     try {
+        const admin = req.user;
+        if (!(0, utils_1.isAdmin)(admin))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { userId, role } = req.body;
         const user = await user_1.default.findById(userId);
         if (user)
@@ -50,6 +48,9 @@ const editUserRole = async (req, res, next) => {
 exports.editUserRole = editUserRole;
 const getUsers = async (req, res, next) => {
     try {
+        const admin = req.user;
+        if (!(0, utils_1.isAdmin)(admin))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const users = await user_1.default.find();
         const usersWithoutPasswords = users.map((user) => {
             return {
@@ -149,7 +150,6 @@ const createAnonymousUser = async (req, res, next) => {
         res.status(200).send(anonymousUser);
     }
     catch (e) {
-        console.log(e);
         next(new expressError_1.default(e.message, 404));
     }
 };
@@ -211,11 +211,10 @@ const updatePassword = async (req, res, next) => {
 exports.updatePassword = updatePassword;
 const createUser = async (req, res, next) => {
     try {
-        const { username, phone, password, adminId, role } = req.body;
-        console.log('hit route create user');
-        const admin = await user_1.default.findById(adminId);
-        if (admin == null || admin?.role !== 'admin')
+        const admin = req.user;
+        if (!(0, utils_1.isAdmin)(admin))
             throw new Error('YOU ARE NOT AUTHORIZED');
+        const { username, phone, password, role } = req.body;
         const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
         if (username.search(usernameRegrex) !== -1) {
             throw new Error('Invalid username');
@@ -242,7 +241,6 @@ const createUser = async (req, res, next) => {
         });
     }
     catch (e) {
-        console.log(e);
         next(new expressError_1.default(e.message, 404));
     }
 };

@@ -62,8 +62,6 @@ const getProducts = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
-        5;
     }
 };
 exports.getProducts = getProducts;
@@ -77,12 +75,14 @@ const filterProducts = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.filterProducts = filterProducts;
 const createProduct = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { name, categoryId, brandId, price, quantity, newPrice, isOffer, offerExpiresDate, labels, label, startDate, endDate, isEndDate, } = req.body;
         const product = new product_1.default({
             name,
@@ -136,10 +136,8 @@ const createProduct = async (req, res, next) => {
         res.status(200).send(product);
     }
     catch (e) {
-        console.log(e);
         await (0, utils_1.deleteImage)(req.file?.filename);
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.createProduct = createProduct;
@@ -153,12 +151,14 @@ const getProduct = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.getProduct = getProduct;
 const updateProduct = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { product_id } = req.params;
         const { name, price, quantity, categoryId, brandId, newPrice, isOffer, offerExpiresDate, labels, label, startDate, endDate, isEndDate, } = req.body;
         const product = await product_1.default.findById(product_id)
@@ -236,14 +236,15 @@ const updateProduct = async (req, res, next) => {
         res.status(200).send(product);
     }
     catch (e) {
-        console.log(e);
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.updateProduct = updateProduct;
 const updateProductViews = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { product_id } = req.params;
         const product = await product_1.default.findById(product_id);
         product.views += 1;
@@ -252,12 +253,14 @@ const updateProductViews = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.updateProductViews = updateProductViews;
 const deleteProduct = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { product_id } = req.params;
         const product = await product_1.default.findById(product_id)
             .populate('productImage')
@@ -280,7 +283,6 @@ const deleteProduct = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.deleteProduct = deleteProduct;

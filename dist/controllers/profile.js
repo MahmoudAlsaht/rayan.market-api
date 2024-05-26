@@ -24,7 +24,10 @@ const updateUserPhoneAndUsername = async (req, res, next) => {
         const { profile_id } = req.params;
         const { phone, username } = req.body;
         const profile = await profile_1.default.findById(profile_id).populate({ path: 'user' });
-        const user = await user_1.default.findById(profile?.user?._id);
+        const user = await user_1.default.findById(req.user?._id);
+        if (!(0, utils_1.isAuthenticated)(user) &&
+            user?._id !== profile?.user?._id)
+            throw new Error('YOU ARE NOT AUTHORIZED');
         if (phone && phone.length > 0)
             user.phone = phone;
         if (username && username.length > 0)
@@ -48,7 +51,10 @@ const updateUserPassword = async (req, res, next) => {
         const { profile_id } = req.params;
         const { newPassword, currentPassword } = req.body;
         const profile = await profile_1.default.findById(profile_id).populate({ path: 'user' });
-        const user = await user_1.default.findById(profile?.user?._id);
+        const user = await user_1.default.findById(req.user?._id);
+        if (!(0, utils_1.isAuthenticated)(user) &&
+            user?._id !== profile?.user?._id)
+            throw new Error('YOU ARE NOT AUTHORIZED');
         (0, utils_1.checkPassword)(currentPassword, user?.password?.hash);
         if (newPassword)
             user.password = await (0, utils_1.genPassword)(newPassword);
@@ -65,7 +71,10 @@ const removeAccount = async (req, res, next) => {
         const { profile_id } = req.params;
         const { password } = req.body;
         const profile = await profile_1.default.findById(profile_id).populate({ path: 'user' });
-        const user = await user_1.default.findById(profile?.user?._id);
+        const user = await user_1.default.findById(req.user?._id);
+        if (!(0, utils_1.isAuthenticated)(user) &&
+            user?._id !== profile?.user?._id)
+            throw new Error('YOU ARE NOT AUTHORIZED');
         (0, utils_1.checkPassword)(password, user?.password?.hash);
         await user?.deleteOne();
         res.sendStatus(200);

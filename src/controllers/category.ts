@@ -2,7 +2,8 @@ import { Response, Request, NextFunction } from 'express';
 import ExpressError from '../middlewares/expressError';
 import Category from '../models/category';
 import Image from '../models/image';
-import { deleteImage } from '../utils';
+import { deleteImage, isAdmin, isEditor } from '../utils';
+import { CustomUserRequest } from '../middlewares';
 
 export const getCategories = async (
 	req: Request,
@@ -21,7 +22,6 @@ export const getCategories = async (
 		res.status(200).send(categories);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(400);
 	}
 };
 
@@ -45,7 +45,6 @@ export const getCategory = async (
 		res.status(200).send(category);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(400);
 	}
 };
 
@@ -65,7 +64,6 @@ export const getCategoryProducts = async (
 		res.status(200).send(category?.products);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(400);
 	}
 };
 
@@ -75,6 +73,9 @@ export const createCategory = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user)) throw new Error();
+
 		const { name } = req.body;
 		const category = await new Category({
 			name,
@@ -98,7 +99,6 @@ export const createCategory = async (
 	} catch (e: any) {
 		await deleteImage(req.file?.filename);
 		next(new ExpressError(e.message, 404));
-		res.status(400);
 	}
 };
 
@@ -108,6 +108,9 @@ export const updateCategory = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user)) throw new Error();
+
 		const { name } = req.body;
 		const { category_id } = req.params;
 		const category = await Category.findById(
@@ -137,7 +140,6 @@ export const updateCategory = async (
 		res.status(200).send(category);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(400);
 	}
 };
 
@@ -147,6 +149,9 @@ export const deleteCategory = async (
 	next: NextFunction,
 ) => {
 	try {
+		const { user } = req as CustomUserRequest;
+		if (!isAdmin(user) || !isEditor(user)) throw new Error();
+
 		const { category_id } = req.params;
 		const category = await Category.findById(
 			category_id,
@@ -160,6 +165,5 @@ export const deleteCategory = async (
 		res.sendStatus(200);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
-		res.status(400);
 	}
 };

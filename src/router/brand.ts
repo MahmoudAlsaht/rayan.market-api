@@ -9,6 +9,7 @@ import {
 } from '../controllers/brand';
 import multer from 'multer';
 import { storage } from '../cloudinary';
+import { checkUserToken } from '../middlewares';
 
 const upload = multer({ storage });
 const router = express.Router();
@@ -17,6 +18,7 @@ router
 	.route('/')
 	.get(expressAsyncHandler(getBrands))
 	.post(
+		checkUserToken,
 		upload.single('file'),
 		expressAsyncHandler(createBrand),
 	);
@@ -24,7 +26,11 @@ router
 router
 	.route('/:brand_id')
 	.get(expressAsyncHandler(getBrand))
-	.put(upload.single('file'), expressAsyncHandler(updateBrand))
-	.delete(expressAsyncHandler(deleteBrand));
+	.put(
+		checkUserToken,
+		upload.single('file'),
+		expressAsyncHandler(updateBrand),
+	)
+	.delete(checkUserToken, expressAsyncHandler(deleteBrand));
 
 export default router;

@@ -7,18 +7,19 @@ import {
 	updateContact,
 	deleteContact,
 } from '../controllers/contact';
+import { checkUserToken } from '../middlewares';
 
 const router = express.Router({ mergeParams: true });
 
 router
 	.route('/contacts')
 	.get(expressAsyncHandler(getContacts))
-	.post(expressAsyncHandler(createContact));
+	.post(checkUserToken, expressAsyncHandler(createContact));
 
 router
 	.route('/contacts/:contact_id')
 	.get(expressAsyncHandler(getContact))
-	.delete(expressAsyncHandler(deleteContact))
-	.put(expressAsyncHandler(updateContact));
+	.delete(checkUserToken, expressAsyncHandler(deleteContact))
+	.put(checkUserToken, expressAsyncHandler(updateContact));
 
 export default router;

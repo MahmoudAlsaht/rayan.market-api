@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateRandomSixDigit = exports.deleteImage = exports.applyDiscount = exports.genOrderId = exports.remainingDays = exports.checkIfDateInBetween = exports.checkIfOfferEnded = exports.isCustomer = exports.isStaff = exports.isAdmin = exports.isAuthenticated = exports.checkPassword = exports.genPassword = void 0;
+exports.generateRandomSixDigit = exports.deleteImage = exports.applyDiscount = exports.genOrderId = exports.remainingDays = exports.checkIfDateInBetween = exports.checkIfOfferEnded = exports.isCustomer = exports.isStaff = exports.isEditor = exports.isAdmin = exports.isAuthenticated = exports.checkPassword = exports.genPassword = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const dayjs_1 = __importDefault(require("dayjs"));
 const utc_1 = __importDefault(require("dayjs/plugin/utc"));
@@ -27,19 +27,25 @@ exports.isAuthenticated = isAuthenticated;
 const isAdmin = async (user) => {
     return !(0, exports.isAuthenticated)(user)
         ? false
-        : user.role === 'admin';
+        : user?.role === 'admin';
 };
 exports.isAdmin = isAdmin;
+const isEditor = async (user) => {
+    return !(0, exports.isAuthenticated)(user)
+        ? false
+        : user?.role === 'editor';
+};
+exports.isEditor = isEditor;
 const isStaff = async (user) => {
     return !(0, exports.isAuthenticated)(user)
         ? false
-        : user.role === 'staff';
+        : user?.role === 'staff';
 };
 exports.isStaff = isStaff;
 const isCustomer = async (user) => {
     return !(0, exports.isAuthenticated)(user)
         ? false
-        : user.role === 'customer';
+        : user?.role === 'customer';
 };
 exports.isCustomer = isCustomer;
 const checkIfOfferEnded = (createdAt, expireDate) => {

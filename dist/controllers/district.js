@@ -6,19 +6,22 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteDistrict = exports.updateDistrict = exports.getDistrict = exports.createDistrict = exports.getDistricts = void 0;
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const district_1 = __importDefault(require("../models/district"));
+const utils_1 = require("../utils");
 const getDistricts = async (req, res, next) => {
     try {
         const districts = await district_1.default.find();
         res.status(200).send(districts);
     }
     catch (e) {
-        console.error(e.message);
         next(new expressError_1.default(e.message, 404));
     }
 };
 exports.getDistricts = getDistricts;
 const createDistrict = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { name, shippingFees } = req.body;
         const district = new district_1.default({
             name,
@@ -28,7 +31,6 @@ const createDistrict = async (req, res, next) => {
         res.status(200).send(district);
     }
     catch (e) {
-        console.error(e.message);
         next(new expressError_1.default(e.message, 404));
     }
 };
@@ -40,13 +42,15 @@ const getDistrict = async (req, res, next) => {
         res.status(200).send(district);
     }
     catch (e) {
-        console.error(e.message);
         next(new expressError_1.default(e.message, 404));
     }
 };
 exports.getDistrict = getDistrict;
 const updateDistrict = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { district_id } = req.params;
         const { name, shippingFees } = req.body;
         const district = await district_1.default.findById(district_id);
@@ -58,19 +62,20 @@ const updateDistrict = async (req, res, next) => {
         res.status(200).send(district);
     }
     catch (e) {
-        console.error(e.message);
         next(new expressError_1.default(e.message, 404));
     }
 };
 exports.updateDistrict = updateDistrict;
 const deleteDistrict = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { district_id } = req.params;
         await district_1.default.findByIdAndDelete(district_id);
         res.status(200).send(district_id);
     }
     catch (e) {
-        console.error(e.message);
         next(new expressError_1.default(e.message, 404));
     }
 };

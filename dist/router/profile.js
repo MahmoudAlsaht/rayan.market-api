@@ -6,10 +6,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const express_async_handler_1 = __importDefault(require("express-async-handler"));
 const profile_1 = require("../controllers/profile");
+const middlewares_1 = require("../middlewares");
 const router = express_1.default.Router();
 router.get('/profile/:profile_id', (0, express_async_handler_1.default)(profile_1.fetchProfile));
-router.post('/profile/:profile_id/updateUserPhoneAndUsername', (0, express_async_handler_1.default)(profile_1.updateUserPhoneAndUsername));
-router.post('/profile/:profile_id/updateUserPassword', (0, express_async_handler_1.default)(profile_1.updateUserPassword));
-router.delete('/profile/:profile_id/delete-account', (0, express_async_handler_1.default)(profile_1.removeAccount));
+router.post('/profile/:profile_id/updateUserPhoneAndUsername', middlewares_1.checkUserToken, (0, express_async_handler_1.default)(profile_1.updateUserPhoneAndUsername));
+router.post('/profile/:profile_id/updateUserPassword', middlewares_1.checkUserToken, (0, express_async_handler_1.default)(profile_1.updateUserPassword));
+router.delete('/profile/:profile_id/delete-account', middlewares_1.checkUserToken, (0, express_async_handler_1.default)(profile_1.removeAccount));
 exports.default = router;
 //# sourceMappingURL=profile.js.map

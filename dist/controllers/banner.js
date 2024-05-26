@@ -17,12 +17,14 @@ const getBanners = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.getBanners = getBanners;
 const createBanner = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { name, type, category, brand } = req.body;
         const doc = type === 'brand'
             ? await brand_1.default.findById(brand)
@@ -63,7 +65,6 @@ const createBanner = async (req, res, next) => {
         }
         console.log(e);
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.createBanner = createBanner;
@@ -75,7 +76,6 @@ const getBanner = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.getBanner = getBanner;
@@ -89,12 +89,14 @@ const getBannerByType = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.getBannerByType = getBannerByType;
 const updateBanner = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { banner_id } = req.params;
         const { name } = req.body;
         const banner = await banner_1.default.findById(banner_id).populate('bannerImages');
@@ -121,12 +123,14 @@ const updateBanner = async (req, res, next) => {
             await (0, utils_1.deleteImage)(req.file?.filename);
         }
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.updateBanner = updateBanner;
 const deleteBanner = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
+            throw new Error('YOU ARE NOT AUTHORIZED');
         const { banner_id } = req.params;
         const banner = await banner_1.default.findById(banner_id).populate('bannerImages');
         for (const image of banner?.bannerImages) {
@@ -138,7 +142,6 @@ const deleteBanner = async (req, res, next) => {
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
-        res.status(404);
     }
 };
 exports.deleteBanner = deleteBanner;

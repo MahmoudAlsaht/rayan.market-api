@@ -14,6 +14,7 @@ import {
 } from '../utils';
 import PromoCode from '../models/promoCode';
 import District from '../models/district';
+import { CustomUserRequest } from '../middlewares';
 
 export const getOrders = async (
 	req: Request,
@@ -21,11 +22,10 @@ export const getOrders = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { userId } = req.body;
-		const user = await User.findById(userId);
+		const { user } = req as CustomUserRequest;
 		let orders;
 		if (user?.role === 'customer') {
-			orders = await Order.find({ user: userId });
+			orders = await Order.find({ user: user?._id });
 		} else if (
 			user?.role === 'admin' ||
 			user?.role === 'staff' ||
@@ -36,7 +36,6 @@ export const getOrders = async (
 
 		res.status(200).send(orders);
 	} catch (e: any) {
-		console.error(e.message);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -142,7 +141,6 @@ export const createOrder = async (
 
 		res.status(200).send(order);
 	} catch (e: any) {
-		console.log(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -154,9 +152,10 @@ export const updateOrderStatus = async (
 ) => {
 	try {
 		const { order_id } = req.params;
-		const { updatedStatus, userId } = req.body;
+		const { updatedStatus } = req.body;
 
-		const user = await User.findById(userId);
+		const { user } = req as CustomUserRequest;
+
 		const order = await Order.findById(order_id).populate(
 			'user',
 		);

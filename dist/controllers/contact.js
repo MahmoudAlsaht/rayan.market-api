@@ -8,6 +8,7 @@ const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const profile_1 = __importDefault(require("../models/profile"));
 const contact_1 = __importDefault(require("../models/contact"));
 const district_1 = __importDefault(require("../models/district"));
+const utils_1 = require("../utils");
 const getContacts = async (req, res, next) => {
     try {
         const { profile_id } = req.params;
@@ -25,6 +26,9 @@ const getContacts = async (req, res, next) => {
 exports.getContacts = getContacts;
 const createContact = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAuthenticated)(user))
+            throw new Error('YOU ARE NOT A USER');
         const { profile_id } = req.params;
         const { district, contactNumber } = req.body;
         const profile = await profile_1.default.findById(profile_id);
@@ -40,7 +44,6 @@ const createContact = async (req, res, next) => {
         res.status(200).send(contact);
     }
     catch (e) {
-        console.log(e);
         next(new expressError_1.default(e.message, 404));
     }
 };
@@ -59,6 +62,9 @@ const getContact = async (req, res, next) => {
 exports.getContact = getContact;
 const updateContact = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAuthenticated)(user))
+            throw new Error('YOU ARE NOT A USER');
         const { contact_id } = req.params;
         const { district, contactNumber } = req.body;
         const contact = await contact_1.default.findById(contact_id);
@@ -77,6 +83,9 @@ const updateContact = async (req, res, next) => {
 exports.updateContact = updateContact;
 const deleteContact = async (req, res, next) => {
     try {
+        const { user } = req;
+        if (!(0, utils_1.isAuthenticated)(user))
+            throw new Error('YOU ARE NOT A USER');
         const { profile_id, contact_id } = req.params;
         const profile = await profile_1.default.findById(profile_id);
         const contact = await contact_1.default.findById(contact_id);

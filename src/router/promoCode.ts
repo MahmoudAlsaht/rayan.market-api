@@ -7,18 +7,19 @@ import {
 	getPromos,
 	updatePromo,
 } from '../controllers/promo';
+import { checkUserToken } from '../middlewares';
 
 const router = express.Router();
 
 router
 	.route('/')
-	.post(expressAsyncHandler(createPromo))
+	.post(checkUserToken, expressAsyncHandler(createPromo))
 	.get(expressAsyncHandler(getPromos));
 
 router
 	.route('/:promo_id')
-	.put(expressAsyncHandler(updatePromo))
-	.delete(expressAsyncHandler(deletePromo));
+	.put(checkUserToken, expressAsyncHandler(updatePromo))
+	.delete(checkUserToken, expressAsyncHandler(deletePromo));
 
 router.route('/:promoCode').get(expressAsyncHandler(getPromo));
 

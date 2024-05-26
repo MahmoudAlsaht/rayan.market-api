@@ -11,6 +11,7 @@ import {
 } from '../controllers/product';
 import { storage } from '../cloudinary';
 import multer from 'multer';
+import { checkUserToken } from '../middlewares';
 
 const upload = multer({ storage });
 
@@ -20,6 +21,7 @@ router
 	.route('/')
 	.get(expressAsyncHandler(getProducts))
 	.post(
+		checkUserToken,
 		upload.single('file'),
 		expressAsyncHandler(createProduct),
 	);
@@ -33,10 +35,14 @@ router
 	.route('/:product_id')
 	.get(expressAsyncHandler(getProduct))
 	.put(
+		checkUserToken,
 		upload.single('file'),
 		expressAsyncHandler(updateProduct),
 	)
-	.patch(expressAsyncHandler(updateProductViews))
-	.delete(expressAsyncHandler(deleteProduct));
+	.patch(
+		checkUserToken,
+		expressAsyncHandler(updateProductViews),
+	)
+	.delete(checkUserToken, expressAsyncHandler(deleteProduct));
 
 export default router;

@@ -12,17 +12,22 @@ import {
 	updatePassword,
 	createUser,
 } from '../controllers/user';
+import { checkUserToken } from '../middlewares';
 
 const router = express.Router();
 
-router.get('/', expressAsyncHandler(checkUser));
+router.get('/', checkUserToken, expressAsyncHandler(checkUser));
 
-router.post('/create-user', expressAsyncHandler(createUser));
+router.post(
+	'/create-user',
+	checkUserToken,
+	expressAsyncHandler(createUser),
+);
 
 router
 	.route('/users')
-	.get(expressAsyncHandler(getUsers))
-	.post(expressAsyncHandler(editUserRole));
+	.get(checkUserToken, expressAsyncHandler(getUsers))
+	.post(checkUserToken, expressAsyncHandler(editUserRole));
 
 router.post('/signup', expressAsyncHandler(signup));
 

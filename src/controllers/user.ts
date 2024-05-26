@@ -6,11 +6,13 @@ import {
 	checkPassword,
 	genPassword,
 	generateRandomSixDigit,
+	isAdmin,
 } from '../utils';
 import AnonymousUser from '../models/anonymousUser';
 import Contact from '../models/contact';
 import jwt from 'jsonwebtoken';
 import District from '../models/district';
+import { CustomUserRequest } from '../middlewares';
 
 const { SECRET_1 } = process.env;
 
@@ -20,13 +22,7 @@ export const checkUser = async (
 	next: NextFunction,
 ) => {
 	try {
-		const authHeader = req.headers['authorization'];
-		const token = authHeader && authHeader.split(' ')[1];
-		if (token == null) throw new Error();
-
-		const decoded: any = jwt.verify(token, SECRET_1);
-
-		const user = await User.findById(decoded.id);
+		const { user } = req as CustomUserRequest;
 
 		res.status(200).send({
 			username: user?.username,
@@ -46,6 +42,10 @@ export const editUserRole = async (
 	next: NextFunction,
 ) => {
 	try {
+		const admin = (req as CustomUserRequest).user;
+		if (!isAdmin(admin))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const { userId, role } = req.body;
 		const user = await User.findById(userId);
 		if (user) user.role = role;
@@ -62,6 +62,10 @@ export const getUsers = async (
 	next: NextFunction,
 ) => {
 	try {
+		const admin = (req as CustomUserRequest).user;
+		if (!isAdmin(admin))
+			throw new Error('YOU ARE NOT AUTHORIZED');
+
 		const users: TUser[] = await User.find();
 
 		const usersWithoutPasswords = users.map((user) => {
@@ -196,7 +200,6 @@ export const createAnonymousUser = async (
 
 		res.status(200).send(anonymousUser);
 	} catch (e: any) {
-		console.log(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -282,14 +285,11 @@ export const createUser = async (
 	next: NextFunction,
 ) => {
 	try {
-		const { username, phone, password, adminId, role } =
-			req.body;
-		console.log('hit route create user');
-
-		const admin = await User.findById(adminId);
-
-		if (admin == null || admin?.role !== 'admin')
+		const admin = (req as CustomUserRequest).user;
+		if (!isAdmin(admin))
 			throw new Error('YOU ARE NOT AUTHORIZED');
+
+		const { username, phone, password, role } = req.body;
 
 		const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
 
@@ -322,7 +322,6 @@ export const createUser = async (
 			_id: user?._id,
 		});
 	} catch (e: any) {
-		console.log(e);
 		next(new ExpressError(e.message, 404));
 	}
 };

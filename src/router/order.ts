@@ -6,14 +6,15 @@ import {
 	getOrder,
 	updateOrderStatus,
 } from '../controllers/order';
+import { checkUserToken } from '../middlewares';
 const router = express.Router();
 
-router.post('/', expressAsyncHandler(getOrders));
+router.get('/', checkUserToken, expressAsyncHandler(getOrders));
 
 router
 	.route('/:order_id')
 	.get(expressAsyncHandler(getOrder))
-	.put(expressAsyncHandler(updateOrderStatus));
+	.put(checkUserToken, expressAsyncHandler(updateOrderStatus));
 
 router.post('/new', expressAsyncHandler(createOrder));
 
