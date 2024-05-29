@@ -7,6 +7,7 @@ import {
 	genPassword,
 	generateRandomSixDigit,
 	isAdmin,
+	sendVerificationCode,
 } from '../utils';
 import AnonymousUser from '../models/anonymousUser';
 import Contact from '../models/contact';
@@ -84,13 +85,56 @@ export const getUsers = async (
 	}
 };
 
-export const signup = async (
+export const signupPhoneNumber = async (
 	req: Request,
 	res: Response,
 	next: NextFunction,
 ) => {
 	try {
-		const { username, phone, password } = req.body;
+		const { phone } = req.body;
+
+		const user =
+			(await User.findOne({ phone }).populate(
+				'profile',
+			)) ||
+			(await new User({
+				phone,
+			}).populate('profile'));
+
+		const profile =
+			(await Profile?.findById(user?.profile?._id)) ||
+			(await new Profile());
+		profile.user = user;
+
+		user.profile = profile?.id;
+		user.verificationCode = generateRandomSixDigit();
+
+		await user.save();
+		await profile.save();
+
+		await sendVerificationCode(
+			user?.verificationCode as string,
+			user?.phone,
+		);
+
+		res.status(200).send({
+			userId: user?._id,
+			verificationCode: user?.verificationCode,
+		});
+	} catch (e: any) {
+		console.log(e);
+		next(new ExpressError(e.message, 404));
+	}
+};
+
+export const signupUsernameAndPassword = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { username, password, userId, verificationCode } =
+			req.body;
 
 		const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
 
@@ -98,21 +142,18 @@ export const signup = async (
 			throw new Error('Invalid username');
 		}
 
-		const user = await new User({
-			phone,
-			username,
-			email: null,
-			password: await genPassword(password),
-		});
+		const user = await User?.findById(userId);
 
-		const profile = await new Profile({
-			user,
-		});
+		if (user == null)
+			throw new Error('Some thing went wrong');
 
-		user.profile = profile?.id;
+		if (user?.verificationCode !== verificationCode)
+			throw new Error('Invalid User Credentials');
 
+		user.verificationCode = null;
+		user.username = username;
+		user.password = await genPassword(password);
 		await user.save();
-		await profile.save();
 
 		const token = jwt.sign(
 			{ id: user?._id, name: user?.username },
@@ -125,7 +166,7 @@ export const signup = async (
 				username: user?.username,
 				phone: user?.phone,
 				role: user?.role,
-				profile: profile?.id,
+				profile: user?.profile,
 				_id: user?._id,
 			},
 		});
@@ -169,13 +210,51 @@ export const signin = async (
 	}
 };
 
+export const verifyAnonymousUserPhone = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { phone } = req.body;
+
+		const anonymousUser =
+			(await AnonymousUser.findOne({ phone })) ||
+			new AnonymousUser({
+				phone,
+			});
+
+		anonymousUser.verificationCode =
+			generateRandomSixDigit();
+
+		await anonymousUser.save();
+
+		await sendVerificationCode(
+			anonymousUser?.verificationCode,
+			anonymousUser?.phone,
+		);
+
+		res.status(200).send({
+			userId: anonymousUser?._id,
+			verificationCode: anonymousUser?.verificationCode,
+		});
+	} catch (e: any) {
+		next(new ExpressError(e.message, 404));
+	}
+};
+
 export const createAnonymousUser = async (
 	req: Request,
 	res: Response,
 	next: NextFunction,
 ) => {
 	try {
-		const { name, districtId, phone } = req.body;
+		const { name, districtId, verificationCode, userId } =
+			req.body;
+
+		const anonymousUser = await AnonymousUser.findById(
+			userId,
+		).populate('contact');
 
 		const usernameRegrex = /[.&*+?^${}()|[\]\\]/g;
 
@@ -185,21 +264,28 @@ export const createAnonymousUser = async (
 
 		const district = await District.findById(districtId);
 
-		const contact = new Contact({
-			district,
-			contactNumber: phone,
-		});
+		const contact =
+			(await Contact.findById(
+				anonymousUser?.contact?._id,
+			)) || new Contact();
+
+		contact.district = district;
+		contact.contactNumber = anonymousUser?.phone;
 		await contact.save();
-		const anonymousUser = await new AnonymousUser({
-			phone,
-			username: name,
-			contact,
-		}).populate('contact');
+
+		anonymousUser.username = name;
+		anonymousUser.contact = contact;
+
+		if (anonymousUser?.verificationCode !== verificationCode)
+			throw new Error('Invalid Code');
+
+		anonymousUser.verificationCode = null;
 
 		await anonymousUser.save();
 
 		res.status(200).send(anonymousUser);
 	} catch (e: any) {
+		console.error(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -219,6 +305,10 @@ export const generateVerificationCode = async (
 		user.verificationCode = generateRandomSixDigit();
 
 		await user.save();
+		await sendVerificationCode(
+			user?.verificationCode as string,
+			user?.phone,
+		);
 		res.status(200).send(user?._id);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));

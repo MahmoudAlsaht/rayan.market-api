@@ -6,19 +6,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = require("mongoose");
 const profile_1 = __importDefault(require("./profile"));
 const UserSchema = new mongoose_1.Schema({
-    username: { type: String, required: true },
+    username: { type: String },
     phone: { type: String, required: true, unique: true },
     password: {
         hash: {
             type: String,
-            required: true,
         },
         salt: {
             type: String,
-            required: true,
         },
     },
-    role: { type: String, required: true, default: 'customer' },
+    role: { type: String, default: 'customer' },
     profile: { type: mongoose_1.Schema.Types.ObjectId, ref: 'Profile' },
     orders: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Order' }],
     verificationCode: String || null,

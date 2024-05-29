@@ -14,8 +14,10 @@ router
     .route('/users')
     .get(middlewares_1.checkUserToken, (0, express_async_handler_1.default)(user_1.getUsers))
     .post(middlewares_1.checkUserToken, (0, express_async_handler_1.default)(user_1.editUserRole));
-router.post('/signup', (0, express_async_handler_1.default)(user_1.signup));
+router.post('/signup-phone', (0, express_async_handler_1.default)(user_1.signupPhoneNumber));
+router.post('/signup-username-and-password', (0, express_async_handler_1.default)(user_1.signupUsernameAndPassword));
 router.post('/signin', (0, express_async_handler_1.default)(user_1.signin));
+router.post('/anonymous-send-verificationCode', (0, express_async_handler_1.default)(user_1.verifyAnonymousUserPhone));
 router.post('/anonymous', (0, express_async_handler_1.default)(user_1.createAnonymousUser));
 router.post('/reset-password', (0, express_async_handler_1.default)(user_1.generateVerificationCode));
 router.post('/reset-password/:user_id', (0, express_async_handler_1.default)(user_1.checkResetPassword));

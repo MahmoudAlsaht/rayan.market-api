@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import timezone from 'dayjs/plugin/timezone';
 import cloudinary from '../cloudinary';
+import twilio from 'twilio';
 
 export const genPassword = async (password: string) => {
 	const salt = await bcrypt.genSalt(10);
@@ -124,4 +125,29 @@ export const generateRandomSixDigit = () => {
 	return `${
 		Math.floor(Math.random() * (max - min + 1)) + min
 	}`;
+};
+
+export const sendVerificationCode = async (
+	code: string,
+	phoneNumber: string,
+) => {
+	try {
+		const { TWILIO_SID, TWILIO_AUTHTOKEN } = process.env;
+
+		const client = await twilio(
+			TWILIO_SID,
+			TWILIO_AUTHTOKEN,
+		);
+
+		const message = await client.messages.create({
+			// body: 'Your Twilio code is 1238432',
+			body: `Your appointment is coming up on July 21 at 3PM and Your Code is: (${code})`,
+			from: 'whatsapp:+14155238886',
+			to: `whatsapp:+962785384842`,
+			// to: `whatsapp:+962${phoneNumber.slice(1)}`,
+		});
+		// console.log(message);
+	} catch (e: any) {
+		console.error(e);
+	}
 };

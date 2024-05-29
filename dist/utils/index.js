@@ -3,12 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateRandomSixDigit = exports.deleteImage = exports.applyDiscount = exports.genOrderId = exports.remainingDays = exports.checkIfDateInBetween = exports.checkIfOfferEnded = exports.isCustomer = exports.isStaff = exports.isEditor = exports.isAdmin = exports.isAuthenticated = exports.checkPassword = exports.genPassword = void 0;
+exports.sendVerificationCode = exports.generateRandomSixDigit = exports.deleteImage = exports.applyDiscount = exports.genOrderId = exports.remainingDays = exports.checkIfDateInBetween = exports.checkIfOfferEnded = exports.isCustomer = exports.isStaff = exports.isEditor = exports.isAdmin = exports.isAuthenticated = exports.checkPassword = exports.genPassword = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const dayjs_1 = __importDefault(require("dayjs"));
 const utc_1 = __importDefault(require("dayjs/plugin/utc"));
 const timezone_1 = __importDefault(require("dayjs/plugin/timezone"));
 const cloudinary_1 = __importDefault(require("../cloudinary"));
+const twilio_1 = __importDefault(require("twilio"));
 const genPassword = async (password) => {
     const salt = await bcrypt_1.default.genSalt(10);
     const hash = await bcrypt_1.default.hash(password, salt);
@@ -107,4 +108,22 @@ const generateRandomSixDigit = () => {
     return `${Math.floor(Math.random() * (max - min + 1)) + min}`;
 };
 exports.generateRandomSixDigit = generateRandomSixDigit;
+const sendVerificationCode = async (code, phoneNumber) => {
+    try {
+        const { TWILIO_SID, TWILIO_AUTHTOKEN } = process.env;
+        const client = await (0, twilio_1.default)(TWILIO_SID, TWILIO_AUTHTOKEN);
+        const message = await client.messages.create({
+            // body: 'Your Twilio code is 1238432',
+            body: `Your appointment is coming up on July 21 at 3PM and Your Code is: (${code})`,
+            from: 'whatsapp:+14155238886',
+            to: `whatsapp:+962785384842`,
+            // to: `whatsapp:+962${phoneNumber.slice(1)}`,
+        });
+        // console.log(message);
+    }
+    catch (e) {
+        console.error(e);
+    }
+};
+exports.sendVerificationCode = sendVerificationCode;
 //# sourceMappingURL=index.js.map

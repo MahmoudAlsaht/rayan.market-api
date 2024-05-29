@@ -7,10 +7,12 @@ import {
 	getUsers,
 	generateVerificationCode,
 	signin,
-	signup,
+	signupPhoneNumber,
 	checkResetPassword,
 	updatePassword,
 	createUser,
+	signupUsernameAndPassword,
+	verifyAnonymousUserPhone,
 } from '../controllers/user';
 import { checkUserToken } from '../middlewares';
 
@@ -29,9 +31,22 @@ router
 	.get(checkUserToken, expressAsyncHandler(getUsers))
 	.post(checkUserToken, expressAsyncHandler(editUserRole));
 
-router.post('/signup', expressAsyncHandler(signup));
+router.post(
+	'/signup-phone',
+	expressAsyncHandler(signupPhoneNumber),
+);
+
+router.post(
+	'/signup-username-and-password',
+	expressAsyncHandler(signupUsernameAndPassword),
+);
 
 router.post('/signin', expressAsyncHandler(signin));
+
+router.post(
+	'/anonymous-send-verificationCode',
+	expressAsyncHandler(verifyAnonymousUserPhone),
+);
 
 router.post(
 	'/anonymous',

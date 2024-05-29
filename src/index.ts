@@ -22,6 +22,7 @@ import orderRouter from './router/order';
 import labelRouter from './router/label';
 import promoRouter from './router/promoCode';
 import districtRouter from './router/district';
+import { sendVerificationCode } from './utils';
 
 const application = () => {
 	const app = express();
