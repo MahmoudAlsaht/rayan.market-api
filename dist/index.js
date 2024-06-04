@@ -22,6 +22,7 @@ const order_1 = __importDefault(require("./router/order"));
 const label_1 = __importDefault(require("./router/label"));
 const promoCode_1 = __importDefault(require("./router/promoCode"));
 const district_1 = __importDefault(require("./router/district"));
+const productOption_1 = __importDefault(require("./router/productOption"));
 const application = () => {
     const app = (0, express_1.default)();
     const port = process.env.PORT || 5000;
@@ -37,6 +38,7 @@ const application = () => {
     app.use('/category', category_1.default);
     app.use('/brand', brand_1.default);
     app.use('/product', product_1.default);
+    app.use('/product/:product_id/product-options', productOption_1.default);
     app.use('/banner', banner_1.default);
     app.use('/account/:profile_id', contact_1.default);
     app.use('/order', order_1.default);

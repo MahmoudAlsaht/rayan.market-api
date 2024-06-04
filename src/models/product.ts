@@ -3,6 +3,7 @@ import Image, { TImage } from './image';
 import { TCategory } from './category';
 import { TBrand } from './brand';
 import { TLabel } from './label';
+import { TProductOption } from './productOption';
 
 export type TProduct = {
 	_id: string;
@@ -10,7 +11,7 @@ export type TProduct = {
 	productImage?: TImage | null;
 	createdAt: Date;
 	lastModified: Date;
-	price: number;
+	price?: number | null;
 	newPrice?: number;
 	quantity: number;
 	category: TCategory;
@@ -24,11 +25,14 @@ export type TProduct = {
 	views: number;
 	numberOfPurchases: number;
 	labels?: TLabel[] | null;
+	productType: string;
+	productOptions?: TProductOption[] | null;
+	description?: string | null;
 };
 
 const ProductSchema = new Schema<TProduct>({
 	name: {
-		type: 'string',
+		type: String,
 		required: true,
 	},
 	productImage: {
@@ -45,10 +49,7 @@ const ProductSchema = new Schema<TProduct>({
 	},
 	createdAt: Date,
 	lastModified: Date,
-	price: {
-		type: Number,
-		required: true,
-	},
+	price: Number,
 	newPrice: Number,
 	quantity: { type: Number, required: true },
 	isOffer: { type: Boolean, default: false },
@@ -60,6 +61,14 @@ const ProductSchema = new Schema<TProduct>({
 	views: { type: Number, default: 0 },
 	numberOfPurchases: { type: Number, default: 0 },
 	labels: [{ type: Schema.Types.ObjectId, ref: 'Label' }],
+	productType: { type: String, default: 'normal' },
+	productOptions: [
+		{
+			type: Schema.Types.ObjectId,
+			ref: 'ProductOption',
+		},
+	],
+	description: String,
 });
 
 const Product = model<TProduct>('Product', ProductSchema);

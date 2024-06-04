@@ -19,12 +19,12 @@ export const getProducts = async (
 ) => {
 	try {
 		const products = await Product.find()
+			.populate('productOptions')
 			.populate('productImage')
 			.populate('category')
 			.populate('brand')
 			.populate('labels');
 		const sendProducts = [];
-
 		for (const product of products) {
 			if (product?.isOffer) {
 				if (product?.isEndDate) {
@@ -75,6 +75,7 @@ export const getProducts = async (
 
 		res.status(200).send(sendProducts);
 	} catch (e: any) {
+		console.log(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -86,6 +87,7 @@ export const filterProducts = async (
 ) => {
 	try {
 		const products = await Product.find()
+			.populate('productOptions')
 			.populate('productImage')
 			.populate('category')
 			.populate('brand');
@@ -119,11 +121,14 @@ export const createProduct = async (
 			startDate,
 			endDate,
 			isEndDate,
+			productType,
+			description,
 		} = req.body;
 
 		const product = new Product({
 			name,
-			price: parseFloat(price),
+			productType,
+			price: price ? parseFloat(price) : null,
 			quantity: parseInt(quantity),
 			newPrice:
 				newPrice !== 'NaN' ? parseFloat(newPrice) : null,
@@ -139,6 +144,10 @@ export const createProduct = async (
 				startDate !== 'undefined' ? startDate : null,
 			endOfferDate:
 				endDate !== 'undefined' ? endDate : null,
+			description:
+				productType === 'electrical'
+					? description
+					: null,
 		});
 
 		if (label || labels)
@@ -200,6 +209,7 @@ export const getProduct = async (
 	try {
 		const { product_id } = req.params;
 		const product = await Product.findById(product_id)
+			.populate('productOptions')
 			.populate('productImage')
 			.populate('labels');
 
@@ -235,6 +245,7 @@ export const updateProduct = async (
 			startDate,
 			endDate,
 			isEndDate,
+			description,
 		} = req.body;
 
 		const product = await Product.findById(product_id)
@@ -286,6 +297,8 @@ export const updateProduct = async (
 			currBrand.products.push(product);
 			await currBrand.save();
 		}
+		if (product?.productType === 'electrical')
+			product.description = description;
 
 		if (label || labels)
 			if (labels)

@@ -7,7 +7,7 @@ const mongoose_1 = require("mongoose");
 const image_1 = __importDefault(require("./image"));
 const ProductSchema = new mongoose_1.Schema({
     name: {
-        type: 'string',
+        type: String,
         required: true,
     },
     productImage: {
@@ -24,10 +24,7 @@ const ProductSchema = new mongoose_1.Schema({
     },
     createdAt: Date,
     lastModified: Date,
-    price: {
-        type: Number,
-        required: true,
-    },
+    price: Number,
     newPrice: Number,
     quantity: { type: Number, required: true },
     isOffer: { type: Boolean, default: false },
@@ -39,6 +36,14 @@ const ProductSchema = new mongoose_1.Schema({
     views: { type: Number, default: 0 },
     numberOfPurchases: { type: Number, default: 0 },
     labels: [{ type: mongoose_1.Schema.Types.ObjectId, ref: 'Label' }],
+    productType: { type: String, default: 'normal' },
+    productOptions: [
+        {
+            type: mongoose_1.Schema.Types.ObjectId,
+            ref: 'ProductOption',
+        },
+    ],
+    description: String,
 });
 const Product = (0, mongoose_1.model)('Product', ProductSchema);
 ProductSchema.pre('deleteOne', { document: true, query: false }, async function () {

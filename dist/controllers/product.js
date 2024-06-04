@@ -15,6 +15,7 @@ const label_1 = __importDefault(require("../models/label"));
 const getProducts = async (req, res, next) => {
     try {
         const products = await product_1.default.find()
+            .populate('productOptions')
             .populate('productImage')
             .populate('category')
             .populate('brand')
@@ -61,6 +62,7 @@ const getProducts = async (req, res, next) => {
         res.status(200).send(sendProducts);
     }
     catch (e) {
+        console.log(e);
         next(new expressError_1.default(e.message, 404));
     }
 };
@@ -68,6 +70,7 @@ exports.getProducts = getProducts;
 const filterProducts = async (req, res, next) => {
     try {
         const products = await product_1.default.find()
+            .populate('productOptions')
             .populate('productImage')
             .populate('category')
             .populate('brand');
@@ -83,10 +86,11 @@ const createProduct = async (req, res, next) => {
         const { user } = req;
         if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
             throw new Error('YOU ARE NOT AUTHORIZED');
-        const { name, categoryId, brandId, price, quantity, newPrice, isOffer, offerExpiresDate, labels, label, startDate, endDate, isEndDate, } = req.body;
+        const { name, categoryId, brandId, price, quantity, newPrice, isOffer, offerExpiresDate, labels, label, startDate, endDate, isEndDate, productType, description, } = req.body;
         const product = new product_1.default({
             name,
-            price: parseFloat(price),
+            productType,
+            price: price ? parseFloat(price) : null,
             quantity: parseInt(quantity),
             newPrice: newPrice !== 'NaN' ? parseFloat(newPrice) : null,
             isOffer: isOffer === 'true' ? true : false,
@@ -98,6 +102,9 @@ const createProduct = async (req, res, next) => {
             lastModified: new Date(),
             startOfferDate: startDate !== 'undefined' ? startDate : null,
             endOfferDate: endDate !== 'undefined' ? endDate : null,
+            description: productType === 'electrical'
+                ? description
+                : null,
         });
         if (label || labels)
             if (labels)
@@ -145,6 +152,7 @@ const getProduct = async (req, res, next) => {
     try {
         const { product_id } = req.params;
         const product = await product_1.default.findById(product_id)
+            .populate('productOptions')
             .populate('productImage')
             .populate('labels');
         res.status(200).send(product);
@@ -160,7 +168,7 @@ const updateProduct = async (req, res, next) => {
         if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
             throw new Error('YOU ARE NOT AUTHORIZED');
         const { product_id } = req.params;
-        const { name, price, quantity, categoryId, brandId, newPrice, isOffer, offerExpiresDate, labels, label, startDate, endDate, isEndDate, } = req.body;
+        const { name, price, quantity, categoryId, brandId, newPrice, isOffer, offerExpiresDate, labels, label, startDate, endDate, isEndDate, description, } = req.body;
         const product = await product_1.default.findById(product_id)
             .populate('productImage')
             .populate('category');
@@ -207,6 +215,8 @@ const updateProduct = async (req, res, next) => {
             currBrand.products.push(product);
             await currBrand.save();
         }
+        if (product?.productType === 'electrical')
+            product.description = description;
         if (label || labels)
             if (labels)
                 for (const selectedLabel of labels) {

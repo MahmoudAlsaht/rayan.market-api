@@ -22,7 +22,7 @@ import orderRouter from './router/order';
 import labelRouter from './router/label';
 import promoRouter from './router/promoCode';
 import districtRouter from './router/district';
-import { sendVerificationCode } from './utils';
+import productOptionRouter from './router/productOption';
 
 const application = () => {
 	const app = express();
@@ -45,6 +45,10 @@ const application = () => {
 	app.use('/category', categoryRouter);
 	app.use('/brand', brandRouter);
 	app.use('/product', productRouter);
+	app.use(
+		'/product/:product_id/product-options',
+		productOptionRouter,
+	);
 	app.use('/banner', bannerRouter);
 	app.use('/account/:profile_id', contactRouter);
 	app.use('/order', orderRouter);
