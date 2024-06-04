@@ -37,9 +37,10 @@ const updateImageLink = async (req, res, next) => {
         if (!(0, utils_1.isAdmin)(user) || !(0, utils_1.isEditor)(user))
             throw new Error('YOU ARE NOT AUTHORIZED');
         const { image_id, banner_id } = req.params;
-        const { link } = req.body;
+        const { link, showForMobile } = req.body;
         await image_1.default.findByIdAndUpdate(image_id, {
             link,
+            showForMobile,
         });
         const banner = await banner_1.default.findById(banner_id).populate('bannerImages');
         res.status(200).send(banner);

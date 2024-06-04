@@ -48,9 +48,10 @@ export const updateImageLink = async (
 			throw new Error('YOU ARE NOT AUTHORIZED');
 
 		const { image_id, banner_id } = req.params;
-		const { link } = req.body;
+		const { link, showForMobile } = req.body;
 		await Image.findByIdAndUpdate(image_id, {
 			link,
+			showForMobile,
 		});
 		const banner = await Banner.findById(banner_id).populate(
 			'bannerImages',

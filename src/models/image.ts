@@ -9,6 +9,7 @@ export type TImage = {
 	imageType: string;
 	doc?: TProduct | TBanner;
 	link?: string;
+	showForMobile?: boolean;
 };
 
 const ImageSchema = new Schema<TImage>({
@@ -38,6 +39,7 @@ const ImageSchema = new Schema<TImage>({
 		},
 	},
 	link: String,
+	showForMobile: { type: Boolean, default: false },
 });
 
 const Image = model<TImage>('Image', ImageSchema);

@@ -110,12 +110,13 @@ const generateRandomSixDigit = () => {
 exports.generateRandomSixDigit = generateRandomSixDigit;
 const sendVerificationCode = async (code, phoneNumber) => {
     try {
-        const { TWILIO_SID, TWILIO_AUTHTOKEN } = process.env;
+        const { TWILIO_SID, TWILIO_AUTHTOKEN, TWILIO_NUMBER } = process.env;
         const client = await (0, twilio_1.default)(TWILIO_SID, TWILIO_AUTHTOKEN);
+        console.log(phoneNumber.slice(1));
         const message = await client.messages.create({
-            // body: 'Your Twilio code is 1238432',
+            // body: `Your Twilio code is (${code})`,
             body: `Your appointment is coming up on July 21 at 3PM and Your Code is: (${code})`,
-            from: 'whatsapp:+14155238886',
+            from: `whatsapp:${TWILIO_NUMBER}`,
             to: `whatsapp:+962785384842`,
             // to: `whatsapp:+962${phoneNumber.slice(1)}`,
         });
