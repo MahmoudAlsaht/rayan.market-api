@@ -14,6 +14,7 @@ router
     .post(middlewares_1.checkUserToken, (0, express_async_handler_1.default)(productOption_1.createNewProductOption));
 router
     .route('/:productOption_id')
+    .get((0, express_async_handler_1.default)(productOption_1.getOption))
     .put(middlewares_1.checkUserToken, (0, express_async_handler_1.default)(productOption_1.updateProductOption))
     .delete(middlewares_1.checkUserToken, (0, express_async_handler_1.default)(productOption_1.deleteProductOption));
 exports.default = router;

@@ -12,10 +12,10 @@ export type TProduct = {
 	createdAt: Date;
 	lastModified: Date;
 	price?: number | null;
-	newPrice?: number;
-	quantity: number;
-	category: TCategory;
-	brand: TBrand;
+	newPrice?: number | null;
+	quantity?: number | null;
+	category?: TCategory | null;
+	brand?: TBrand | null;
 	isOffer?: boolean;
 	isEndDate?: boolean;
 	offerExpiresDate?: number;

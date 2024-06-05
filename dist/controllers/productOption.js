@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProductOption = exports.updateProductOption = exports.createNewProductOption = exports.getProductsOptions = void 0;
+exports.deleteProductOption = exports.updateProductOption = exports.createNewProductOption = exports.getOption = exports.getProductsOptions = void 0;
 const expressError_1 = __importDefault(require("../middlewares/expressError"));
 const productOption_1 = __importDefault(require("../models/productOption"));
 const product_1 = __importDefault(require("../models/product"));
@@ -19,6 +19,17 @@ const getProductsOptions = async (req, res, next) => {
     }
 };
 exports.getProductsOptions = getProductsOptions;
+const getOption = async (req, res, next) => {
+    try {
+        const { productOption_id } = req.params;
+        const productOption = await productOption_1.default.findById(productOption_id);
+        res.status(200).send(productOption);
+    }
+    catch (e) {
+        new expressError_1.default('Something went wrong', 404);
+    }
+};
+exports.getOption = getOption;
 const createNewProductOption = async (req, res, next) => {
     try {
         const { user } = req;
@@ -30,12 +41,12 @@ const createNewProductOption = async (req, res, next) => {
         const productOption = new productOption_1.default({
             type: optionType,
             optionName,
-            optionPrice: optionType === 'weight'
-                ? optionPrice
-                : product?.newPrice || product?.price,
-            optionQuantity: optionQuantity || null,
             product,
         });
+        if (optionType === 'weight' && optionPrice)
+            productOption.price = optionPrice;
+        if (optionType !== 'weight' && optionQuantity)
+            productOption.quantity = optionQuantity;
         product.productOptions.push(productOption);
         await product.save();
         await productOption.save();

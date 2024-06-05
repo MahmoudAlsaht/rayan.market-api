@@ -26,6 +26,22 @@ export const getProductsOptions = async (
 	}
 };
 
+export const getOption = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { productOption_id } = req.params;
+		const productOption = await ProductOption.findById(
+			productOption_id,
+		);
+		res.status(200).send(productOption);
+	} catch (e: any) {
+		new ExpressError('Something went wrong', 404);
+	}
+};
+
 export const createNewProductOption = async (
 	req: Request,
 	res: Response,
@@ -48,13 +64,13 @@ export const createNewProductOption = async (
 		const productOption = new ProductOption({
 			type: optionType,
 			optionName,
-			optionPrice:
-				optionType === 'weight'
-					? optionPrice
-					: product?.newPrice || product?.price,
-			optionQuantity: optionQuantity || null,
 			product,
 		});
+
+		if (optionType === 'weight' && optionPrice)
+			productOption.price = optionPrice;
+		if (optionType !== 'weight' && optionQuantity)
+			productOption.quantity = optionQuantity;
 
 		product.productOptions.push(productOption);
 

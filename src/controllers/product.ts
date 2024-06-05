@@ -11,6 +11,7 @@ import {
 import Brand from '../models/brand';
 import Label from '../models/label';
 import { CustomUserRequest } from '../middlewares';
+import ProductOption from '../models/productOption';
 
 export const getProducts = async (
 	req: Request,
@@ -169,15 +170,19 @@ export const createProduct = async (
 				await selectedLabel.save();
 			}
 
-		const category = await Category.findById(categoryId);
-		const brand = await Brand.findById(brandId);
+		if (categoryId) {
+			const category = await Category.findById(categoryId);
+			category.products.push(product);
+			product.category = category;
+			await category.save();
+		}
 
-		category.products.push(product);
-
-		brand.products.push(product);
-
-		product.category = category;
-		product.brand = brand;
+		if (brandId) {
+			const brand = await Brand.findById(brandId);
+			brand.products.push(product);
+			product.brand = brand;
+			await brand.save();
+		}
 
 		if (req.file) {
 			const { filename, path } = req.file;
@@ -191,8 +196,6 @@ export const createProduct = async (
 			product.productImage = image;
 		}
 
-		await category.save();
-		await brand.save();
 		await product.save();
 		res.status(200).send(product);
 	} catch (e: any) {
@@ -208,12 +211,25 @@ export const getProduct = async (
 ) => {
 	try {
 		const { product_id } = req.params;
-		const product = await Product.findById(product_id)
+		const product = await Product.findById(
+			product_id,
+		).populate('productOptions');
+
+		for (const option of product.productOptions) {
+			if (option?.type === 'flavor') {
+				const productOption =
+					await ProductOption.findById(option?._id);
+				productOption.price =
+					product?.newPrice || product?.price;
+			}
+		}
+
+		const sendProduct = await Product.findById(product_id)
 			.populate('productOptions')
 			.populate('productImage')
 			.populate('labels');
 
-		res.status(200).send(product);
+		res.status(200).send(sendProduct);
 	} catch (e: any) {
 		next(new ExpressError(e.message, 404));
 	}
@@ -378,21 +394,24 @@ export const deleteProduct = async (
 		const category = await Category.findById(
 			product?.category?._id,
 		).populate('products');
-		await category.updateOne({
-			$pull: { products: product_id },
-		});
-
-		await category.save();
+		if (category) {
+			await category.updateOne({
+				$pull: { products: product_id },
+			});
+			await category.save();
+		}
 
 		const brand = await Brand.findById(
 			product?.brand?._id,
 		).populate('products');
 
-		await brand.updateOne({
-			$pull: { products: product_id },
-		});
+		if (brand) {
+			await brand.updateOne({
+				$pull: { products: product_id },
+			});
 
-		await brand.save();
+			await brand.save();
+		}
 
 		await deleteImage(product?.productImage?.filename);
 		await Image.findByIdAndDelete(

@@ -4,6 +4,7 @@ import {
 	getProductsOptions,
 	updateProductOption,
 	deleteProductOption,
+	getOption,
 } from '../controllers/productOption';
 import expressAsyncHandler from 'express-async-handler';
 import { checkUserToken } from '../middlewares';
@@ -20,6 +21,7 @@ router
 
 router
 	.route('/:productOption_id')
+	.get(expressAsyncHandler(getOption))
 	.put(
 		checkUserToken,
 		expressAsyncHandler(updateProductOption),

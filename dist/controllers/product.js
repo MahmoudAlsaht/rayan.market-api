@@ -12,6 +12,7 @@ const utils_1 = require("../utils");
 const utils_2 = require("../utils");
 const brand_1 = __importDefault(require("../models/brand"));
 const label_1 = __importDefault(require("../models/label"));
+const productOption_1 = __importDefault(require("../models/productOption"));
 const getProducts = async (req, res, next) => {
     try {
         const products = await product_1.default.find()
@@ -120,12 +121,18 @@ const createProduct = async (req, res, next) => {
                 selectedLabel.products.push(product);
                 await selectedLabel.save();
             }
-        const category = await category_1.default.findById(categoryId);
-        const brand = await brand_1.default.findById(brandId);
-        category.products.push(product);
-        brand.products.push(product);
-        product.category = category;
-        product.brand = brand;
+        if (categoryId) {
+            const category = await category_1.default.findById(categoryId);
+            category.products.push(product);
+            product.category = category;
+            await category.save();
+        }
+        if (brandId) {
+            const brand = await brand_1.default.findById(brandId);
+            brand.products.push(product);
+            product.brand = brand;
+            await brand.save();
+        }
         if (req.file) {
             const { filename, path } = req.file;
             const image = new image_1.default({
@@ -137,8 +144,6 @@ const createProduct = async (req, res, next) => {
             await image.save();
             product.productImage = image;
         }
-        await category.save();
-        await brand.save();
         await product.save();
         res.status(200).send(product);
     }
@@ -151,11 +156,19 @@ exports.createProduct = createProduct;
 const getProduct = async (req, res, next) => {
     try {
         const { product_id } = req.params;
-        const product = await product_1.default.findById(product_id)
+        const product = await product_1.default.findById(product_id).populate('productOptions');
+        for (const option of product.productOptions) {
+            if (option?.type === 'flavor') {
+                const productOption = await productOption_1.default.findById(option?._id);
+                productOption.price =
+                    product?.newPrice || product?.price;
+            }
+        }
+        const sendProduct = await product_1.default.findById(product_id)
             .populate('productOptions')
             .populate('productImage')
             .populate('labels');
-        res.status(200).send(product);
+        res.status(200).send(sendProduct);
     }
     catch (e) {
         next(new expressError_1.default(e.message, 404));
@@ -277,15 +290,19 @@ const deleteProduct = async (req, res, next) => {
             .populate('category')
             .populate('brand');
         const category = await category_1.default.findById(product?.category?._id).populate('products');
-        await category.updateOne({
-            $pull: { products: product_id },
-        });
-        await category.save();
+        if (category) {
+            await category.updateOne({
+                $pull: { products: product_id },
+            });
+            await category.save();
+        }
         const brand = await brand_1.default.findById(product?.brand?._id).populate('products');
-        await brand.updateOne({
-            $pull: { products: product_id },
-        });
-        await brand.save();
+        if (brand) {
+            await brand.updateOne({
+                $pull: { products: product_id },
+            });
+            await brand.save();
+        }
         await (0, utils_1.deleteImage)(product?.productImage?.filename);
         await image_1.default.findByIdAndDelete(product?.productImage?._id);
         await product.deleteOne();
