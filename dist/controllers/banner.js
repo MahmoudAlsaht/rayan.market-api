@@ -31,7 +31,9 @@ const createBanner = async (req, res, next) => {
             : type === 'category'
                 ? await category_1.default.findById(category)
                 : null;
-        const banner = type === 'main' || type === 'offers'
+        const banner = type === 'main' ||
+            type === 'offers' ||
+            type === 'homeProducts'
             ? await banner_1.default.findOne({ bannerType: type })
             : new banner_1.default({
                 name,
@@ -82,6 +84,7 @@ exports.getBanner = getBanner;
 const getBannerByType = async (req, res, next) => {
     try {
         const { type } = req.body;
+        console.log(type);
         const banner = await banner_1.default.findOne({
             bannerType: type,
         }).populate('bannerImages');
