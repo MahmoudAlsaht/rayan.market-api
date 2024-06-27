@@ -84,7 +84,6 @@ exports.getBanner = getBanner;
 const getBannerByType = async (req, res, next) => {
     try {
         const { type } = req.body;
-        console.log(type);
         const banner = await banner_1.default.findOne({
             bannerType: type,
         }).populate('bannerImages');

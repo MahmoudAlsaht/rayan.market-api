@@ -23,10 +23,10 @@ const label_1 = __importDefault(require("./router/label"));
 const promoCode_1 = __importDefault(require("./router/promoCode"));
 const district_1 = __importDefault(require("./router/district"));
 const productOption_1 = __importDefault(require("./router/productOption"));
-const application = () => {
+const application = async () => {
     const app = (0, express_1.default)();
     const port = process.env.PORT || 5000;
-    (0, db_1.connectDB)();
+    await (0, db_1.connectDB)();
     app.use(express_1.default.json());
     app.use(express_1.default.urlencoded({ extended: false }));
     app.use((0, cors_1.default)({ origin: '*' }));
@@ -57,6 +57,7 @@ const application = () => {
     app.listen(port, () => {
         return console.log(`http://localhost:${port}`);
     });
+    // await seed();
 };
 application();
 //# sourceMappingURL=index.js.map

@@ -107,6 +107,18 @@ const createProduct = async (req, res, next) => {
                 ? description
                 : null,
         });
+        if (productType === 'options') {
+            const productOption = new productOption_1.default({
+                type: parseFloat(price) === 0
+                    ? 'weight'
+                    : 'flavor',
+                quantity: parseFloat(price) === 0 ? quantity : 0,
+                product,
+            });
+            product.productOptions.push(productOption);
+            await product.save();
+            await productOption.save();
+        }
         if (label || labels)
             if (labels)
                 for (const selectedLabel of labels) {
@@ -246,12 +258,16 @@ const updateProduct = async (req, res, next) => {
             }
         if (req.file) {
             const { filename, path } = req.file;
-            const image = await image_1.default.findById(product?.productImage?._id);
-            await (0, utils_1.deleteImage)(image?.filename);
-            if (filename)
-                image.filename = filename;
-            if (path)
-                image.path = path;
+            const image = (await image_1.default.findById(product?.productImage?._id)) ||
+                new image_1.default({
+                    imageType: 'productImage',
+                    doc: product,
+                });
+            if (image?.filename) {
+                await (0, utils_1.deleteImage)(image?.filename);
+            }
+            image.filename = filename;
+            image.path = path;
             await image.save();
             product.productImage = image;
         }

@@ -98,7 +98,6 @@ const updateCategory = async (req, res, next) => {
         const { name } = req.body;
         const { category_id } = req.params;
         const category = await category_1.default.findById(category_id).populate('image');
-        console.log(req.body.name);
         if (name !== 'undefined' && name?.length > 0)
             category.name = name;
         if (req.file) {
@@ -107,7 +106,11 @@ const updateCategory = async (req, res, next) => {
                 await (0, utils_1.deleteImage)(category?.image?.filename);
             }
             const image = (await image_1.default.findById(category?.image?._id)) ||
-                new image_1.default({ category });
+                new image_1.default({
+                    category,
+                    imageType: 'CategoryImage',
+                    doc: category,
+                });
             image.filename = filename;
             image.path = path;
             await image.save();

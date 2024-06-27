@@ -91,7 +91,11 @@ const updateBrand = async (req, res, next) => {
                 await (0, utils_1.deleteImage)(brand?.image?.filename);
             }
             const image = (await image_1.default.findById(brand?.image?._id)) ||
-                new image_1.default({ brand });
+                new image_1.default({
+                    brand,
+                    imageType: 'BrandImage',
+                    doc: brand,
+                });
             image.filename = filename;
             image.path = path;
             await image.save();
