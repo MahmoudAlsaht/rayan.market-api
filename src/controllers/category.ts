@@ -117,7 +117,6 @@ export const updateCategory = async (
 			category_id,
 		).populate('image');
 
-		console.log(req.body.name);
 		if (name !== 'undefined' && name?.length > 0)
 			category.name = name;
 
@@ -128,7 +127,11 @@ export const updateCategory = async (
 			}
 			const image =
 				(await Image.findById(category?.image?._id)) ||
-				new Image({ category });
+				new Image({
+					category,
+					imageType: 'CategoryImage',
+					doc: category,
+				});
 			image.filename = filename;
 			image.path = path;
 			await image.save();

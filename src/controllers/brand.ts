@@ -110,7 +110,11 @@ export const updateBrand = async (
 			}
 			const image =
 				(await Image.findById(brand?.image?._id)) ||
-				new Image({ brand });
+				new Image({
+					brand,
+					imageType: 'BrandImage',
+					doc: brand,
+				});
 			image.filename = filename;
 			image.path = path;
 			await image.save();

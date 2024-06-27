@@ -23,13 +23,14 @@ import labelRouter from './router/label';
 import promoRouter from './router/promoCode';
 import districtRouter from './router/district';
 import productOptionRouter from './router/productOption';
+import seed from './seed/seed';
 
-const application = () => {
+const application = async () => {
 	const app = express();
 
 	const port = process.env.PORT || 5000;
 
-	connectDB();
+	await connectDB();
 
 	app.use(express.json());
 	app.use(express.urlencoded({ extended: false }));
@@ -76,6 +77,8 @@ const application = () => {
 	app.listen(port, () => {
 		return console.log(`http://localhost:${port}`);
 	});
+
+	// await seed();
 };
 
 application();
