@@ -31,15 +31,14 @@ const createBanner = async (req, res, next) => {
             : type === 'category'
                 ? await category_1.default.findById(category)
                 : null;
-        const banner = type === 'main' ||
-            type === 'offers' ||
-            type === 'homeProducts'
-            ? await banner_1.default.findOne({ bannerType: type })
-            : new banner_1.default({
+        const banner = (await banner_1.default.findOne({ name })) ||
+            new banner_1.default({
                 name,
                 bannerType: type,
-                doc,
                 createdAt: new Date(),
+                doc: type === 'brand' || type === 'category'
+                    ? doc
+                    : null,
             });
         if (doc) {
             doc.banner = banner;
@@ -65,7 +64,6 @@ const createBanner = async (req, res, next) => {
         for (const file of req.files) {
             await (0, utils_1.deleteImage)(req.file?.filename);
         }
-        console.log(e);
         next(new expressError_1.default(e.message, 404));
     }
 };
@@ -121,6 +119,7 @@ const updateBanner = async (req, res, next) => {
         res.status(200).send(banner);
     }
     catch (e) {
+        console.error(e);
         for (const file of req.files) {
             await (0, utils_1.deleteImage)(req.file?.filename);
         }

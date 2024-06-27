@@ -47,16 +47,16 @@ export const createBanner = async (
 				: null;
 
 		const banner =
-			type === 'main' ||
-			type === 'offers' ||
-			type === 'homeProducts'
-				? await Banner.findOne({ bannerType: type })
-				: new Banner({
-						name,
-						bannerType: type,
-						doc,
-						createdAt: new Date(),
-				  });
+			(await Banner.findOne({ name })) ||
+			new Banner({
+				name,
+				bannerType: type,
+				createdAt: new Date(),
+				doc:
+					type === 'brand' || type === 'category'
+						? doc
+						: null,
+			});
 
 		if (doc) {
 			doc.banner = banner;
@@ -82,7 +82,6 @@ export const createBanner = async (
 		for (const file of req.files as TFile[]) {
 			await deleteImage(req.file?.filename);
 		}
-		console.log(e);
 		next(new ExpressError(e.message, 404));
 	}
 };
@@ -156,6 +155,7 @@ export const updateBanner = async (
 
 		res.status(200).send(banner);
 	} catch (e: any) {
+		console.error(e);
 		for (const file of req.files as TFile[]) {
 			await deleteImage(req.file?.filename);
 		}
